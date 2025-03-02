@@ -5,7 +5,7 @@ import { useAuthStore } from "../stores/authStore";
 import { ENV_CONFIG } from "../env.config";
 
 
-const API_BASE_URL = process.env.NODE_ENV === 'development' ? ENV_CONFIG.dev.BASE_API_URL : process.env.NODE_ENV === 'production' ? ENV_CONFIG.prod.BASE_API_URL : undefined;
+const API_BASE_URL = process.env.NODE_ENV === 'development' || 'preview' ? ENV_CONFIG.dev.BASE_API_URL : process.env.NODE_ENV === 'production' ? ENV_CONFIG.prod.BASE_API_URL : undefined;
 
 
 // for NON AUTH USER
