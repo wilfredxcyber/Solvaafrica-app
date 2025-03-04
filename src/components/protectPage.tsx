@@ -1,27 +1,11 @@
-import { PropsWithChildren, useEffect, useState } from "react";
-import { useNavigation } from "@react-navigation/native";
-import { View } from "react-native";
+import { PropsWithChildren } from "react";
 
 import { useUserSubscriptionStore } from "../stores/subscriptionStore";
-import { useAuthStore } from "../stores/authStore";
 import SubscribeView from "./subscribeView";
 
 
 export default function ProtectPage({ children }: PropsWithChildren) {
-
-    const { user } = useAuthStore();
-    const [userIsSubscribed, setUserIsSubscribed] = useState<boolean>(false)
-
-    useEffect(() => {
-        const checkUserSubscription = () => {
-            const { lastSubscriptionPlan, lastSubscriptionExpiresAt } = user.data;
-            if (!lastSubscriptionPlan) return;
-
-        }
-
-
-        checkUserSubscription()
-    }, [])
+    const userIsSubscribed = useUserSubscriptionStore(state => state.isSubscribed)
 
     if (!userIsSubscribed) return <SubscribeView />
 

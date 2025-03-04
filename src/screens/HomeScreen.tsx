@@ -3,8 +3,10 @@ import Icon from '@expo/vector-icons/MaterialCommunityIcons';
 import { useNavigation } from "@react-navigation/native";
 import MenuIcon from '@expo/vector-icons/Ionicons';
 import { useEffect, useState } from "react";
+import { AxiosError } from "axios";
 import Carousel from 'pinar';
 
+import { useUserSubscriptionStore } from "../stores/subscriptionStore";
 import { colors, screenHorizontalPadding } from "../constants/theme";
 import { AUTH_API_CLIENT, PUB_API_CLIENT } from "../api/apiClient";
 import { hscale, mscale, wscale } from "../helpers/metric";
@@ -98,18 +100,18 @@ export default function HomeScreen() {
     }
 
     useEffect(() => {
-
         const getUserSubscriptionStatus = async () => {
             try {
                 const response = await AUTH_API_CLIENT.get('/sub/status');
-                console.log(response.data)
                 if (response.status === 200) {
                     const isSubscribed = response.data.isSubscribed;
-                    console.log({ isSubscribed })
+                    useUserSubscriptionStore.setState({ isSubscribed })
                 }
-            } catch (error) {
-                console.log(error)
-                return false
+            } catch (error: any) {
+                if (!error.response) {
+                    Alert.alert('Error', 'Kindly check your internet connection')
+                }
+                console.log('Error fetching user subscription status', error)
             }
         }
 
