@@ -6,10 +6,10 @@ import { useEffect, useState } from "react";
 import Carousel from 'pinar';
 
 import { colors, screenHorizontalPadding } from "../constants/theme";
+import { AUTH_API_CLIENT, PUB_API_CLIENT } from "../api/apiClient";
 import { hscale, mscale, wscale } from "../helpers/metric";
 import { useAuthStore } from "../stores/authStore";
 import AvatarView from "../components/avatarView";
-import { PUB_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 
 
@@ -99,6 +99,20 @@ export default function HomeScreen() {
 
     useEffect(() => {
 
+        const getUserSubscriptionStatus = async () => {
+            try {
+                const response = await AUTH_API_CLIENT.get('/sub/status');
+                console.log(response.data)
+                if (response.status === 200) {
+                    const isSubscribed = response.data.isSubscribed;
+                    console.log({ isSubscribed })
+                }
+            } catch (error) {
+                console.log(error)
+                return false
+            }
+        }
+
         const getSlidesImages = async () => {
             try {
                 const res = await PUB_API_CLIENT.get('/slider')
@@ -112,6 +126,7 @@ export default function HomeScreen() {
                 console.log('Error getting slides images', error)
             }
         }
+        getUserSubscriptionStatus();
         getSlidesImages();
     }, [])
 
