@@ -1,8 +1,9 @@
 import { StaticScreenProps, useNavigation } from "@react-navigation/native";
-import { View, Text, Image, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import DownloadIcon from '@expo/vector-icons/Feather';
 import { FlashList } from "@shopify/flash-list";
 import { useEffect, useState } from "react";
+import { Image } from 'expo-image';
 
 import { hscale, mscale, wscale } from "../helpers/metric";
 import { getImageSource } from "../helpers/getImageSource";
@@ -92,7 +93,12 @@ const CoursesListItem = ({ courseTitle, courseCode, university, previewUrl, cour
             onPress={handleCourseListItemPressed}
             style={{ flexDirection: 'row', paddingVertical: hscale(12), backgroundColor: colors.greyView, paddingHorizontal: wscale(12), borderRadius: mscale(12), marginBottom: hscale(20) }}>
             {/* left icon */}
-            <Image source={getImageSource(previewUrl)} style={styles.coursesListImage} resizeMode='cover' />
+            <Image
+                source={getImageSource(previewUrl)}
+                style={styles.coursesListImage}
+                contentFit='cover'
+                transition={1000}
+            />
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, marginLeft: wscale(8), alignItems: 'center' }}>
                 <View>
