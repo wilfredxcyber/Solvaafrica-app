@@ -107,6 +107,8 @@ export default function HomeScreen() {
           const userCurrentSubStatus = response.data.isSubscribed;
           if (!userCurrentSubStatus) {
             setIsSubscribed(false);
+          } else {
+            setIsSubscribed(true);
           }
         }
       } catch (error: any) {
