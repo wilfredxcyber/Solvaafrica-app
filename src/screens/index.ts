@@ -1,3 +1,4 @@
+import DownloadCourseMaterial from "./downloadCourseMaterial";
 import CreateAccountScreen from "./createAccountScreen";
 import TermsAndConditions from "./termsAndConditons";
 import UploadFilesScreen from "./uploadFileScreen";
@@ -18,25 +19,25 @@ import Profile from "./Drawer/Profile";
 import HomeScreen from "./HomeScreen";
 import AskScreen from "./askScreen";
 
-
 export {
-    HomeScreen,
-    OnboardScreen,
-    CreateAccountScreen,
-    LoginScreen,
-    TermsAndConditions,
-    DownloadScreen,
-    FilterScreen,
-    SettingsScreen,
-    ServicesScreen,
-    EarningScreen,
-    PremiumScreen,
-    AskScreen,
-    CoursesScreen,
-    CoursesList,
-    ProjectsScreen,
-    UploadFilesScreen,
-    CourseMaterials,
-    Profile,
-    Complaints,
-}
+  HomeScreen,
+  OnboardScreen,
+  CreateAccountScreen,
+  LoginScreen,
+  TermsAndConditions,
+  DownloadScreen,
+  FilterScreen,
+  SettingsScreen,
+  ServicesScreen,
+  EarningScreen,
+  PremiumScreen,
+  AskScreen,
+  CoursesScreen,
+  CoursesList,
+  ProjectsScreen,
+  UploadFilesScreen,
+  CourseMaterials,
+  Profile,
+  Complaints,
+  DownloadCourseMaterial,
+};
