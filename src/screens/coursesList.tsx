@@ -13,7 +13,6 @@ import { AUTH_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 
-
 interface ISearchListParams {
   university: string;
   faculty: string;
@@ -66,7 +65,7 @@ export default function CoursesList({ route }: ScreenProps) {
                 courseTitle={item.question.title}
                 courseCode={item.question.courseCode}
                 university={item.question.university}
-                previewUrl={item.document[0].url}
+                previewUrl={item.document[0]?.url}
                 courseId={item.question.id}
               />
             </View>
