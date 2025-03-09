@@ -46,7 +46,7 @@ export default function CourseMaterials({ route }: ScreenProps) {
         <FlatList
           data={courses}
           renderItem={({ item }) => (
-            <CourseItemView url={item.url} key={item.id} title={headerTitle} />
+            <CourseItemView url={item.url} key={item.id} title={headerTitle} fileName={item.name} />
           )}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
@@ -59,12 +59,20 @@ export default function CourseMaterials({ route }: ScreenProps) {
   );
 }
 
-const CourseItemView = ({ url, title }: { url: string; title: string }) => {
+const CourseItemView = ({
+  url,
+  title,
+  fileName,
+}: {
+  url: string;
+  title: string;
+  fileName: string;
+}) => {
   const navigation = useNavigation();
   const handleImagePress = () => {
     navigation.navigate("App", {
       screen: "CourseDownloadMaterial",
-      params: { url, screenTitle: title },
+      params: { url, screenTitle: title, originalFileName: fileName },
     });
   };
   return (
