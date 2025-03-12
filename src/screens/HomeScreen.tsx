@@ -3,7 +3,6 @@ import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import MenuIcon from "@expo/vector-icons/Ionicons";
 import { useEffect, useState } from "react";
-import { AxiosError } from "axios";
 import Carousel from "pinar";
 
 import { useUserSubscriptionStore } from "../stores/subscriptionStore";
@@ -33,7 +32,7 @@ interface IMenuItems {
 export default function HomeScreen() {
   const user = useAuthStore((state) => state.user);
   const navigation = useNavigation();
-  const { data: userData } = user;
+  const userProfile = user.profile;
   const { width } = Dimensions.get("window");
   const slidesPlaceholder = require("../../assets/images/placeholder.png");
 
@@ -149,7 +148,9 @@ export default function HomeScreen() {
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <AvatarView />
           <View style={{ marginLeft: 8 }}>
-            <Text style={styles.greetUserText}>Hello, {userData.fullName.split(" ")[0]}</Text>
+            <Text style={styles.greetUserText}>
+              Hello, {userProfile.fullName.trim().split(" ")[0]}
+            </Text>
             <Text style={[globalStyles.bodyText, { fontSize: mscale(14) }]}>
               Here's what is happening today.
             </Text>

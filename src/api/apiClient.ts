@@ -34,8 +34,8 @@ AUTH_API_CLIENT.interceptors.request.use(
 
       if (!serializedUser) throw new Error("User not found");
       const user = JSON.parse(serializedUser);
-      const { accessToken } = user.tokens;
 
+      const { accessToken } = user.tokens;
       if (accessToken) {
         request.headers["Authorization"] = `Bearer ${accessToken}`;
       }
