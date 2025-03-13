@@ -3,12 +3,10 @@ import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import MenuIcon from "@expo/vector-icons/Ionicons";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Carousel from "pinar";
 
-import { useUserSubscriptionStore } from "../stores/subscriptionStore";
 import { colors, screenHorizontalPadding } from "../constants/theme";
-import { AUTH_API_CLIENT, PUB_API_CLIENT } from "../api/apiClient";
 import { hscale, mscale, wscale } from "../helpers/metric";
 import { useAuthStore } from "../stores/authStore";
 import AvatarView from "../components/avatarView";
@@ -97,12 +95,10 @@ export default function HomeScreen() {
     return;
   };
 
-  const { data, isError, isLoading } = useQuery({
+  const { data } = useQuery({
     queryKey: ["homeScreenSliders"],
     queryFn: getSliderImages,
   });
-
-  console.log("Query data", data);
 
   return (
     <View style={globalStyles.screen}>
