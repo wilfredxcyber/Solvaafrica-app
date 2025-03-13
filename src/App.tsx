@@ -1,20 +1,31 @@
-import * as SplashScreen from 'expo-splash-screen';
-import { useKeepAwake } from 'expo-keep-awake';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useReactQueryDevTools } from "@dev-plugins/react-query";
+import NetInfo from "@react-native-community/netinfo";
+import { onlineManager } from "@tanstack/react-query";
+import * as SplashScreen from "expo-splash-screen";
+import { useKeepAwake } from "expo-keep-awake";
 import { useEffect } from "react";
 
 import { RootStackNavigation } from "./navigations/RootStackNavigation";
 import { bootstrapApp } from "./helpers/bootstrapApp";
 import { useAuthStore } from "./stores/authStore";
 
-
 SplashScreen.setOptions({
   duration: 1000,
-  fade: true
-})
-
+  fade: true,
+});
 
 export default function App() {
-  const isLoading = useAuthStore(state => state.isLoading);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const queryClient = new QueryClient();
+  useReactQueryDevTools(queryClient);
+
+  onlineManager.setEventListener((setOnline) => {
+    return NetInfo.addEventListener((state) => {
+      setOnline(!!state.isConnected);
+    });
+  });
+
   useKeepAwake();
   useEffect(() => {
     // bootstrap app
@@ -22,10 +33,13 @@ export default function App() {
       await bootstrapApp();
 
       if (!isLoading) {
-        SplashScreen.hide()
+        SplashScreen.hide();
       }
-    })()
-
-  }, [isLoading])
-  return <RootStackNavigation />
+    })();
+  }, [isLoading]);
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RootStackNavigation />
+    </QueryClientProvider>
+  );
 }

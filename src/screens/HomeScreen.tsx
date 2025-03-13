@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Image, Dimensions, Pressable, Linking, Alert } 
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import MenuIcon from "@expo/vector-icons/Ionicons";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import Carousel from "pinar";
 
@@ -11,6 +12,7 @@ import { AUTH_API_CLIENT, PUB_API_CLIENT } from "../api/apiClient";
 import { hscale, mscale, wscale } from "../helpers/metric";
 import { useAuthStore } from "../stores/authStore";
 import AvatarView from "../components/avatarView";
+import { getSliderImages } from "../api/queries";
 import { globalStyles } from "../styles/global";
 
 enum MenuItemScreensRoutes {
@@ -35,8 +37,6 @@ export default function HomeScreen() {
   const userProfile = user.profile;
   const { width } = Dimensions.get("window");
   const slidesPlaceholder = require("../../assets/images/placeholder.png");
-
-  const [slidesImages, setSlidesImages] = useState<any[] | []>([]);
   const [isSubscribed, setIsSubscribed] = useState(true);
 
   const MENU_ITEMS: IMenuItems[] = [
@@ -97,6 +97,13 @@ export default function HomeScreen() {
     return;
   };
 
+  const { data, isError, isLoading } = useQuery({
+    queryKey: ["homeScreenSliders"],
+    queryFn: getSliderImages,
+  });
+
+  console.log("Query data", data);
+
   useEffect(() => {
     useUserSubscriptionStore.setState({ isSubscribed });
     const getUserSubscriptionStatus = async () => {
@@ -117,22 +124,7 @@ export default function HomeScreen() {
         console.log("Error fetching user subscription status", error);
       }
     };
-
-    const getSlidesImages = async () => {
-      try {
-        const res = await PUB_API_CLIENT.get("/slider");
-        const { data: slidesImages } = res.data;
-
-        if (slidesImages.length) {
-          setSlidesImages(slidesImages);
-          return;
-        }
-      } catch (error) {
-        console.log("Error getting slides images", error);
-      }
-    };
     getUserSubscriptionStatus();
-    getSlidesImages();
   }, []);
 
   return (
@@ -173,14 +165,14 @@ export default function HomeScreen() {
         dotsContainerStyle={{ bottom: hscale(-20) }}
         mergeStyles={true}
       >
-        {slidesImages.length
-          ? slidesImages.map((currentSlideImage, index) => (
+        {data
+          ? data.map((currentSlideImage, index) => (
               <View
                 style={{ width: width - screenHorizontalPadding * 2, height: "100%" }}
                 key={index + currentSlideImage}
               >
                 <Image
-                  source={{ uri: currentSlideImage.url }}
+                  source={{ uri: currentSlideImage }}
                   style={{ width: "100%", height: "100%" }}
                 />
               </View>
