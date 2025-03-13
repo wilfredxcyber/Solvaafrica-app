@@ -1,5 +1,5 @@
 // get slider images
-import { PUB_API_CLIENT } from "./apiClient";
+import { AUTH_API_CLIENT, PUB_API_CLIENT } from "./apiClient";
 
 export const getSliderImages = async () => {
   try {
@@ -13,6 +13,17 @@ export const getSliderImages = async () => {
       });
 
       return slidesImages;
+    }
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
+
+export const getUserSubscriptionStatus = async () => {
+  try {
+    const response = await AUTH_API_CLIENT.get("/sub/status");
+    if (response.status === 200) {
+      return response.data.isSubscribed;
     }
   } catch (error) {
     return Promise.reject(error);
