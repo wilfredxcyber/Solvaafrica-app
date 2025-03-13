@@ -111,6 +111,7 @@ export default function Profile() {
           style={styles.inputFieldView}
           placeholder="Full name"
           placeholderTextColor={colors.placeholderInput}
+          autoCapitalize="words"
           onChangeText={(text) =>
             setUserProfile((prev) => ({ ...prev, fullName: handleTextInputChange(text) }))
           }
