@@ -1,17 +1,19 @@
+import { useQuery } from "@tanstack/react-query";
 import { PropsWithChildren } from "react";
 
-import { useUserSubscriptionStore } from "../stores/subscriptionStore";
+import useRefreshOnFocus from "../hooks/useRefetchOnScreenFocus";
+import { getUserSubscriptionStatus } from "../api/queries";
 import SubscribeView from "./subscribeView";
 
-
 export default function ProtectPage({ children }: PropsWithChildren) {
-    const userIsSubscribed = useUserSubscriptionStore(state => state.isSubscribed)
+  const { data: isSubscribedUser, refetch } = useQuery({
+    queryKey: ["userSubscriptionStatus"],
+    queryFn: getUserSubscriptionStatus,
+  });
 
-    if (!userIsSubscribed) return <SubscribeView />
+  useRefreshOnFocus(refetch);
 
-    return (
-        <>
-            {children}
-        </>
-    )
+  if (isSubscribedUser === false) return <SubscribeView />;
+
+  return children;
 }
