@@ -23,6 +23,7 @@ export default function Profile() {
   });
 
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -41,47 +42,60 @@ export default function Profile() {
     setShowDropdown(false);
   };
 
+  const handleTextInputChange = (text: string) => {
+    // no symbols, special characters or numbers allowed
+    const filterdText = text.replace(/[^a-zA-Z ]/g, "");
+    return filterdText;
+  };
+
   const handleUpdateUserProfile = async () => {
-    // user must provide full name in first, last name format
-    // user email must be valid
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const fieldsPass = () => {
-      if (userProfile.fullName && userProfile.fullName.trim().split(" ").length < 2) {
-        Alert.alert("Invalid user name", "Kindly provide your first and last name, e.g John Doe");
-        return false;
-      }
-      if (userProfile.email && !emailRegex.test(userProfile.email.trim())) {
-        Alert.alert("Invalid email address", "Kindly provide a valid email address");
-        return false;
-      }
+    try {
+      setIsLoading(true);
+      // user must provide full name in first, last name format
+      // user email must be valid
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      const fieldsPass = () => {
+        if (userProfile.fullName && userProfile.fullName.trim().split(" ").length < 2) {
+          Alert.alert("Invalid user name", "Kindly provide your first and last name, e.g John Doe");
+          return false;
+        }
+        if (userProfile.email && !emailRegex.test(userProfile.email.trim())) {
+          Alert.alert("Invalid email address", "Kindly provide a valid email address");
+          return false;
+        }
 
-      return true;
-    };
+        return true;
+      };
 
-    if (fieldsPass()) {
-      // get current user profile
-      const user = await AsyncStorage.getItem("User");
-      const currentUserProfile = user && JSON.parse(user).profile;
-      // basic sanitization
-      userProfile.fullName = userProfile.fullName && userProfile.fullName?.trim();
-      userProfile.address = userProfile.address && userProfile.address?.trim();
-      if (
-        JSON.stringify(currentUserProfile).toLowerCase() ===
-        JSON.stringify(userProfile).toLowerCase()
-      )
-        return;
+      if (fieldsPass()) {
+        // get current user profile
+        const user = await AsyncStorage.getItem("User");
+        const currentUserProfile = user && JSON.parse(user).profile;
+        // basic sanitization
+        userProfile.fullName = userProfile.fullName && userProfile.fullName.trim();
+        userProfile.address = userProfile.address && userProfile.address.trim();
+        if (
+          JSON.stringify(currentUserProfile).toLowerCase() ===
+          JSON.stringify(userProfile).toLowerCase()
+        )
+          return;
 
-      console.log("Proceeding to update user");
-      const profileUpdateRes = await AUTH_API_CLIENT.patch("/users", userProfile);
-      if (profileUpdateRes.status === 200) {
-        const cachedUser = await AsyncStorage.getItem("User");
-        const user = cachedUser && JSON.parse(cachedUser);
-        user.profile = userProfile;
-        // save to storage
-        useAuthStore.setState((state) => ({ ...state, user: { profile: userProfile } }));
-        await AsyncStorage.setItem("User", JSON.stringify(user));
-        console.log("user updated", user);
+        console.log("Proceeding to update user");
+        const profileUpdateRes = await AUTH_API_CLIENT.patch("/users", userProfile);
+        if (profileUpdateRes.status === 200) {
+          const cachedUser = await AsyncStorage.getItem("User");
+          const user = cachedUser && JSON.parse(cachedUser);
+          user.profile = userProfile;
+          // save to storage
+          useAuthStore.setState((state) => ({ ...state, user: { profile: userProfile } }));
+          await AsyncStorage.setItem("User", JSON.stringify(user));
+          console.log("user updated", user);
+        }
       }
+    } catch (error) {
+      Alert.alert("Update failed", "Could not update your profile, something went wrong.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -97,7 +111,9 @@ export default function Profile() {
           style={styles.inputFieldView}
           placeholder="Full name"
           placeholderTextColor={colors.placeholderInput}
-          onChangeText={(text) => setUserProfile((prev) => ({ ...prev, fullName: text }))}
+          onChangeText={(text) =>
+            setUserProfile((prev) => ({ ...prev, fullName: handleTextInputChange(text) }))
+          }
         />
         <TextInput
           value={userProfile.email ?? undefined}
@@ -119,7 +135,9 @@ export default function Profile() {
           style={styles.inputFieldView}
           placeholder="Residential address"
           placeholderTextColor={colors.placeholderInput}
-          onChangeText={(text) => setUserProfile((prev) => ({ ...prev, address: text }))}
+          onChangeText={(text) =>
+            setUserProfile((prev) => ({ ...prev, address: handleTextInputChange(text) }))
+          }
         />
 
         {/* sex input */}
@@ -158,7 +176,11 @@ export default function Profile() {
           ) : null}
         </View>
       </View>
-      <PrimaryButton text="Update profile" onPress={handleUpdateUserProfile} />
+      <PrimaryButton
+        text="Update profile"
+        onPress={handleUpdateUserProfile}
+        isLoading={isLoading}
+      />
     </View>
   );
 }
