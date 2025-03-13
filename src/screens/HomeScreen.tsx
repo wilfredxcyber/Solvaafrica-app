@@ -104,29 +104,6 @@ export default function HomeScreen() {
 
   console.log("Query data", data);
 
-  useEffect(() => {
-    useUserSubscriptionStore.setState({ isSubscribed });
-    const getUserSubscriptionStatus = async () => {
-      try {
-        const response = await AUTH_API_CLIENT.get("/sub/status");
-        if (response.status === 200) {
-          const userCurrentSubStatus = response.data.isSubscribed;
-          if (!userCurrentSubStatus) {
-            setIsSubscribed(false);
-          } else {
-            setIsSubscribed(true);
-          }
-        }
-      } catch (error: any) {
-        if (!error.response) {
-          Alert.alert("Error", "Kindly check your internet connection");
-        }
-        console.log("Error fetching user subscription status", error);
-      }
-    };
-    getUserSubscriptionStatus();
-  }, []);
-
   return (
     <View style={globalStyles.screen}>
       <View
