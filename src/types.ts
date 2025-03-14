@@ -18,3 +18,12 @@ export interface SavedFile {
   path: string;
   album: string;
 }
+
+export type FileDirectory = "Courses" | "Projects";
+
+export interface DownloadedFileRef {
+  fileCode?: string;
+  fileName: string;
+  filePath: string;
+  parentDirectory: string;
+}

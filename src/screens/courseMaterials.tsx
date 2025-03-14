@@ -80,8 +80,7 @@ const CourseItemView = ({
   const handleImagePress = () => {
     navigation.navigate("App", {
       screen: "CourseDownloadMaterial",
-      // add file album name to params
-      params: { url, screenTitle: title, originalFileName: fileName, fileAlbum: courseCode },
+      params: { url, screenTitle: title, originalFileName: fileName, fileCode: courseCode },
     });
   };
   return (

@@ -15,13 +15,13 @@ export default function DownloadCourseMaterial({
   url: string;
   originalFileName: string;
   screenTitle: string;
-  fileAlbum: string;
+  fileCode: string;
 }>) {
   const params = route.params;
   const navigation = useNavigation();
   const [startDownload, setStartDownload] = useState(false);
   const [fileExist, setFileExist] = useState(false);
-  const downloadFile = useDownloadFile(startDownload, params.fileAlbum);
+  const downloadFile = useDownloadFile(startDownload, params.fileCode);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {

@@ -2,11 +2,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system";
 import { Alert } from "react-native";
 
-import { SavedFile } from "../types";
+import { DownloadedFileRef, FileDirectory } from "../types";
 
-type FileDirectory = "Courses" | "Projects";
-
-export const useDownloadFile = (initiateDownload: boolean = false, fileAlbum: string) => {
+export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: string) => {
   const downloadFile = async (
     fileDirectory: FileDirectory,
     downloadFileUri: string,
@@ -37,22 +35,23 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileAlbum: st
           downloadFileUri,
           `${filesDownloadsDirectoryPath}/${originalFileName}`
         );
-        console.log(downloadedFile.uri);
-        const saveFile = { path: downloadedFile.uri, album: fileAlbum };
-
-        const storedDownloads = await AsyncStorage.getItem("Downloads");
-
-        if (!storedDownloads) {
-          await AsyncStorage.setItem("Downloads", JSON.stringify([saveFile]));
+        // save download reference
+        const downloadedFileRef: DownloadedFileRef = {
+          fileName: originalFileName,
+          filePath: downloadedFile.uri,
+          parentDirectory: fileDirectory,
+          fileCode,
+        };
+        const downloadRefsInStore = await AsyncStorage.getItem("DownloadRefs");
+        if (downloadRefsInStore) {
+          const downloadRefsList = JSON.parse(downloadRefsInStore);
+          downloadRefsList.push(downloadedFileRef);
+          await AsyncStorage.setItem("DownloadRefs", JSON.stringify(downloadRefsList));
         } else {
-          const parsedDownloads = JSON.parse(storedDownloads);
-          parsedDownloads.push(saveFile);
-          await AsyncStorage.setItem("Downloads", JSON.stringify(parsedDownloads));
+          await AsyncStorage.setItem("DownloadRefs", JSON.stringify([downloadedFileRef]));
         }
-
         return { isExistingFile: true, fileUri: downloadedFile.uri };
       }
-
       return { isExistingFile: null, fileUri: null };
     } catch (error) {
       console.log(error);
@@ -60,6 +59,5 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileAlbum: st
       return { isExistingFile: null, fileUri: null };
     }
   };
-
   return downloadFile;
 };
