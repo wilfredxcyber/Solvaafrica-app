@@ -1,9 +1,12 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system";
 import { Alert } from "react-native";
 
+import { SavedFile } from "../types";
+
 type FileDirectory = "Courses" | "Projects";
 
-export const useDownloadFile = (initiateDownload: boolean = false) => {
+export const useDownloadFile = (initiateDownload: boolean = false, fileAlbum: string) => {
   const downloadFile = async (
     fileDirectory: FileDirectory,
     downloadFileUri: string,
@@ -30,12 +33,24 @@ export const useDownloadFile = (initiateDownload: boolean = false) => {
 
       // proceed to download file
       if (initiateDownload) {
-        const fileDownloadUri = await FileSystem.downloadAsync(
+        const downloadedFile = await FileSystem.downloadAsync(
           downloadFileUri,
           `${filesDownloadsDirectoryPath}/${originalFileName}`
         );
-        console.log(fileDownloadUri.uri);
-        return { isExistingFile: true, fileUri: fileDownloadUri.uri };
+        console.log(downloadedFile.uri);
+        const saveFile = { path: downloadedFile.uri, album: fileAlbum };
+
+        const storedDownloads = await AsyncStorage.getItem("Downloads");
+
+        if (!storedDownloads) {
+          await AsyncStorage.setItem("Downloads", JSON.stringify([saveFile]));
+        } else {
+          const parsedDownloads = JSON.parse(storedDownloads);
+          parsedDownloads.push(saveFile);
+          await AsyncStorage.setItem("Downloads", JSON.stringify(parsedDownloads));
+        }
+
+        return { isExistingFile: true, fileUri: downloadedFile.uri };
       }
 
       return { isExistingFile: null, fileUri: null };

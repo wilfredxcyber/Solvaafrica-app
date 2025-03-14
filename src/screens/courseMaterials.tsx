@@ -10,10 +10,10 @@ import LoadingView from "../components/loadingView";
 import { hscale, mscale } from "../helpers/metric";
 import { AUTH_API_CLIENT } from "../api/apiClient";
 
-type ScreenProps = StaticScreenProps<{ courseId: string; headerTitle: string }>;
+type ScreenProps = StaticScreenProps<{ courseId: string; headerTitle: string; courseCode: string }>;
 
 export default function CourseMaterials({ route }: ScreenProps) {
-  const { courseId, headerTitle } = route.params;
+  const { courseId, headerTitle, courseCode } = route.params;
   const [courses, setCourses] = useState<any[] | []>([]);
   const [fetchingCourseMaterials, setFetchingCourseMaterials] = useState<boolean>(false);
   const navigation = useNavigation();
@@ -46,7 +46,13 @@ export default function CourseMaterials({ route }: ScreenProps) {
         <FlatList
           data={courses}
           renderItem={({ item }) => (
-            <CourseItemView url={item.url} key={item.id} title={headerTitle} fileName={item.name} />
+            <CourseItemView
+              url={item.url}
+              key={item.id}
+              title={headerTitle}
+              fileName={item.name}
+              courseCode={courseCode}
+            />
           )}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
@@ -63,16 +69,19 @@ const CourseItemView = ({
   url,
   title,
   fileName,
+  courseCode,
 }: {
   url: string;
   title: string;
   fileName: string;
+  courseCode: string;
 }) => {
   const navigation = useNavigation();
   const handleImagePress = () => {
     navigation.navigate("App", {
       screen: "CourseDownloadMaterial",
-      params: { url, screenTitle: title, originalFileName: fileName },
+      // add file album name to params
+      params: { url, screenTitle: title, originalFileName: fileName, fileAlbum: courseCode },
     });
   };
   return (

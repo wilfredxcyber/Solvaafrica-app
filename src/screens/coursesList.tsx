@@ -96,7 +96,7 @@ const CoursesListItem = ({
   const handleCourseListItemPressed = () => {
     navigation.navigate("App", {
       screen: "CourseMaterials",
-      params: { courseId, headerTitle: `${courseTitle} Materials` },
+      params: { courseId, headerTitle: `${courseTitle} Materials`, courseCode },
     });
   };
   return (

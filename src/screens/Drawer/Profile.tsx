@@ -13,6 +13,7 @@ import AvatarView from "../../components/avatarView";
 import { globalStyles } from "../../styles/global";
 import { colors } from "../../constants/theme";
 
+
 export default function Profile() {
   const [userProfile, setUserProfile] = useState<UserProfile>({
     fullName: null,
@@ -93,7 +94,7 @@ export default function Profile() {
         }
       }
     } catch (error) {
-      Alert.alert("Update failed", "Could not update your profile, something went wrong.");
+      Alert.alert("Update failed", "Something went wrong, kindly check your network");
     } finally {
       setIsLoading(false);
     }

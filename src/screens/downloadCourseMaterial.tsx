@@ -1,5 +1,5 @@
 import { StaticScreenProps, useNavigation, StackActions } from "@react-navigation/native";
-import { Dimensions, View } from "react-native";
+import { Alert, Dimensions, View } from "react-native";
 import { useEffect, useState } from "react";
 import { Image } from "expo-image";
 
@@ -11,12 +11,18 @@ import { hscale } from "../helpers/metric";
 
 export default function DownloadCourseMaterial({
   route,
-}: StaticScreenProps<{ url: string; originalFileName: string; screenTitle: string }>) {
+}: StaticScreenProps<{
+  url: string;
+  originalFileName: string;
+  screenTitle: string;
+  fileAlbum: string;
+}>) {
   const params = route.params;
   const navigation = useNavigation();
   const [startDownload, setStartDownload] = useState(false);
   const [fileExist, setFileExist] = useState(false);
-  const downloadFile = useDownloadFile(startDownload);
+  const downloadFile = useDownloadFile(startDownload, params.fileAlbum);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     navigation.setOptions({ title: params.screenTitle });
@@ -25,10 +31,21 @@ export default function DownloadCourseMaterial({
   // download file
   useEffect(() => {
     const initiateDownload = async () => {
-      const { isExistingFile } = await downloadFile("Courses", params.url, params.originalFileName);
-      if (isExistingFile) {
-        setFileExist(true);
-        return;
+      try {
+        setIsLoading(true);
+        const { isExistingFile } = await downloadFile(
+          "Courses",
+          params.url,
+          params.originalFileName
+        );
+        if (isExistingFile) {
+          setFileExist(true);
+          return;
+        }
+      } catch (error) {
+        Alert.alert("Download Failed.", "Please try again later or contact support");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -60,9 +77,13 @@ export default function DownloadCourseMaterial({
       />
 
       {fileExist ? (
-        <PrimaryButton text="Open downloads" onPress={handleOpenDownloads} />
+        <PrimaryButton text="Open File" onPress={handleOpenDownloads} />
       ) : (
-        <PrimaryButton text="Download file" onPress={handleInitiateDownload} />
+        <PrimaryButton
+          text="Download file"
+          onPress={handleInitiateDownload}
+          isLoading={isLoading}
+        />
       )}
     </View>
   );
