@@ -77,7 +77,7 @@ export default function DownloadCourseMaterial({
       />
 
       {fileExist ? (
-        <PrimaryButton text="Open File" onPress={handleOpenDownloads} />
+        <PrimaryButton text="File in downloads" onPress={handleOpenDownloads} />
       ) : (
         <PrimaryButton
           text="Download file"
