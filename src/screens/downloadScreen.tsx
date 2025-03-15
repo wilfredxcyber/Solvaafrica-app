@@ -2,11 +2,11 @@ import { Text, View, RefreshControl, StyleSheet, Pressable, Alert } from "react-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DeleteIcon from "@expo/vector-icons/MaterialIcons";
 import { useFocusEffect } from "@react-navigation/native";
-import { useNavigation } from "@react-navigation/native";
-import { useCallback, useRef, useState } from "react";
+import PDFIcon from "@expo/vector-icons/FontAwesome6";
 import { open } from "react-native-file-viewer-turbo";
 import { FlashList } from "@shopify/flash-list";
 import * as FileSystem from "expo-file-system";
+import { useCallback, useState } from "react";
 import { Image } from "expo-image";
 
 import { DownloadedFileRef, DownloadItemViewProps } from "../types";
@@ -15,11 +15,8 @@ import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 
 export default function DownloadScreen() {
-  const navigation = useNavigation();
   const [downloadsList, setDownloadsList] = useState<DownloadedFileRef[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [showImageViewer, setShowImageViewer] = useState(false);
-  const currentImageRef = useRef<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -79,6 +76,7 @@ export default function DownloadScreen() {
               fileCode={item.fileCode + "(" + (index + 1) + ")"}
               source={item.filePath}
               fileName={item.fileName}
+              parentDirectory={item.parentDirectory}
               onDeletePress={() => handleDeleteItem(item)}
               onItemPress={() => handleOpenItem(item)}
             />
@@ -97,6 +95,7 @@ const DownloadItemView = ({
   source,
   fileCode,
   fileName,
+  parentDirectory,
   onItemPress,
   onDeletePress,
 }: DownloadItemViewProps) => {
@@ -104,7 +103,12 @@ const DownloadItemView = ({
     <Pressable style={styles.downloadItemView} onPress={onItemPress}>
       {/* left side */}
       <View style={styles.downloadItemViewLeftSide}>
-        <Image source={source} style={{ width: wscale(40), height: hscale(40) }} />
+        {parentDirectory === "Courses" && (
+          <Image source={source} style={{ width: wscale(40), height: hscale(40) }} />
+        )}
+        {parentDirectory === "Projects" && (
+          <PDFIcon name="file-pdf" size={36} color={colors.primary} />
+        )}
         <Text numberOfLines={1} style={styles.text}>
           {fileCode ? fileCode + " " + fileName : fileName}
         </Text>

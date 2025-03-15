@@ -25,7 +25,7 @@ export interface DownloadedFileRef {
   fileCode?: string;
   fileName: string;
   filePath: string;
-  parentDirectory: string;
+  parentDirectory: FileDirectory;
 }
 
 export interface ImageViewerProps {
@@ -38,6 +38,7 @@ export interface DownloadItemViewProps {
   source: string;
   fileCode: string;
   fileName: string;
+  parentDirectory: FileDirectory;
   onDeletePress: (item: string) => void;
   onItemPress: () => void;
 }
