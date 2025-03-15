@@ -22,10 +22,7 @@
               "host": "solvaafrica.vercel.app"
             }
           ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ],
       "adaptiveIcon": {
@@ -59,6 +56,12 @@
             "./assets/fonts/Inter-Medium.otf",
             "./assets/fonts/Inter-Regular.otf"
           ]
+        }
+      ],
+      [
+        "react-native-file-viewer-turbo",
+        {
+          "mimeTypes": ["application/pdf", "image/jpeg", "image/png"]
         }
       ]
     ],
