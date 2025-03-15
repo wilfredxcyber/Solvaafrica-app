@@ -27,3 +27,17 @@ export interface DownloadedFileRef {
   filePath: string;
   parentDirectory: string;
 }
+
+export interface ImageViewerProps {
+  imageViewerVisible: boolean;
+  imageUri: string | null;
+  setImageViewerVisible: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export interface DownloadItemViewProps {
+  source: string;
+  fileCode: string;
+  fileName: string;
+  onDeletePress: (item: string) => void;
+  onItemPress: () => void;
+}

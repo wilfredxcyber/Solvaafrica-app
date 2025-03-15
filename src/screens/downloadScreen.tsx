@@ -1,22 +1,25 @@
-import { Text, View, RefreshControl, StyleSheet } from "react-native";
+import { Text, View, RefreshControl, StyleSheet, Pressable, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DeleteIcon from "@expo/vector-icons/MaterialIcons";
 import { useFocusEffect } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
+import { useCallback, useRef, useState } from "react";
+import { open } from "react-native-file-viewer-turbo";
 import { FlashList } from "@shopify/flash-list";
 import * as FileSystem from "expo-file-system";
-import { useCallback, useState } from "react";
 import { Image } from "expo-image";
 
+import { DownloadedFileRef, DownloadItemViewProps } from "../types";
 import { hscale, mscale, wscale } from "../helpers/metric";
 import { globalStyles } from "../styles/global";
-import { DownloadedFileRef } from "../types";
 import { colors } from "../constants/theme";
 
 export default function DownloadScreen() {
   const navigation = useNavigation();
   const [downloadsList, setDownloadsList] = useState<DownloadedFileRef[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [showImageViewer, setShowImageViewer] = useState(false);
+  const currentImageRef = useRef<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -52,6 +55,15 @@ export default function DownloadScreen() {
     setRefreshing(true);
   };
 
+  const handleOpenItem = async (item: DownloadedFileRef) => {
+    try {
+      await open(item.filePath);
+    } catch (error) {
+      Alert.alert("File error!", "Could not open this file");
+      console.log("Could not open file", error);
+    }
+  };
+
   return (
     <View style={globalStyles.screen}>
       <Text style={{ fontFamily: "Inter-Bold", fontSize: mscale(24), color: colors.black }}>
@@ -68,6 +80,7 @@ export default function DownloadScreen() {
               source={item.filePath}
               fileName={item.fileName}
               onDeletePress={() => handleDeleteItem(item)}
+              onItemPress={() => handleOpenItem(item)}
             />
           );
         }}
@@ -84,15 +97,11 @@ const DownloadItemView = ({
   source,
   fileCode,
   fileName,
+  onItemPress,
   onDeletePress,
-}: {
-  source: string;
-  fileCode: string;
-  fileName: string;
-  onDeletePress: (item: string) => void;
-}) => {
+}: DownloadItemViewProps) => {
   return (
-    <View style={styles.downloadItemView}>
+    <Pressable style={styles.downloadItemView} onPress={onItemPress}>
       {/* left side */}
       <View style={styles.downloadItemViewLeftSide}>
         <Image source={source} style={{ width: wscale(40), height: hscale(40) }} />
@@ -102,7 +111,7 @@ const DownloadItemView = ({
       </View>
       {/* right side */}
       <DeleteIcon name="delete" size={20} color={"red"} onPress={() => onDeletePress(source)} />
-    </View>
+    </Pressable>
   );
 };
 
