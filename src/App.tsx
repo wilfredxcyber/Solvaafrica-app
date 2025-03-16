@@ -1,5 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useReactQueryDevTools } from "@dev-plugins/react-query";
+import RNScreenshotPrevent from "rn-screenshot-prevent";
 import NetInfo from "@react-native-community/netinfo";
 import { onlineManager } from "@tanstack/react-query";
 import * as SplashScreen from "expo-splash-screen";
@@ -20,6 +22,8 @@ export default function App() {
   const queryClient = new QueryClient();
   useReactQueryDevTools(queryClient);
 
+  RNScreenshotPrevent.enabled(true);
+
   onlineManager.setEventListener((setOnline) => {
     return NetInfo.addEventListener((state) => {
       setOnline(!!state.isConnected);
@@ -38,8 +42,10 @@ export default function App() {
     })();
   }, [isLoading]);
   return (
-    <QueryClientProvider client={queryClient}>
-      <RootStackNavigation />
-    </QueryClientProvider>
+    <GestureHandlerRootView>
+      <QueryClientProvider client={queryClient}>
+        <RootStackNavigation />
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }

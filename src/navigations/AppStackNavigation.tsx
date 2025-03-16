@@ -1,4 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { NavigationContainer } from "@react-navigation/native";
 
 import {
   AskScreen,
@@ -8,6 +9,7 @@ import {
   CreateAccountScreen,
   DownloadCourseMaterial,
   EarningScreen,
+  ImageViewerPage,
   LoginScreen,
   OnboardScreen,
   PremiumScreen,
@@ -18,6 +20,7 @@ import {
 } from "../screens";
 import { useUserSignedIn, useUserSignedOut } from "../hooks/userAuth";
 import TabsNavigator from "./BottomTabNavigation";
+import { colors } from "../constants/theme";
 
 const AppStackNavigator = createNativeStackNavigator({
   groups: {
@@ -31,6 +34,14 @@ const AppStackNavigator = createNativeStackNavigator({
           options: { headerTitle: "Courses" },
         },
         CourseMaterials: { screen: CourseMaterials },
+        ImageViewer: {
+          screen: ImageViewerPage,
+          options: {
+            headerShown: false,
+            statusBarStyle: "light",
+            statusBarBackgroundColor: colors.black,
+          },
+        },
         CourseDownloadMaterial: { screen: DownloadCourseMaterial },
         Projects: { screen: ProjectsScreen },
         Premium: { screen: PremiumScreen },
