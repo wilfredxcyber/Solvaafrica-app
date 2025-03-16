@@ -39,6 +39,6 @@ export interface DownloadItemViewProps {
   fileCode: string;
   fileName: string;
   parentDirectory: FileDirectory;
-  onDeletePress: (item: string) => void;
+  onDeletePress?: (item: string) => void;
   onItemPress: () => void;
 }

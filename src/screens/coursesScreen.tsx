@@ -165,6 +165,7 @@ const DropDownPicker = ({ data, setSelectedValue, defaultValue }: DropdownPicker
                 renderItem={renderItemCallback}
                 keyExtractor={(item, index) => index + item}
                 estimatedItemSize={51}
+                showsVerticalScrollIndicator={false}
               />
             </View>
           </Pressable>
