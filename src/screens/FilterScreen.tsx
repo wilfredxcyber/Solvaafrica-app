@@ -1,13 +1,13 @@
-import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
+import { StackActions, useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { open } from "react-native-file-viewer-turbo";
-import SearchIcon from "@expo/vector-icons/Feather";
+import { StyleSheet, Text, View } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useEffect, useState } from "react";
 
 import { DownloadItemView } from "../components/downloadItemView";
+import { SearchBoxView } from "../components/searchBoxView";
 import { DownloadedFileRef, FileDirectory } from "../types";
-import { hscale, mscale, wscale } from "../helpers/metric";
+import { hscale, mscale } from "../helpers/metric";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 
@@ -15,6 +15,7 @@ export default function FilterScreen() {
   const [currentTab, setCurrentTab] = useState<FileDirectory>("Courses");
   const [filterQuery, setFilterQuery] = useState("");
   const [filteredList, setFilterdList] = useState<DownloadedFileRef[]>([]);
+  const navigation = useNavigation();
 
   useEffect(() => {
     //  get all downloads via cached refs
@@ -53,12 +54,9 @@ export default function FilterScreen() {
   };
 
   const handleOpenItem = async (item: DownloadedFileRef) => {
-    try {
-      await open(item.filePath);
-    } catch (error) {
-      Alert.alert("File error!", "Could not open this file");
-      console.log("Could not open file", error);
-    }
+    navigation.dispatch(
+      StackActions.push("App", { screen: "ImageViewer", params: { imageSource: item.filePath } })
+    );
   };
 
   return (
@@ -67,9 +65,16 @@ export default function FilterScreen() {
       <TabsSwitcher setCurrentTab={setCurrentTab} />
       <View style={{ flex: 1 }}>
         {!filteredList.length ? (
-          <View style={styles.noFileView}>
-            <Text style={styles.noFileText}>
-              Quickly look up downloaded files using the search box.
+          <View style={{ flex: 1, justifyContent: "center" }}>
+            <Text
+              style={{
+                textAlign: "center",
+                fontFamily: "Inter-Regular",
+                fontSize: mscale(14),
+                color: colors.bodyText,
+              }}
+            >
+              Filter files downloaded to this device
             </Text>
           </View>
         ) : (
@@ -95,23 +100,6 @@ export default function FilterScreen() {
     </View>
   );
 }
-
-const SearchBoxView = ({
-  handleSearchInputTextChange,
-}: {
-  handleSearchInputTextChange: (text: string) => void;
-}) => {
-  return (
-    <View style={styles.searchBoxView}>
-      <TextInput
-        style={{ flex: 1 }}
-        onChangeText={handleSearchInputTextChange}
-        cursorColor={colors.primary}
-      />
-      <SearchIcon name="search" size={20} color={colors.primary} />
-    </View>
-  );
-};
 
 const TabsSwitcher = ({
   setCurrentTab,
@@ -147,15 +135,6 @@ const TabsSwitcher = ({
 };
 
 const styles = StyleSheet.create({
-  searchBoxView: {
-    backgroundColor: colors.inputField,
-    flexDirection: "row",
-    height: hscale(60),
-    paddingHorizontal: wscale(20),
-    borderRadius: mscale(30),
-    alignItems: "center",
-    marginTop: hscale(40),
-  },
   tabSwitcherView: {
     flexDirection: "row",
     gap: 20,
@@ -167,16 +146,5 @@ const styles = StyleSheet.create({
     marginTop: hscale(20),
     padding: mscale(12),
     borderRadius: mscale(4),
-  },
-  noFileView: {
-    justifyContent: "center",
-    alignItems: "center",
-    flex: 1,
-  },
-  noFileText: {
-    fontFamily: "Inter-Bold",
-    fontSize: mscale(14),
-    textAlign: "center",
-    width: "80%",
   },
 });
