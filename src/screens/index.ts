@@ -2,6 +2,7 @@ import DownloadCourseMaterial from "./downloadCourseMaterial";
 import CreateAccountScreen from "./createAccountScreen";
 import TermsAndConditions from "./termsAndConditons";
 import UploadFilesScreen from "./uploadFileScreen";
+import ImageViewerPage from "./imageViewerPage";
 import CourseMaterials from "./courseMaterials";
 import SettingsScreen from "./settingsScreen";
 import ServicesScreen from "./servicesScreen";
@@ -40,4 +41,5 @@ export {
   Profile,
   Complaints,
   DownloadCourseMaterial,
+  ImageViewerPage,
 };

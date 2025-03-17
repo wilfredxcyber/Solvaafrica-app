@@ -63,6 +63,13 @@
         {
           "mimeTypes": ["application/pdf", "image/jpeg", "image/png"]
         }
+      ],
+      "expo-document-picker",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
+        }
       ]
     ],
     "experiments": {

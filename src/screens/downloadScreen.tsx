@@ -1,6 +1,7 @@
+import { StackActions, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Text, View, RefreshControl, Alert } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { open } from "react-native-file-viewer-turbo";
 import { FlashList } from "@shopify/flash-list";
 import * as FileSystem from "expo-file-system";
@@ -15,6 +16,7 @@ import { colors } from "../constants/theme";
 export default function DownloadScreen() {
   const [downloadsList, setDownloadsList] = useState<DownloadedFileRef[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const navigation = useNavigation();
 
   useFocusEffect(
     useCallback(() => {
@@ -50,13 +52,10 @@ export default function DownloadScreen() {
     setRefreshing(true);
   };
 
-  const handleOpenItem = async (item: DownloadedFileRef) => {
-    try {
-      await open(item.filePath);
-    } catch (error) {
-      Alert.alert("File error!", "Could not open this file");
-      console.log("Could not open file", error);
-    }
+  const handleOpenItem = (item: DownloadedFileRef) => {
+    navigation.dispatch(
+      StackActions.push("App", { screen: "ImageViewer", params: { imageSource: item.filePath } })
+    );
   };
 
   return (
@@ -64,27 +63,46 @@ export default function DownloadScreen() {
       <Text style={{ fontFamily: "Inter-Bold", fontSize: mscale(24), color: colors.black }}>
         Downloads
       </Text>
-      <FlashList
-        data={downloadsList}
-        estimatedItemSize={100}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item, index }) => {
-          return (
-            <DownloadItemView
-              fileCode={item.fileCode + "(" + (index + 1) + ")"}
-              source={item.filePath}
-              fileName={item.fileName}
-              parentDirectory={item.parentDirectory}
-              onDeletePress={() => handleDeleteItem(item)}
-              onItemPress={() => handleOpenItem(item)}
+      {downloadsList.length ? (
+        <FlashList
+          data={downloadsList}
+          estimatedItemSize={100}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item, index }) => {
+            return (
+              <DownloadItemView
+                fileCode={item.fileCode + "(" + (index + 1) + ")"}
+                source={item.filePath}
+                fileName={item.fileName}
+                parentDirectory={item.parentDirectory}
+                onDeletePress={() => handleDeleteItem(item)}
+                onItemPress={() => handleOpenItem(item)}
+              />
+            );
+          }}
+          contentContainerStyle={{ paddingVertical: hscale(20) }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              colors={[colors.primary]}
+              onRefresh={onRefresh}
             />
-          );
-        }}
-        contentContainerStyle={{ paddingVertical: hscale(20) }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} colors={[colors.primary]} onRefresh={onRefresh} />
-        }
-      />
+          }
+        />
+      ) : (
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <Text
+            style={{
+              textAlign: "center",
+              fontFamily: "Inter-Regular",
+              fontSize: mscale(14),
+              color: colors.bodyText,
+            }}
+          >
+            Files you downloaded to this device will show here
+          </Text>
+        </View>
+      )}
     </View>
   );
 }

@@ -25,6 +25,7 @@ export default function CourseMaterials({ route }: ScreenProps) {
       try {
         const res = await AUTH_API_CLIENT.get(`/questions/${courseId}`);
         const { data: coursesList } = res.data;
+        console.log(coursesList.documents.length, courseId);
         setCourses(coursesList.documents);
       } catch (error) {
         console.log("Error getting course materials", error);

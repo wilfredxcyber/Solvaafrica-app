@@ -45,7 +45,14 @@ const AppStackNavigator = createNativeStackNavigator({
         CourseDownloadMaterial: { screen: DownloadCourseMaterial },
         Projects: { screen: ProjectsScreen },
         Premium: { screen: PremiumScreen },
-        Upload: { screen: UploadFilesScreen },
+        Upload: {
+          screen: UploadFilesScreen,
+          options: {
+            statusBarBackgroundColor: colors.primary,
+            statusBarStyle: "light",
+            headerShown: false,
+          },
+        },
         Earning: { screen: EarningScreen },
         Services: { screen: ServicesScreen },
         Ask: { screen: AskScreen },
