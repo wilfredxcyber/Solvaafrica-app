@@ -10,6 +10,7 @@ import LoadingView from "../components/loadingView";
 import { hscale, mscale } from "../helpers/metric";
 import { AUTH_API_CLIENT } from "../api/apiClient";
 
+
 type ScreenProps = StaticScreenProps<{ courseId: string; headerTitle: string; courseCode: string }>;
 
 export default function CourseMaterials({ route }: ScreenProps) {
@@ -25,7 +26,6 @@ export default function CourseMaterials({ route }: ScreenProps) {
       try {
         const res = await AUTH_API_CLIENT.get(`/questions/${courseId}`);
         const { data: coursesList } = res.data;
-        console.log(coursesList.documents.length, courseId);
         setCourses(coursesList.documents);
       } catch (error) {
         console.log("Error getting course materials", error);

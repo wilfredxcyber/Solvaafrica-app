@@ -2,7 +2,6 @@ import { StaticScreenProps } from "@react-navigation/native";
 import { Dimensions, StyleSheet, View } from "react-native";
 import Pdf from 'react-native-pdf';
 
-import { globalStyles } from "../styles/global";
 import { hscale } from "../helpers/metric";
 
 

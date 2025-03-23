@@ -18,7 +18,6 @@ import { colors } from "../constants/theme";
 export default function ProjectsScreen() {
   const [projects, setProjects] = useState<any[]>();
   const [projectFiles, setProjectFiles] = useState<any[]>();
-  const [fileName, setFileName] = useState<string>();
   const [loading, setLoading] = useState(false);
 
   const fetchProjects = async (searchQuery: string) => {
@@ -96,7 +95,6 @@ export default function ProjectsScreen() {
 const ProjectItemView = ({ fileName, fileURI }: { fileName: string; fileURI: string }) => {
   const [startDownload, setStartDownload] = useState(false);
   const [fileExist, setFileExist] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   // set file code to PRJ for project files
   const downloadFile = useDownloadFile(startDownload, 'PRJ');
   const DownloadIconRef = useRef<LottieView>(null);
