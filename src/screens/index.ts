@@ -1,3 +1,4 @@
+import UploadFilePreviewScreen from "./uploadFilePreviewScreen";
 import DownloadCourseMaterial from "./downloadCourseMaterial";
 import CreateAccountScreen from "./createAccountScreen";
 import TermsAndConditions from "./termsAndConditons";
@@ -20,6 +21,7 @@ import Profile from "./Drawer/Profile";
 import HomeScreen from "./HomeScreen";
 import AskScreen from "./askScreen";
 
+
 export {
   HomeScreen,
   OnboardScreen,
@@ -37,6 +39,7 @@ export {
   CoursesList,
   ProjectsScreen,
   UploadFilesScreen,
+  UploadFilePreviewScreen,
   CourseMaterials,
   Profile,
   Complaints,

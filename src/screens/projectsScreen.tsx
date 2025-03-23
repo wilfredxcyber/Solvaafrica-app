@@ -11,6 +11,7 @@ import { AUTH_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 
+
 export default function ProjectsScreen() {
   const [projects, setProjects] = useState<any[]>();
   const [projectFiles, setProjectFiles] = useState<any[]>();
@@ -70,7 +71,7 @@ export default function ProjectsScreen() {
               )}
             />
           ) : (
-            <Text>Download new project files. Start searching now</Text>
+            <Text>Search and download new projects files</Text>
           )}
         </View>
       </View>

@@ -1,26 +1,10 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { NavigationContainer } from "@react-navigation/native";
 
-import {
-  AskScreen,
-  CourseMaterials,
-  CoursesList,
-  CoursesScreen,
-  CreateAccountScreen,
-  DownloadCourseMaterial,
-  EarningScreen,
-  ImageViewerPage,
-  LoginScreen,
-  OnboardScreen,
-  PremiumScreen,
-  ProjectsScreen,
-  ServicesScreen,
-  TermsAndConditions,
-  UploadFilesScreen,
-} from "../screens";
+import { AskScreen, CourseMaterials, CoursesList, CoursesScreen, CreateAccountScreen, DownloadCourseMaterial, EarningScreen, ImageViewerPage, LoginScreen, OnboardScreen, PremiumScreen, ProjectsScreen, ServicesScreen, TermsAndConditions, UploadFilesScreen, UploadFilePreviewScreen } from "../screens";
 import { useUserSignedIn, useUserSignedOut } from "../hooks/userAuth";
 import TabsNavigator from "./BottomTabNavigation";
 import { colors } from "../constants/theme";
+
 
 const AppStackNavigator = createNativeStackNavigator({
   groups: {
@@ -52,6 +36,10 @@ const AppStackNavigator = createNativeStackNavigator({
             statusBarStyle: "light",
             headerShown: false,
           },
+        },
+        UploadPreview: {
+          screen: UploadFilePreviewScreen,
+          options: {headerTitle: ''}
         },
         Earning: { screen: EarningScreen },
         Services: { screen: ServicesScreen },

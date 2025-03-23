@@ -1,12 +1,16 @@
+import { Alert, Pressable, Text, View } from "react-native";
 import CameraIcon from "@expo/vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
 import WarnIcon from "@expo/vector-icons/FontAwesome5";
-import { Pressable, Text, View } from "react-native";
+import PdfPageImage from 'react-native-pdf-page-image';
+import * as DocumentPicker from 'expo-document-picker';
 import LeftIcon from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 
 import { colors, screenHorizontalPadding } from "../constants/theme";
 import { hscale, mscale, wscale } from "../helpers/metric";
+import { PickedFile } from "../types";
+
 
 export default function UploadFilesScreen() {
   const navigation = useNavigation();
@@ -14,8 +18,29 @@ export default function UploadFilesScreen() {
     console.log("Hello");
   };
 
-  const handleUseFilePicker = () => {
-    console.log("User file picker");
+  const handleUseFilePicker = async() => {
+    try {
+      const pickedFile = await DocumentPicker.getDocumentAsync({
+        type: ['application/pdf', 'image/jpeg'],
+        copyToCacheDirectory: true,
+      })
+      if(!pickedFile.canceled){
+        const {name, uri, mimeType } = pickedFile.assets[0];
+        if(!name || !uri || !mimeType) throw new Error('Invalid picked asset');
+        // route param picked file
+        const _pickedFile: PickedFile = {fileUri: uri, imageUri: uri, name, mimeType}
+        if(mimeType === 'application/pdf'){
+          // genrate image from pdf page
+          const scale = 1.0;
+          const pdfPageImage = await PdfPageImage.generate(uri, 1, scale);
+          _pickedFile.imageUri = pdfPageImage.uri;
+        }
+        navigation.navigate('App', {screen: 'UploadPreview', params: {pickedFile: _pickedFile}})
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Kindly contact support')
+      console.log('Error picking file from  document directory', error)
+    }
   };
 
   return (

@@ -42,3 +42,10 @@ export interface DownloadItemViewProps {
   onDeletePress?: (item: string) => void;
   onItemPress: () => void;
 }
+
+export interface PickedFile {
+  name: string;
+  mimeType: string;
+  fileUri: string;
+  imageUri: string;
+}
