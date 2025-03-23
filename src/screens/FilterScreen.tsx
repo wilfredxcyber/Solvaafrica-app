@@ -32,9 +32,7 @@ export default function FilterScreen() {
       if (currentTab === "Courses") {
         const coursesFilter = downloads.filter(
           (currentItem) =>
-            (currentItem.parentDirectory === "Courses" &&
-              currentItem.fileCode?.toLowerCase().includes(filterQuery.toLowerCase().trim())) ||
-            currentItem.fileName.toLowerCase().includes(filterQuery.toLowerCase().trim())
+            (currentItem.fileCode?.toLowerCase().includes(filterQuery.toLowerCase().trim())) || currentItem.fileName.toLowerCase().includes(filterQuery.toLowerCase().trim()) && currentItem.parentDirectory === 'Courses'
         );
         setFilterdList(coursesFilter);
       } else if (currentTab === "Projects") {
