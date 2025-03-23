@@ -11,6 +11,7 @@ import ProjectsScreen from "./projectsScreen";
 import DownloadScreen from "./downloadScreen";
 import Complaints from "./Drawer/Complaints";
 import PremiumScreen from "./premiumScreen";
+import PdfViewerPage from "./pdfViewerPage";
 import OnboardScreen from "./OnboardScreen";
 import EarningScreen from "./earningScreen";
 import CoursesScreen from "./coursesScreen";
@@ -45,4 +46,5 @@ export {
   Complaints,
   DownloadCourseMaterial,
   ImageViewerPage,
+  PdfViewerPage
 };
