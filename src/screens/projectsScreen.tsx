@@ -1,6 +1,7 @@
-import { Alert, Pressable, Text, View } from "react-native";
 import PDFIcon from "@expo/vector-icons/FontAwesome6";
+import { Pressable, Text, View } from "react-native";
 import { FlashList } from "@shopify/flash-list";
+import LottieView from 'lottie-react-native';
 import { useEffect, useState } from "react";
 
 import { SearchBoxView } from "../components/searchBoxView";
@@ -16,6 +17,7 @@ export default function ProjectsScreen() {
   const [projects, setProjects] = useState<any[]>();
   const [projectFiles, setProjectFiles] = useState<any[]>();
   const [fileName, setFileName] = useState<string>();
+  const [loading, setLoading] = useState(false);
 
   const fetchProjects = async (searchQuery: string) => {
     try {
@@ -42,11 +44,20 @@ export default function ProjectsScreen() {
 
     // this is a debounce to delay requests to the server as the user types
     timeOutId = setTimeout(async () => {
-      const fetchedData = await fetchProjects(value.trim().toLowerCase());
-      setProjects(fetchedData?.data);
-      fetchedData?.data.forEach((currentItem: any) => {
-        setProjectFiles([...currentItem?.document]);
-      });
+      setLoading(true)
+      try {
+        const fetchedData = await fetchProjects(value.trim().toLowerCase());
+        console.log({ fetchedData })
+        setProjects(fetchedData?.data);
+        fetchedData?.data.forEach((currentItem: any) => {
+          setProjectFiles([...currentItem?.document]);
+        });
+
+      } catch (error) {
+        console.log('Error fetching projects', error)
+      } finally {
+        setLoading(false)
+      }
     }, 500);
   };
 
@@ -71,7 +82,9 @@ export default function ProjectsScreen() {
               )}
             />
           ) : (
-            <Text>Search and download new projects files</Text>
+            loading ? (
+              <LottieView autoPlay style={{ width: wscale(200), height: hscale(200) }} source={require('../../assets/animations/spin.json')} />
+            ) : <Text style={globalStyles.bodyText}>Search and download new projects files</Text>
           )}
         </View>
       </View>
