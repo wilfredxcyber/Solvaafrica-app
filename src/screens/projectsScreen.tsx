@@ -49,7 +49,6 @@ export default function ProjectsScreen() {
       setLoading(true)
       try {
         const fetchedData = await fetchProjects(value.trim().toLowerCase());
-        console.log({ fetchedData })
         setProjects(fetchedData?.data);
         fetchedData?.data.forEach((currentItem: any) => {
           setProjectFiles([...currentItem?.document]);
