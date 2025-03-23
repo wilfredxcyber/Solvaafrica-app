@@ -1,47 +1,120 @@
-import { Alert, Pressable, Text, View } from "react-native";
+import { Alert, Linking, Pressable, Text, View } from "react-native";
+import { useCameraPermissions, CameraView } from 'expo-camera';
 import CameraIcon from "@expo/vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
 import WarnIcon from "@expo/vector-icons/FontAwesome5";
 import PdfPageImage from 'react-native-pdf-page-image';
+import CheckIcon from '@expo/vector-icons/FontAwesome';
 import * as DocumentPicker from 'expo-document-picker';
 import LeftIcon from "@expo/vector-icons/Ionicons";
+import { useRef, useState } from 'react';
 import { Image } from "expo-image";
 
 import { colors, screenHorizontalPadding } from "../constants/theme";
 import { hscale, mscale, wscale } from "../helpers/metric";
+import PrimaryButton from "../components/primaryButton";
 import { PickedFile } from "../types";
 
 
 export default function UploadFilesScreen() {
   const navigation = useNavigation();
-  const handleOpenCamera = () => {
-    console.log("Hello");
+  const [permission, requestCameraPermission] = useCameraPermissions();
+  const [launchCameraView, setLaunchCameraView] = useState(false);
+  const [cameraReady, setCameraReady] = useState(false);
+  const CameraRef = useRef<CameraView>(null);
+  const [capturing, setCapturing] = useState(false);
+
+  // open device camera
+  const handleOpenCamera = async () => {
+    if (!permission?.granted) {
+      Alert.alert('Permission required', 'We need your permission to show the camera', [
+        {
+          text: 'Grant access',
+          onPress: async () => await requestCameraPermission()
+        }
+      ])
+    } else if (permission.status === 'denied') {
+      Alert.alert('Permission required', 'We need your permission to show the camera');
+      await Linking.openSettings()
+      return;
+    }
+    setLaunchCameraView(true)
   };
 
-  const handleUseFilePicker = async() => {
+  // camera capture
+  const handleCapture = async () => {
+    setCapturing(true);
+    if (!cameraReady) return;
+    try {
+      const capturedResult = CameraRef?.current && await CameraRef.current.takePictureAsync({ quality: 1 })
+      if (!capturedResult || !capturedResult.uri) return;
+
+      // extract name from the captured image
+      const { uri } = capturedResult;
+      const capturedImageName = uri.split('/').pop();
+      if (capturedImageName) {
+        navigation.navigate('App', {
+          screen: 'UploadPreview', params: {
+            pickedFile: {
+              name: capturedImageName,
+              fileUri: uri,
+              imageUri: uri,
+              mimeType: 'image/jpeg'
+            }
+          }
+        })
+      }
+    } catch (error) {
+      console.log('Error capturing image with device camera', error)
+    } finally {
+      setCapturing(false)
+    }
+  }
+
+  const handleUseFilePicker = async () => {
     try {
       const pickedFile = await DocumentPicker.getDocumentAsync({
         type: ['application/pdf', 'image/jpeg'],
         copyToCacheDirectory: true,
       })
-      if(!pickedFile.canceled){
-        const {name, uri, mimeType } = pickedFile.assets[0];
-        if(!name || !uri || !mimeType) throw new Error('Invalid picked asset');
+      if (!pickedFile.canceled) {
+        const { name, uri, mimeType } = pickedFile.assets[0];
+        if (!name || !uri || !mimeType) throw new Error('Invalid picked asset');
         // route param picked file
-        const _pickedFile: PickedFile = {fileUri: uri, imageUri: uri, name, mimeType}
-        if(mimeType === 'application/pdf'){
+        const _pickedFile: PickedFile = { fileUri: uri, imageUri: uri, name, mimeType }
+        if (mimeType === 'application/pdf') {
           // genrate image from pdf page
           const scale = 1.0;
           const pdfPageImage = await PdfPageImage.generate(uri, 1, scale);
           _pickedFile.imageUri = pdfPageImage.uri;
         }
-        navigation.navigate('App', {screen: 'UploadPreview', params: {pickedFile: _pickedFile}})
+        navigation.navigate('App', { screen: 'UploadPreview', params: { pickedFile: _pickedFile } })
       }
     } catch (error) {
       Alert.alert('Error', 'Kindly contact support')
       console.log('Error picking file from  document directory', error)
     }
   };
+
+  if (launchCameraView) {
+    return (
+      <CameraView onCameraReady={() => setCameraReady(true)} ref={CameraRef} style={{ flex: 1, justifyContent: 'flex-end' }} >
+        <View style={{ backgroundColor: '#F3EDF7', padding: hscale(20), gap: 12 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', }}>
+            <Text style={{ fontFamily: 'Inter-Bold', fontSize: mscale(14) }}>Ensure the enviroment is well lit</Text>
+            <CheckIcon name="check-circle" size={24} color={'green'} />
+          </View>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', }}>
+            <Text style={{ fontFamily: 'Inter-Bold', fontSize: mscale(14) }}>Keep the camera steady and focused</Text>
+            <CheckIcon name="check-circle" size={24} color={'green'} />
+          </View>
+
+          <PrimaryButton text="Capture" onPress={handleCapture} isLoading={capturing} />
+        </View>
+      </CameraView >
+    )
+  }
 
   return (
     <View style={{ backgroundColor: colors.primary, flex: 1 }}>
@@ -166,3 +239,5 @@ export default function UploadFilesScreen() {
     </View>
   );
 }
+
+

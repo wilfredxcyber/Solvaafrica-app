@@ -30,7 +30,7 @@ export default function UploadFilePreviewScreen({ route }: StaticScreenProps<{ p
 
             const formUploadResponse = await AUTH_API_CLIENT.postForm('/documents/upload', formData)
             if (formUploadResponse.status === 200) {
-                Alert.alert('Success', 'File upload was successful!')
+                Alert.alert('Success', 'File upload was successful!');
                 navigation.goBack();
             }
         } catch (error) {
