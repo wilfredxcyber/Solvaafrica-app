@@ -1,8 +1,10 @@
+import CheckCircleIcon from '@expo/vector-icons/FontAwesome';
+import { Alert, Pressable, Text, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import PDFIcon from "@expo/vector-icons/FontAwesome6";
-import { Pressable, Text, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
 import { FlashList } from "@shopify/flash-list";
 import LottieView from 'lottie-react-native';
-import { useEffect, useState } from "react";
 
 import { SearchBoxView } from "../components/searchBoxView";
 import { useDownloadFile } from "../hooks/useDownloadFile";
@@ -83,7 +85,7 @@ export default function ProjectsScreen() {
             />
           ) : (
             loading ? (
-              <LottieView autoPlay style={{ width: wscale(200), height: hscale(200) }} source={require('../../assets/animations/spin.json')} />
+              <LottieView autoPlay style={{ width: wscale(100), height: hscale(100), marginHorizontal: 'auto' }} source={require('../../assets/animations/spin.json')} />
             ) : <Text style={globalStyles.bodyText}>Search and download new projects files</Text>
           )}
         </View>
@@ -93,34 +95,69 @@ export default function ProjectsScreen() {
 }
 
 const ProjectItemView = ({ fileName, fileURI }: { fileName: string; fileURI: string }) => {
-  const handleDownloadProjectFile = () => {
-    console.log("Hello", fileURI);
+  const [startDownload, setStartDownload] = useState(false);
+  const [fileExist, setFileExist] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  // set file code to PRJ for project files
+  const downloadFile = useDownloadFile(startDownload, 'PRJ');
+  const DownloadIconRef = useRef<LottieView>(null);
+
+
+  useEffect(() => {
+    const initiateDownload = async () => {
+      try {
+        if (!fileURI || !fileName) return; // prevent falsy values from being passed
+        const { isExistingFile } = await downloadFile(
+          "Projects",
+          fileURI,
+          fileName
+        );
+        if (isExistingFile) {
+          setFileExist(true);
+          return;
+        }
+      } catch (error) {
+        Alert.alert("Download Failed.", "Please try again later or contact support");
+      }
+    };
+
+    initiateDownload();
+  }, [startDownload]);
+
+  const handleInitiateDownload = () => {
+    DownloadIconRef.current && DownloadIconRef.current.play()
+    setStartDownload(true)
   };
   return (
-    <Pressable
-      onPress={handleDownloadProjectFile}
+    <View
       style={{
         flex: 1,
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: colors.inputField,
         height: hscale(60),
-        paddingHorizontal: wscale(20),
+        paddingVertical: hscale(8),
         borderRadius: mscale(8),
+        justifyContent: 'space-between'
       }}
     >
-      <PDFIcon name="file-pdf" size={32} color={colors.primary} />
-      <Text
-        numberOfLines={1}
-        style={{
-          fontFamily: "Inter-Regular",
-          fontSize: mscale(14),
-          color: colors.black,
-          marginLeft: wscale(12),
-        }}
-      >
-        {fileName}
-      </Text>
-    </Pressable>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: wscale(20) }}>
+        <PDFIcon name="file-pdf" size={32} color={colors.primary} />
+        <Text
+          numberOfLines={1}
+          style={{
+            fontFamily: "Inter-Regular",
+            fontSize: mscale(14),
+            color: colors.black,
+            marginLeft: wscale(12),
+          }}
+        >
+          {fileName}
+        </Text>
+      </View>
+      {!fileExist ? <Pressable onPress={handleInitiateDownload}>
+        <LottieView ref={DownloadIconRef} style={{ width: wscale(64), height: hscale(64) }} source={require('../../assets/animations/download.json')} />
+      </Pressable> : <CheckCircleIcon style={{ marginRight: wscale(20) }} name="check-circle" size={24} color={colors.primary} />}
+    </View>
   );
 };

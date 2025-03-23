@@ -13,6 +13,7 @@ import { globalStyles } from "../styles/global";
 import { DownloadedFileRef } from "../types";
 import { colors } from "../constants/theme";
 
+
 export default function DownloadScreen() {
   const [downloadsList, setDownloadsList] = useState<DownloadedFileRef[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -53,6 +54,10 @@ export default function DownloadScreen() {
   };
 
   const handleOpenItem = (item: DownloadedFileRef) => {
+    if (item.parentDirectory === 'Projects') {
+      console.log('pressed item', item)
+      return
+    }
     navigation.dispatch(
       StackActions.push("App", { screen: "ImageViewer", params: { imageSource: item.filePath } })
     );
@@ -71,7 +76,7 @@ export default function DownloadScreen() {
           renderItem={({ item, index }) => {
             return (
               <DownloadItemView
-                fileCode={item.fileCode + "(" + (index + 1) + ")"}
+                fileCode={item.fileCode?.trim() + "(" + (index + 1) + ")"}
                 source={item.filePath}
                 fileName={item.fileName}
                 parentDirectory={item.parentDirectory}

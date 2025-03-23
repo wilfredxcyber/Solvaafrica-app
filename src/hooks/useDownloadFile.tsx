@@ -4,6 +4,7 @@ import { Alert } from "react-native";
 
 import { DownloadedFileRef, FileDirectory } from "../types";
 
+
 export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: string) => {
   const downloadFile = async (
     fileDirectory: FileDirectory,
@@ -12,8 +13,7 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
   ) => {
     try {
       const filesDownloadsDirectoryPath = FileSystem.documentDirectory + `${fileDirectory}`;
-      const filesDirectoryExist = (await FileSystem.getInfoAsync(filesDownloadsDirectoryPath))
-        .exists;
+      const filesDirectoryExist = (await FileSystem.getInfoAsync(filesDownloadsDirectoryPath)).exists;
 
       if (!filesDirectoryExist) {
         await FileSystem.makeDirectoryAsync(filesDownloadsDirectoryPath, { intermediates: true });
@@ -25,7 +25,6 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
         (currentFile) => currentFile.toLowerCase() === originalFileName.toLowerCase()
       );
       if (existingFile) {
-        console.log({ existingFile: true });
         return { isExistingFile: true, fileUri: `${filesDownloadsDirectoryPath}/${existingFile}` };
       }
 

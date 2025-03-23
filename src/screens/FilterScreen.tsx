@@ -11,6 +11,7 @@ import { hscale, mscale } from "../helpers/metric";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 
+
 export default function FilterScreen() {
   const [currentTab, setCurrentTab] = useState<FileDirectory>("Courses");
   const [filterQuery, setFilterQuery] = useState("");
@@ -86,7 +87,7 @@ export default function FilterScreen() {
               showsVerticalScrollIndicator={false}
               renderItem={({ item, index }) => (
                 <DownloadItemView
-                  fileCode={item.fileCode + "(" + (index + 1) + ")"}
+                  fileCode={item.fileCode?.trim() + "(" + (index + 1) + ")"}
                   source={item.filePath}
                   fileName={item.fileName}
                   parentDirectory={item.parentDirectory}
