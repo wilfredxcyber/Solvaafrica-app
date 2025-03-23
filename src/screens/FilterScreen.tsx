@@ -54,7 +54,7 @@ export default function FilterScreen() {
 
   const handleOpenItem = async (item: DownloadedFileRef) => {
     navigation.dispatch(
-      StackActions.push("App", { screen: "ImageViewer", params: { imageSource: item.filePath } })
+      StackActions.push("App", { screen: "PdfViewer", params: { pdfUri: item.filePath } })
     );
   };
 
