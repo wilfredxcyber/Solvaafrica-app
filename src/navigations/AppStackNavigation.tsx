@@ -45,7 +45,7 @@ const AppStackNavigator = createNativeStackNavigator({
           screen: UploadFilePreviewScreen,
           options: { headerTitle: '' }
         },
-        Earning: { screen: EarningScreen },
+        Earning: { screen: EarningScreen, options: { headerTitle: 'Earnings' } },
         Services: { screen: ServicesScreen },
         Ask: { screen: AskScreen },
       },
