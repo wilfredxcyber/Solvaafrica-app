@@ -15,6 +15,7 @@ import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import Logo from "../components/logo";
 
+
 export default function LoginScreen() {
   const [form, setForm] = useState<ILoginForm>({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -28,39 +29,34 @@ export default function LoginScreen() {
     const { email, password } = form;
 
     if (!email || !password) return;
-
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      // post to /login
+      //login
       const res = await PUB_API_CLIENT.post("/users/login", form);
-      console.log("Login res", res.data);
 
       if (res.status === 200) {
-        const resData = res.data;
-
-        const { data } = resData;
-        // extract keys
-        const { tokens } = data;
+        const { data: UserData } = res.data;
+        const userId = UserData.user.id;
+        const tokens = UserData.tokens
 
         // get user
-        const getUserRes = await PUB_API_CLIENT.get("/users", {
+        const getUserRes = await PUB_API_CLIENT.get(`/users/${userId}`, {
           headers: { Authorization: `Bearer ${tokens.accessToken}` },
         });
 
         if (getUserRes.status === 200) {
           const { data } = getUserRes.data;
 
-          console.log("User", data);
           // save user
-          const { fullName, gender, email, address, phone } = data;
-          const userProfile: UserProfile = { fullName, gender, email, address, phone };
+          const { fullName, gender, email, address, phone, referralCode } = data;
+          const userProfile: UserProfile = { fullName, gender, email, address, phone, referralCode };
           const user: { profile: UserProfile; tokens: Tokens | null } = {
             profile: userProfile,
             tokens,
           };
 
           await AsyncStorage.setItem("User", JSON.stringify(user));
-          console.log(user);
+          console.log('Auth User: \n', user);
 
           // store user in global store
           useAuthStore.setState((state) => ({ ...state, user }));

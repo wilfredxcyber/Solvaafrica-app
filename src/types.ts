@@ -4,6 +4,7 @@ export interface UserProfile {
   phone: string | null;
   address: string | null;
   gender: string | null;
+  referralCode: string
 }
 export interface ILoginForm {
   email: string;
