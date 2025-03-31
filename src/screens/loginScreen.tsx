@@ -64,7 +64,7 @@ export default function LoginScreen() {
         }
       }
     } catch (error: any) {
-      console.log("Error logging in useruser", error);
+      console.log("Error logging in user", error);
       if (error.status === 400 || 401) {
         Alert.alert("Error", "Email or Password is incorrect. Try again!");
         return;
