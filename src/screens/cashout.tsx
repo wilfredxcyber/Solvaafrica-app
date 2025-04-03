@@ -1,12 +1,14 @@
-import { Alert, KeyboardTypeOptions, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, KeyboardTypeOptions, Pressable, StyleSheet, Text, TextInput, View, Modal } from "react-native";
 import { StaticScreenProps, } from "@react-navigation/native";
 import IconRight from '@expo/vector-icons/FontAwesome';
 import BankIcon from '@expo/vector-icons/FontAwesome';
 import { FlashList } from "@shopify/flash-list";
+import { Image } from "expo-image";
 import { useState } from "react";
 
 import { hscale, mscale, wscale } from "../helpers/metric";
 import PrimaryButton from "../components/primaryButton";
+import { AUTH_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import { BANKS } from "../constants/data";
@@ -22,8 +24,10 @@ interface BankDetailForm {
 type FormFields = "accountName" | "accountNumber" | "bankName" | "amount"
 
 export default function Cashout({ route }: StaticScreenProps<{ userBalance: number | null }>) {
+    const [showModal, setShowModal] = useState(false);
     const userBalance = route.params.userBalance;
     const [bankDetailsForm, setBankDetailsForm] = useState<BankDetailForm>({ accountName: '', accountNumber: '', bankName: '', amount: '' })
+    const [submittingForm, setSubmittingForm] = useState(false)
     const handleSetForm = (value: string, formField: FormFields | undefined) => {
 
 
@@ -54,7 +58,7 @@ export default function Cashout({ route }: StaticScreenProps<{ userBalance: numb
     }
 
 
-    const handleSubmitForm = () => {
+    const handleSubmitForm = async () => {
         const { accountName, accountNumber, amount, bankName } = bankDetailsForm;
         if (!accountName.trim() || !accountName.trim() || !amount.trim() || !accountNumber.trim() || !bankName.trim()) return;
 
@@ -64,12 +68,33 @@ export default function Cashout({ route }: StaticScreenProps<{ userBalance: numb
             return
         }
 
+        if (Number(amount.trim()) > (userBalance ? userBalance : 0) || Number(amount) === 0) {
+            Alert.alert('Error!', 'Balance too low for withdraw amount')
+            return
+        }
+
+
+        const requestForm = { accountName: accountName.trim(), accountNumber: accountNumber.trim(), bankName: bankName.trim(), amount: Number(amount.trim()) }
+        try {
+            setSubmittingForm(true)
+            const response = await AUTH_API_CLIENT.post('/cashouts/create', requestForm);
+
+            if (response.status === 200) {
+                setShowModal(true)
+            }
+        } catch (error: any) {
+            console.log('Submitting cahout requests', error);
+            Alert.alert('Error!', 'Something went wrong try again later.')
+        } finally {
+            setSubmittingForm(false)
+        }
     }
 
 
     return (
         <View style={globalStyles.screen}>
             <EarningsBalanceView userBalance={userBalance} />
+            <SuccessModal showModal={showModal} setShowModal={setShowModal} />
             <View>
                 <Text style={{ fontFamily: 'Inter-Bold', color: colors.black, fontSize: mscale(20), marginTop: hscale(12) }}>Bank Details</Text>
                 {/* form */}
@@ -85,9 +110,30 @@ export default function Cashout({ route }: StaticScreenProps<{ userBalance: numb
                 </View>
 
                 {/* submit button */}
-                <PrimaryButton text="Submit" onPress={handleSubmitForm} />
+                <PrimaryButton text="Submit" onPress={handleSubmitForm} isLoading={submittingForm} />
             </View>
         </View>
+    )
+}
+
+
+const SuccessModal = ({ showModal, setShowModal }: { showModal: boolean, setShowModal: React.Dispatch<React.SetStateAction<boolean>> }) => {
+    return (
+        <Modal animationType="slide" visible={showModal} onRequestClose={() => setShowModal(false)}>
+            <View style={styles.successModalView}>
+                <View style={styles.modal}>
+                    <Image source={require('../../assets/images/success.png')} style={{ width: wscale(150), height: hscale(150), marginVertical: hscale(20) }} />
+                    <Text style={[globalStyles.headlineText, { marginBottom: hscale(8) }]}>Successfully Added</Text>
+                    <Text style={[globalStyles.bodyText, { fontSize: mscale(14), textAlign: 'center' }]}>Your application for witdrawal has been submitted, wait for 1-2 business working days to receive funds in your account.</Text>
+                    <View style={{ flexDirection: 'row', marginVertical: hscale(20) }}>
+                        <Image source={require('../../assets/images/bi_question.png')} style={{ height: hscale(40), aspectRatio: 1 }} />
+                        <Text style={{ width: '85%' }}>Delay not yet recieved? Send complaints to support.</Text>
+                    </View>
+
+                    <PrimaryButton text="Ok" onPress={() => setShowModal(false)} />
+                </View>
+            </View>
+        </Modal>
     )
 }
 
@@ -115,7 +161,6 @@ const InputView = ({ editable = true, value, placeholder, setForm, keyboardType,
             />
 
             {iconsLeft && <IconRight name="angle-down" size={20} />}
-
         </View>
     )
 }
@@ -139,10 +184,10 @@ const SelectBankInputView = ({ handleSetForm }: { handleSetForm: (value: string,
             {showDropDown && <View style={[{ height: hscale(300) }, styles.dropdownView]}>
                 <FlashList estimatedItemSize={BANKS.length} showsVerticalScrollIndicator={false} data={BANKS} renderItem={({ item }) => {
                     return (
-                        <View style={{ flexDirection: 'row', paddingVertical: hscale(12), alignItems: 'center', borderBottomWidth: StyleSheet.hairlineWidth, paddingHorizontal: wscale(20), borderColor: colors.greyView }}>
+                        <Pressable onPress={() => handleSetSelectedBank(item)} style={{ flexDirection: 'row', paddingVertical: hscale(12), alignItems: 'center', borderBottomWidth: StyleSheet.hairlineWidth, paddingHorizontal: wscale(20), borderColor: colors.greyView }}>
                             <BankIcon name="bank" size={20} />
-                            <Text style={styles.dropDownText} onPress={() => handleSetSelectedBank(item)}>{item}</Text>
-                        </View>
+                            <Text style={styles.dropDownText}>{item}</Text>
+                        </Pressable>
                     )
                 }} />
             </View>}
@@ -155,7 +200,7 @@ const EarningsBalanceView = ({ userBalance }: { userBalance: number | null }) =>
         <View style={styles.copyReferralCodeView}>
             <View style={{ flex: 1 }}>
                 <Text style={[styles.text, { fontFamily: "Inter-Bold", color: colors.black }]}>Earnings</Text>
-                <Text>{`${userBalance?.toFixed(2)} NGN`}</Text>
+                {userBalance && <Text>{`${userBalance.toFixed(2)} NGN`}</Text>}
             </View>
         </View>
     )
@@ -225,6 +270,33 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         zIndex: 90
+    },
+    successModalView: {
+        flex: 1,
+        position: 'absolute',
+        zIndex: 900,
+        backgroundColor: 'transparent',
+        top: 0,
+        bottom: 0,
+        inset: 0,
+        alignItems: 'center',
+
+    },
+    modal: {
+        alignItems: 'center',
+        backgroundColor: '#ffffff',
+        paddingVertical: hscale(20),
+        width: '85%',
+        paddingHorizontal: wscale(20),
+        elevation: 5,
+        shadowColor: colors.primary,
+        shadowOffset: { width: 0, height: 15 },
+        shadowOpacity: 0.7,
+        shadowRadius: 2,
+        borderRadius: mscale(8),
+        position: 'relative',
+        height: hscale(500),
+        top: hscale(100)
     }
 
 })

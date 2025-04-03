@@ -141,7 +141,7 @@ const EarningsBalanceView = ({ userBalance }: { userBalance: number | null }) =>
         <View style={styles.copyReferralCodeView}>
             <View style={{ flex: 1 }}>
                 <Text style={[styles.text, { fontFamily: "Inter-Bold", color: colors.black }]}>Earnings</Text>
-                <Text>{userBalance?.toFixed(2)} NGN</Text>
+                {userBalance && <Text>{`${userBalance.toFixed(2)} NGN`}</Text>}
             </View>
             <Text style={styles.textButton} onPress={handleNavigateCashout}>Cashout</Text>
         </View>
