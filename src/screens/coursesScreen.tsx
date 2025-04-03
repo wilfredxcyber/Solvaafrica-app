@@ -11,6 +11,7 @@ import PrimaryButton from "../components/primaryButton";
 import ProtectPage from "../components/protectPage";
 import { globalStyles } from "../styles/global";
 
+
 export default function CoursesScreen() {
   const [university, setUniversity] = useState(universities[0]);
   const [faculty, setFaculty] = useState(faculties[0].name);
@@ -164,7 +165,7 @@ const DropDownPicker = ({ data, setSelectedValue, defaultValue }: DropdownPicker
                 data={data}
                 renderItem={renderItemCallback}
                 keyExtractor={(item, index) => index + item}
-                estimatedItemSize={51}
+                estimatedItemSize={data.length}
                 showsVerticalScrollIndicator={false}
               />
             </View>

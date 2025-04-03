@@ -13,6 +13,7 @@ import { AUTH_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 
+
 interface ISearchListParams {
   university: string;
   faculty: string;
@@ -56,7 +57,7 @@ export default function CoursesList({ route }: ScreenProps) {
       ) : (
         <FlashList
           data={coursesList}
-          estimatedItemSize={88}
+          estimatedItemSize={coursesList.length}
           keyExtractor={(item) => item.question.id}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (

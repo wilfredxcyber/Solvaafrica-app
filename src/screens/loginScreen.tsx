@@ -47,9 +47,11 @@ export default function LoginScreen() {
         if (getUserRes.status === 200) {
           const { data } = getUserRes.data;
 
+          console.log('User', data)
+
           // save user
           const { fullName, gender, email, address, phone, referralCode } = data;
-          const userProfile: UserProfile = { fullName, gender, email, address, phone, referralCode };
+          const userProfile: UserProfile = { fullName, gender, email, address, phone, referralCode, userID: userId };
           const user: { profile: UserProfile; tokens: Tokens | null } = {
             profile: userProfile,
             tokens,

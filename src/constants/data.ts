@@ -133,3 +133,21 @@ export const faculties = [
         ],
     },
 ];
+
+
+export const BANKS = [
+    "Access Bank",
+    "Fidelity Bank",
+    "First Bank of Nigeria",
+    "Guaranty Trust Bank (GTB)",
+    "United Bank for Africa (UBA)",
+    "Zenith Bank",
+    "Stanbic IBTC",
+    "Ecobank",
+    "FCMB",
+    "Polaris Bank",
+    "Providus Bank",
+    "Wema Bank",
+    "Sterling Bank",
+    "Unity Bank",
+]

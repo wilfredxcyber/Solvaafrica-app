@@ -21,6 +21,7 @@ import CoursesList from "./coursesList";
 import Profile from "./Drawer/Profile";
 import HomeScreen from "./HomeScreen";
 import AskScreen from "./askScreen";
+import Cashout from "./cashout";
 
 
 export {
@@ -46,5 +47,6 @@ export {
   Complaints,
   DownloadCourseMaterial,
   ImageViewerPage,
-  PdfViewerPage
+  PdfViewerPage,
+  Cashout
 };

@@ -1,10 +1,13 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
+import { useCallback, useEffect, useState } from "react";
 import StarIcon from '@expo/vector-icons/AntDesign';
 import * as Clipboard from 'expo-clipboard';
-import { useEffect, useState } from "react";
 
 import { hscale, mscale, wscale } from "../helpers/metric";
 import { useAuthStore } from "../stores/authStore";
+import { AUTH_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 
@@ -13,12 +16,48 @@ type Tab = 'Refer' | 'Earn'
 
 export default function EarningScreen() {
     const [activeTab, setActiveTab] = useState<Tab>('Refer')
+    const [userBalance, setUserBalance] = useState<null | number>(null)
+
+    const AuthUser = useAuthStore(state => state.user)
+    const { userID } = AuthUser.profile;
+
+    useFocusEffect(useCallback(() => {
+        const getUserEarnedBalance = async () => {
+            try {
+                const response = await AUTH_API_CLIENT.get(`/users/balance/${userID}`)
+                const { balance } = response.data.data
+                setUserBalance(balance)
+            } catch (error) {
+                console.log('Error fetching user balance', error)
+            }
+        }
+
+        getUserEarnedBalance();
+    }, []))
 
 
     return (
         <View style={globalStyles.screen}>
             {/* tabs view */}
             <Tabs setActiveTab={setActiveTab} activeTab={activeTab} />
+            {activeTab === 'Refer' && <ReferTabView />}
+            {activeTab === 'Earn' && <EarnTabView userBalance={userBalance} />}
+        </View>
+    )
+}
+
+
+const EarnTabView = ({ userBalance }: { userBalance: number | null }) => {
+    return (
+        <View>
+            <EarningsBalanceView userBalance={userBalance} />
+        </View>
+    )
+}
+
+const ReferTabView = () => {
+    return (
+        <View>
             {/* how you earn view */}
             <View style={styles.bannerView}>
                 <StarIcon name="star" size={20} color={colors.primary} />
@@ -40,7 +79,6 @@ export default function EarningScreen() {
 
             {/* Copy referral code view */}
             <CopyReferalCodeView />
-
         </View>
     )
 }
@@ -73,12 +111,13 @@ const CopyReferalCodeView = () => {
     const handleCopyCode = async () => {
         await Clipboard.setStringAsync(userReferralCode)
         setCopiedCode(true)
+        Alert.alert('Copied!', 'Your referral code has been copied to clipboard.')
     }
 
     useEffect(() => {
         setTimeout(() => {
             setCopiedCode(false)
-        }, 1000)
+        }, 3000)
     }, [copiedCode])
     return (
         <View style={styles.copyReferralCodeView}>
@@ -86,7 +125,25 @@ const CopyReferalCodeView = () => {
                 <Text style={[styles.text, { fontFamily: "Inter-Bold", color: colors.black }]}>Referral code</Text>
                 <Text>{userReferralCode}</Text>
             </View>
-            <Text style={styles.textButton} onPress={handleCopyCode}>Copy</Text>
+            <Text style={styles.textButton} onPress={handleCopyCode}>{copiedCode ? 'Copied' : 'Copy'}</Text>
+        </View>
+    )
+}
+
+// View to display the earned balance
+const EarningsBalanceView = ({ userBalance }: { userBalance: number | null }) => {
+    const navigation = useNavigation()
+
+    const handleNavigateCashout = () => {
+        navigation.navigate('App', { screen: 'Cashout', params: { userBalance } })
+    }
+    return (
+        <View style={styles.copyReferralCodeView}>
+            <View style={{ flex: 1 }}>
+                <Text style={[styles.text, { fontFamily: "Inter-Bold", color: colors.black }]}>Earnings</Text>
+                <Text>{userBalance?.toFixed(2)} NGN</Text>
+            </View>
+            <Text style={styles.textButton} onPress={handleNavigateCashout}>Cashout</Text>
         </View>
     )
 }
