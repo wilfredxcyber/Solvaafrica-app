@@ -11,6 +11,7 @@ import { useAuthStore } from "../stores/authStore";
 import LoadingView from "./loadingView";
 import AvatarView from "./avatarView";
 
+
 type TDrawerScreens = "Profile" | "Complaints";
 
 export default function CustomDrawer(props: DrawerContentComponentProps) {
@@ -27,6 +28,8 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
       setActiveScreen(selectedScreen);
       navigation.navigate(selectedScreen);
     } else if (selectedScreen === "Complaints") {
+      // screen is incomplete
+      return
       setActiveScreen(selectedScreen);
       navigation.navigate(selectedScreen);
     }

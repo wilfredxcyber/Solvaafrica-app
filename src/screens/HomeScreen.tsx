@@ -13,6 +13,7 @@ import AvatarView from "../components/avatarView";
 import { getSliderImages } from "../api/queries";
 import { globalStyles } from "../styles/global";
 
+
 enum MenuItemScreensRoutes {
   "COURSES" = "Courses",
   "PROJECTS" = "Projects",
@@ -80,13 +81,16 @@ export default function HomeScreen() {
     } else if (pressedItem === MenuItemScreensRoutes.UPLOAD) {
       navigation.navigate("App", { screen: "Upload" });
     } else if (pressedItem === MenuItemScreensRoutes.PREMIUM) {
-      navigation.navigate("App", { screen: "Premium" });
+      // navigation.navigate("App", { screen: "Premium" });
+      return
     } else if (pressedItem === MenuItemScreensRoutes.EARNING) {
       navigation.navigate("App", { screen: "Earning" });
     } else if (pressedItem === MenuItemScreensRoutes.SERVICES) {
-      navigation.navigate("App", { screen: "Services" });
+      // navigation.navigate("App", { screen: "Services" });
+      return
     } else if (pressedItem === MenuItemScreensRoutes.ASK) {
-      navigation.navigate("App", { screen: "Ask" });
+      // navigation.navigate("App", { screen: "Ask" });
+      return
     } else if (pressedItem === MenuItemScreensRoutes.ESCROW_SITE) {
       Linking.openURL("https://www.solvaafrica.com/").catch((error) => {
         Alert.alert("URL Error!", error?.message ?? "Could not open link");
@@ -140,24 +144,24 @@ export default function HomeScreen() {
       >
         {data
           ? data.map((currentSlideImage, index) => (
-              <View
-                style={{ width: width - screenHorizontalPadding * 2, height: "100%" }}
-                key={index + currentSlideImage}
-              >
-                <Image
-                  source={{ uri: currentSlideImage }}
-                  style={{ width: "100%", height: "100%" }}
-                />
-              </View>
-            ))
+            <View
+              style={{ width: width - screenHorizontalPadding * 2, height: "100%" }}
+              key={index + currentSlideImage}
+            >
+              <Image
+                source={{ uri: currentSlideImage }}
+                style={{ width: "100%", height: "100%" }}
+              />
+            </View>
+          ))
           : new Array(3).map((_, index) => (
-              <View
-                style={{ width: width - screenHorizontalPadding * 2, height: "100%" }}
-                key={index}
-              >
-                <Image source={slidesPlaceholder} style={{ width: "100%", height: "100%" }} />
-              </View>
-            ))}
+            <View
+              style={{ width: width - screenHorizontalPadding * 2, height: "100%" }}
+              key={index}
+            >
+              <Image source={slidesPlaceholder} style={{ width: "100%", height: "100%" }} />
+            </View>
+          ))}
       </Carousel>
 
       {/* menu view */}

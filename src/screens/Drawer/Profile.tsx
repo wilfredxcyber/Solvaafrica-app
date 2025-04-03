@@ -14,8 +14,17 @@ import { globalStyles } from "../../styles/global";
 import { colors } from "../../constants/theme";
 
 
+type UpdateUserProfile = {
+  fullName: null | string,
+  email: null | string,
+  address: null | string,
+  gender: null | string,
+  phone: null | string,
+}
+
+
 export default function Profile() {
-  const [userProfile, setUserProfile] = useState<UserProfile>({
+  const [userProfile, setUserProfile] = useState<UpdateUserProfile>({
     fullName: null,
     email: null,
     address: null,

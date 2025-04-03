@@ -13,6 +13,7 @@ import { Image } from "expo-image";
 import { colors, screenHorizontalPadding } from "../constants/theme";
 import { hscale, mscale, wscale } from "../helpers/metric";
 import PrimaryButton from "../components/primaryButton";
+import ProtectPage from "../components/protectPage";
 import { PickedFile } from "../types";
 
 
@@ -117,126 +118,128 @@ export default function UploadFilesScreen() {
   }
 
   return (
-    <View style={{ backgroundColor: colors.primary, flex: 1 }}>
-      <Pressable
-        onPress={() => navigation.goBack()}
-        style={{
-          width: wscale(48),
-          height: hscale(48),
-          justifyContent: "center",
-          alignItems: "flex-start",
-          marginLeft: screenHorizontalPadding,
-        }}
-      >
-        <LeftIcon name="arrow-back-outline" size={24} color={"#ffffff"} />
-      </Pressable>
-
-      <View style={{ flex: 1 }}>
-        <View style={{ height: hscale(142), width: wscale(113), marginHorizontal: "auto" }}>
-          <Image
-            source={require("../../assets/images/file.png")}
-            style={{ height: "100%", width: "100%" }}
-            contentFit="fill"
-          />
-        </View>
-        <Text
+    <ProtectPage>
+      <View style={{ backgroundColor: colors.primary, flex: 1 }}>
+        <Pressable
+          onPress={() => navigation.goBack()}
           style={{
-            fontFamily: "Inter-Bold",
-            fontSize: mscale(24),
-            color: "#fff",
-            textAlign: "center",
-            marginTop: hscale(24),
+            width: wscale(48),
+            height: hscale(48),
+            justifyContent: "center",
+            alignItems: "flex-start",
+            marginLeft: screenHorizontalPadding,
           }}
         >
-          Educational Resources
-        </Text>
-        <Text
-          style={{
-            fontFamily: "Inter-Regular",
-            fontSize: mscale(14),
-            color: "#fff",
-            textAlign: "center",
-            width: "80%",
-            marginHorizontal: "auto",
-            marginTop: hscale(12),
-          }}
-        >
-          Only documents in jpeg, png, pdf formats are allowed for upload.
-        </Text>
+          <LeftIcon name="arrow-back-outline" size={24} color={"#ffffff"} />
+        </Pressable>
 
-        {/* bottom sheet */}
-        <View style={{ flex: 1, justifyContent: "flex-end" }}>
-          <View
+        <View style={{ flex: 1 }}>
+          <View style={{ height: hscale(142), width: wscale(113), marginHorizontal: "auto" }}>
+            <Image
+              source={require("../../assets/images/file.png")}
+              style={{ height: "100%", width: "100%" }}
+              contentFit="fill"
+            />
+          </View>
+          <Text
             style={{
-              backgroundColor: "#ffffff",
-              height: "60%",
-              justifyContent: "center",
-              borderTopLeftRadius: mscale(20),
-              borderTopRightRadius: mscale(20),
+              fontFamily: "Inter-Bold",
+              fontSize: mscale(24),
+              color: "#fff",
+              textAlign: "center",
+              marginTop: hscale(24),
             }}
           >
-            <Pressable
-              onPress={handleOpenCamera}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: colors.primary,
-                alignSelf: "center",
-                height: hscale(56),
-                paddingHorizontal: wscale(20),
-                borderRadius: mscale(8),
-              }}
-            >
-              <CameraIcon name="photo-camera" size={24} color={"#ffffff"} />
-              <Text style={{ fontFamily: "Inter-Bold", marginLeft: wscale(12), color: "#ffffff" }}>
-                Use Camera
-              </Text>
-            </Pressable>
-            <Text
-              onPress={handleUseFilePicker}
-              style={{
-                fontFamily: "Inter-Bold",
-                color: colors.primary,
-                fontSize: mscale(20),
-                textAlign: "center",
-                marginTop: hscale(20),
-              }}
-            >
-              Select the file from storage
-            </Text>
+            Educational Resources
+          </Text>
+          <Text
+            style={{
+              fontFamily: "Inter-Regular",
+              fontSize: mscale(14),
+              color: "#fff",
+              textAlign: "center",
+              width: "80%",
+              marginHorizontal: "auto",
+              marginTop: hscale(12),
+            }}
+          >
+            Only documents in jpeg, png, pdf formats are allowed for upload.
+          </Text>
 
+          {/* bottom sheet */}
+          <View style={{ flex: 1, justifyContent: "flex-end" }}>
             <View
               style={{
-                flexDirection: "row",
-                alignItems: "center",
-                width: "80%",
-                backgroundColor: "#FFEACC",
-                marginHorizontal: "auto",
-                paddingVertical: hscale(12),
-                paddingHorizontal: wscale(24),
-                borderRadius: mscale(6),
-                borderWidth: 2,
-                borderColor: "#E28400",
-                marginTop: hscale(20),
+                backgroundColor: "#ffffff",
+                height: "60%",
+                justifyContent: "center",
+                borderTopLeftRadius: mscale(20),
+                borderTopRightRadius: mscale(20),
               }}
             >
-              <WarnIcon name="exclamation-triangle" size={24} color={"#E28400"} />
-              <Text
+              <Pressable
+                onPress={handleOpenCamera}
                 style={{
-                  fontFamily: "Inter-Bold",
-                  marginLeft: wscale(8),
-                  width: "80%",
-                  color: "#E28400",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: colors.primary,
+                  alignSelf: "center",
+                  height: hscale(56),
+                  paddingHorizontal: wscale(20),
+                  borderRadius: mscale(8),
                 }}
               >
-                Note what is expected while uploading PDFs
+                <CameraIcon name="photo-camera" size={24} color={"#ffffff"} />
+                <Text style={{ fontFamily: "Inter-Bold", marginLeft: wscale(12), color: "#ffffff" }}>
+                  Use Camera
+                </Text>
+              </Pressable>
+              <Text
+                onPress={handleUseFilePicker}
+                style={{
+                  fontFamily: "Inter-Bold",
+                  color: colors.primary,
+                  fontSize: mscale(20),
+                  textAlign: "center",
+                  marginTop: hscale(20),
+                }}
+              >
+                Select the file from storage
               </Text>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  width: "80%",
+                  backgroundColor: "#FFEACC",
+                  marginHorizontal: "auto",
+                  paddingVertical: hscale(12),
+                  paddingHorizontal: wscale(24),
+                  borderRadius: mscale(6),
+                  borderWidth: 2,
+                  borderColor: "#E28400",
+                  marginTop: hscale(20),
+                }}
+              >
+                <WarnIcon name="exclamation-triangle" size={24} color={"#E28400"} />
+                <Text
+                  style={{
+                    fontFamily: "Inter-Bold",
+                    marginLeft: wscale(8),
+                    width: "80%",
+                    color: "#E28400",
+                  }}
+                >
+                  Note what is expected while uploading PDFs
+                </Text>
+              </View>
             </View>
           </View>
         </View>
       </View>
-    </View>
+    </ProtectPage>
   );
 }
 
