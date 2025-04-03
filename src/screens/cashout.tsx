@@ -1,14 +1,12 @@
 import { Alert, KeyboardTypeOptions, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { StaticScreenProps, useFocusEffect } from "@react-navigation/native";
-import { useCallback, useEffect, useState } from "react";
+import { StaticScreenProps, } from "@react-navigation/native";
 import IconRight from '@expo/vector-icons/FontAwesome';
 import BankIcon from '@expo/vector-icons/FontAwesome';
 import { FlashList } from "@shopify/flash-list";
+import { useState } from "react";
 
 import { hscale, mscale, wscale } from "../helpers/metric";
 import PrimaryButton from "../components/primaryButton";
-import { useAuthStore } from "../stores/authStore";
-import { AUTH_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import { BANKS } from "../constants/data";
