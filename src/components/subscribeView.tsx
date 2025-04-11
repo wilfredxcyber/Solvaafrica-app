@@ -10,6 +10,7 @@ import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import LoadingView from "./loadingView";
 
+
 type subscriptionPlans = "Basic" | "Premium";
 
 export default function SubscribeView() {
@@ -45,7 +46,7 @@ export default function SubscribeView() {
     try {
       setIsLoading(true);
       const res = await AUTH_API_CLIENT.get(
-        `/sub/${activePlan}/link?callback=https://solvaafrica.vercel.app`
+        `/sub/${activePlan}/link?callback=https://www.solvaafrica.com`
       );
       if (res.status === 200) {
         const subLink = res.data.data.authorization_url;
