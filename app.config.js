@@ -1,6 +1,8 @@
-{
+const IS_DEV = process.env.APP_VARIANT === 'development';
+
+export default {
   "expo": {
-    "name": "Solva",
+    "name": IS_DEV ? "Solva (Dev)" : "Solva",
     "slug": "Solva",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,7 +11,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": IS_DEV ? "com.solvaafrica.dev" : "com.solvaafrica"
     },
     "android": {
       "intentFilters": [
@@ -22,14 +25,25 @@
               "host": "solvaafrica.vercel.app"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#9412EC"
       },
-      "package": "com.solvaafrica"
+      "package": IS_DEV ? "com.solvaafrica.dev" : "com.solvaafrica",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.DOWNLOAD_WITHOUT_NOTIFICATION",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -61,7 +75,11 @@
       [
         "react-native-file-viewer-turbo",
         {
-          "mimeTypes": ["application/pdf", "image/jpeg", "image/png"]
+          "mimeTypes": [
+            "application/pdf",
+            "image/jpeg",
+            "image/png"
+          ]
         }
       ],
       "expo-document-picker",

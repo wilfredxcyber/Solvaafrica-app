@@ -12,6 +12,7 @@ import { RootStackNavigation } from "./navigations/RootStackNavigation";
 import { bootstrapApp } from "./helpers/bootstrapApp";
 import { useAuthStore } from "./stores/authStore";
 
+
 SplashScreen.setOptions({
   duration: 1000,
   fade: true,
@@ -30,7 +31,7 @@ export default function App() {
     });
   });
 
-  useKeepAwake();
+  process.env.NODE_ENV === 'development' && useKeepAwake();
   useEffect(() => {
     // bootstrap app
     (async () => {
