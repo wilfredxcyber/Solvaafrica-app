@@ -5,6 +5,7 @@
     "start": "expo start",
     "start:dev": "APP_VARIANT=development npx expo start",
     "build-android:dev": "eas build --profile development --platform android",
+    "build-android:prod": "eas build --platform android --profile production",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
     "ios": "expo run:ios",
