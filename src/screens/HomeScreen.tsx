@@ -134,6 +134,7 @@ export default function HomeScreen() {
         height={hscale(100)}
         showsControls={false}
         autoplay={true}
+        autoplayInterval={2000}
         loop={true}
         pagingEnabled={true}
         bounces={true}
