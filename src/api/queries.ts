@@ -1,6 +1,7 @@
 // get slider images
 import { AUTH_API_CLIENT, PUB_API_CLIENT } from "./apiClient";
 
+
 export const getSliderImages = async () => {
   try {
     const res = await PUB_API_CLIENT.get("/slider");
