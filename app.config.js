@@ -1,107 +1,32 @@
 const IS_DEV = process.env.APP_VARIANT === 'development';
+const IS_PREVIEW = process.env.APP_VARIANT === 'preview';
 
-export default {
-  "expo": {
-    "name": IS_DEV ? "Solva (Dev)" : "Solva",
-    "slug": "Solva",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
-    "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": IS_DEV ? "com.solvaafrica.dev" : "com.solvaafrica"
-    },
-    "android": {
-      "intentFilters": [
-        {
-          "action": "VIEW",
-          "autoVerify": true,
-          "data": [
-            {
-              "scheme": "https",
-              "host": "solvaafrica.vercel.app"
-            }
-          ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
-        }
-      ],
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#9412EC"
-      },
-      "package": IS_DEV ? "com.solvaafrica.dev" : "com.solvaafrica",
-      "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.DOWNLOAD_WITHOUT_NOTIFICATION",
-        "android.permission.ACCESS_NETWORK_STATE"
-      ]
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#9412EC"
-        }
-      ],
-      [
-        "expo-font",
-        {
-          "fonts": [
-            "./assets/fonts/Inter-Black.otf",
-            "./assets/fonts/Inter-Bold.otf",
-            "./assets/fonts/Inter-Medium.otf",
-            "./assets/fonts/Inter-Regular.otf"
-          ]
-        }
-      ],
-      [
-        "react-native-file-viewer-turbo",
-        {
-          "mimeTypes": [
-            "application/pdf",
-            "image/jpeg",
-            "image/png"
-          ]
-        }
-      ],
-      "expo-document-picker",
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
-        }
-      ],
-      "@config-plugins/react-native-blob-util",
-      "@config-plugins/react-native-pdf"
-    ],
-    "experiments": {
-      "typedRoutes": true
-    },
-    "extra": {
-      "router": {
-        "origin": false
-      },
-      "eas": {
-        "projectId": "743df46a-cbdd-4b55-9cfd-63940f187617"
-      }
+
+export default ({ config }) => ({
+    ...config,
+})
+
+
+const getUniqueIdentifier = () => {
+    if (IS_DEV) {
+        return 'com.bytegrn.solvaafrica.dev';
     }
-  }
-}
+
+    if (IS_PREVIEW) {
+        return 'com.bytegrn.solvaafrica.preview';
+    }
+
+    return 'com.bytegrn.solvaafrica';
+};
+
+const getAppName = () => {
+    if (IS_DEV) {
+        return 'Solva (Dev)';
+    }
+
+    if (IS_PREVIEW) {
+        return 'Solva (Preview)';
+    }
+
+    return 'Solva';
+};
