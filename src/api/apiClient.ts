@@ -5,12 +5,13 @@ import axios from "axios";
 import { useAuthStore } from "../stores/authStore";
 import { ENV_CONFIG } from "../env.config";
 
+
 const API_BASE_URL =
   process.env.NODE_ENV === "development" || "preview"
     ? ENV_CONFIG.dev.BASE_API_URL
     : process.env.NODE_ENV === "production"
-    ? ENV_CONFIG.prod.BASE_API_URL
-    : undefined;
+      ? ENV_CONFIG.prod.BASE_API_URL
+      : ENV_CONFIG.dev.BASE_API_URL;
 
 // for NON AUTH USER
 export const PUB_API_CLIENT = axios.create({
