@@ -1,5 +1,6 @@
 import { Text, TextInput, View, StyleSheet, Alert } from "react-native";
 import { StackActions, useNavigation } from "@react-navigation/native";
+import ToastManager, { Toast } from 'toastify-react-native';
 import Icon from '@expo/vector-icons/Feather';
 import { Formik, FormikProps } from "formik";
 import { useState } from "react";
@@ -10,7 +11,6 @@ import { hscale, mscale, wscale, } from "../helpers/metric";
 import TextLinkButton from "../components/textLinkButton";
 import PrimaryButton from "../components/primaryButton";
 import { PUB_API_CLIENT } from "../api/apiClient";
-import { showToast } from "../helpers/showToast";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import Logo from "../components/logo";
@@ -54,7 +54,7 @@ export default function CreateAccountScreen() {
         // extract required fields
         const { fullName, email, phone, password, referral } = values;
         if (!agreeTerms) {
-            showToast('error', 'error', 'Kindly agree to the terms and conditions')
+            Toast.error('Accept user terms and agreement')
             return;
         }
         // post to api
@@ -73,8 +73,7 @@ export default function CreateAccountScreen() {
 
             if (error.status === 401) {
                 const { message } = error.response.data;
-                console.log(message)
-                showToast('error', 'error', message)
+                Toast.error(message)
                 return;
             }
 
@@ -107,7 +106,7 @@ export default function CreateAccountScreen() {
                         <View>
                             <View style={styles.inputView}>
                                 <Icon name="user" size={20} color={colors.primary} />
-                                <TextInput placeholderTextColor={colors.placeholderInput} placeholder="Full Name" onChangeText={handleChange('fullName')} onBlur={handleBlur('fullName')} value={values.fullName} style={styles.input} />
+                                <TextInput autoCapitalize="words" placeholderTextColor={colors.placeholderInput} placeholder="Full Name" onChangeText={handleChange('fullName')} onBlur={handleBlur('fullName')} value={values.fullName} style={styles.input} />
                             </View>
                             {errors.fullName && <Text style={styles.errorText}>{errors.fullName}</Text>}
                         </View>
@@ -169,7 +168,8 @@ export default function CreateAccountScreen() {
                 )}
             </Formik>
             <Text style={styles.haveAccount}>Already have an account? <TextLinkButton customStyle={{ color: colors.textLink }} text="Login" onPress={() => navigation.navigate('App', { screen: 'Login' })} /></Text>
-
+            {/* Toast provider should be at the root level */}
+            <ToastManager />
         </View>
     )
 }
