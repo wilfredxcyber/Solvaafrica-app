@@ -45,6 +45,7 @@ const CreateAccountSchema = Yup.object().shape({
 export default function CreateAccountScreen() {
 
     const [agreeTerms, setAgreeTerms] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const navigation = useNavigation();
 
     const initialValues: IFormValues = { fullName: '', email: '', phone: '', password: '', confirmPassword: '', referral: '' }
@@ -58,11 +59,12 @@ export default function CreateAccountScreen() {
         }
         // post to api
         try {
+            setIsLoading(true)
             const createUserRes = await PUB_API_CLIENT.post('/users/create', { fullName, email, phone, password, referral })
             console.log({ createUserRes: createUserRes.data })
 
             if (createUserRes.status === 201) {
-                navigation.dispatch(StackActions.replace('Login'))
+                navigation.dispatch(StackActions.replace('App', { screen: 'Login' }))
                 return;
             }
 
@@ -78,6 +80,8 @@ export default function CreateAccountScreen() {
 
             // temporary: for everything else
             Alert.alert('Error', 'Something went wrong...')
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -160,7 +164,7 @@ export default function CreateAccountScreen() {
                         </View>
 
                         {/* create account button */}
-                        <PrimaryButton text="create account" onPress={handleSubmit} />
+                        <PrimaryButton text="create account" onPress={handleSubmit} isLoading={isLoading} />
                     </View>
                 )}
             </Formik>

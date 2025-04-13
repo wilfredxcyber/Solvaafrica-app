@@ -33,6 +33,7 @@
     "expo": "~52.0.37",
     "expo-blur": "~14.0.3",
     "expo-camera": "~16.0.18",
+    "expo-clipboard": "~7.0.1",
     "expo-constants": "~17.0.7",
     "expo-dev-client": "~5.0.12",
     "expo-document-picker": "~13.0.3",
@@ -49,6 +50,7 @@
     "expo-system-ui": "~4.0.8",
     "expo-web-browser": "~14.0.2",
     "formik": "^2.4.6",
+    "lottie-react-native": "7.1.0",
     "pinar": "^0.12.2",
     "react": "18.3.1",
     "react-dom": "18.3.1",
@@ -67,10 +69,9 @@
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
     "rn-screenshot-prevent": "^0.0.8",
+    "toastify-react-native": "^7.1.1",
     "yup": "^1.6.1",
-    "zustand": "^5.0.3",
-    "lottie-react-native": "7.1.0",
-    "expo-clipboard": "~7.0.1"
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
