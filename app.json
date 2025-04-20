@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name":  "Solva",
+    "name": "Solva",
+    "owner": "solvaafrica",
     "slug": "Solva",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,7 +11,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier":  "com.solvaafrica"
+      "bundleIdentifier": "com.solvaafrica"
     },
     "android": {
       "intentFilters": [
@@ -23,17 +24,14 @@
               "host": "www.solvaafrica.com"
             }
           ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#9412EC"
       },
-      "package":"com.solvaafrica",
+      "package": "com.solvaafrica",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO",
@@ -73,11 +71,7 @@
       [
         "react-native-file-viewer-turbo",
         {
-          "mimeTypes": [
-            "application/pdf",
-            "image/jpeg",
-            "image/png"
-          ]
+          "mimeTypes": ["application/pdf", "image/jpeg", "image/png"]
         }
       ],
       "expo-document-picker",
