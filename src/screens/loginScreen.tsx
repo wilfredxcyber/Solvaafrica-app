@@ -14,6 +14,7 @@ import { PUB_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import Logo from "../components/logo";
+import { useNavigation } from "@react-navigation/native";
 import ErrorModal from "../components/errorModal";
 
 export default function LoginScreen() {
@@ -94,6 +95,8 @@ export default function LoginScreen() {
     }
   };
 
+  const navigation = useNavigation();
+
   return (
     <View style={globalStyles.screen}>
       <View style={{ marginHorizontal: "auto" }}>
@@ -170,6 +173,13 @@ export default function LoginScreen() {
               style={{ marginLeft: 6 }}
               onPress={() => setShowPassword(!showPassword)}
             />
+            <Icon
+              name={showPassword ? "eye" : "eye-off"}
+              size={20}
+              color={colors.primary}
+              onPress={() => setShowPassword(!showPassword)}
+              style={{ paddingLeft: 10 }}
+            />
           </View>
         </View>
 
@@ -177,7 +187,9 @@ export default function LoginScreen() {
           <PrimaryButton text="Login" onPress={handleFormSubmit} />
           <TextLinkButton
             text="Forgot password"
-            onPress={() => console.log("Forgot password")}
+            onPress={() =>
+              navigation.navigate("App", { screen: "forgotPassword" })
+            }
           />
         </View>
       </View>

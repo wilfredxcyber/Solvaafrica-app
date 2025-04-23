@@ -9,14 +9,13 @@ import { hscale, mscale, wscale } from "../helpers/metric";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import LoadingView from "./loadingView";
-import ErrorModal from "./errorModal";
 
-type subscriptionPlans = "Basic" | "Premium";
+type subscriptionPlans = "Popular" | "Best Value"
 
 export default function SubscribeView() {
   const navigation = useNavigation();
 
-  const [activePlan, setActivePlan] = useState<subscriptionPlans>("Premium");
+  const [activePlan, setActivePlan] = useState<subscriptionPlans>("Best Value");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [errorVisible, setErrorVisible] = useState(false);
@@ -81,14 +80,15 @@ export default function SubscribeView() {
 
       <View style={{ gap: 20, marginTop: hscale(40) }}>
         <SubButton
-          handleOnPress={() => handleSubButtonPress("Premium")}
-          subPlan="Premium"
-          subPrice="1,999"
-          isActive={activePlan === "Premium" ? true : false}
+          handleOnPress={() => handleSubButtonPress("Popular")}
+          subPlan="Popular"
+          subPrice="999"
+          isActive={activePlan === "Popular" ? true : false}
         />
-        {activePlan === "Premium" && (
+        {activePlan === "Popular" && (
           <View style={{ marginLeft: wscale(20), gap: hscale(8) }}>
-            {planOffers.premium.map((offer) => (
+
+            {planOffers.basic.map((offer) => (
               <View
                 key={offer}
                 style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
@@ -100,16 +100,17 @@ export default function SubscribeView() {
               </View>
             ))}
           </View>
-        )}
+        )}{" "}
         <SubButton
-          handleOnPress={() => handleSubButtonPress("Basic")}
-          subPlan="Basic"
-          subPrice="999"
-          isActive={activePlan === "Basic" ? true : false}
+          handleOnPress={() => handleSubButtonPress("Best Value")}
+          subPlan="Best Value"
+          subPrice="1,999"
+          isActive={activePlan === "Best Value" ? true : false}
         />
-        {activePlan === "Basic" && (
+        {activePlan === "Best Value" && (
           <View style={{ marginLeft: wscale(20), gap: hscale(8) }}>
-            {planOffers.basic.map((offer) => (
+
+            {planOffers.premium.map((offer) => (
               <View
                 key={offer}
                 style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
@@ -137,7 +138,7 @@ export default function SubscribeView() {
 }
 
 interface SubButtonProps {
-  subPlan: "Premium" | "Basic";
+  subPlan: "Best Value" | "Popular";
   subPrice: "999" | "1,999";
   isActive: boolean;
   handleOnPress: () => void;
@@ -178,7 +179,7 @@ const SubButton = ({
           color: isActive ? colors.primary : colors.bodyText,
         }}
       >
-        N{subPrice}/month
+        {`₦${subPrice}${subPlan === "Best Value" ? "/3month" : "month"}`}
       </Text>
     </Pressable>
   );

@@ -1,0 +1,130 @@
+import React, { useRef, useState } from "react";
+import Logo from "@/src/components/logo";
+import ScreenHeadingText from "@/src/components/screenHeadingText";
+import Icon from "@expo/vector-icons/Feather";
+
+import { View, Text, StyleSheet, TextInput, Alert, Image } from "react-native";
+import { globalStyles } from "@/src/styles/global";
+import { colors } from "@/src/constants/theme";
+import { hscale, mscale, wscale } from "@/src/helpers/metric";
+import PrimaryButton from "@/src/components/primaryButton";
+import { PUB_API_CLIENT } from "@/src/api/apiClient";
+import { useNavigation } from "@react-navigation/native";
+import LoadingView from "@/src/components/loadingView";
+
+export default function ForgotPassword() {
+  const inputRef = useRef<TextInput>(null);
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigation = useNavigation();
+
+  const handleFormSubmit = async () => {
+    inputRef.current?.blur();
+    console.log("The email", email);
+
+    if (!email) return;
+    setLoading(true);
+    try {
+      //forgotPassword
+      const res = await PUB_API_CLIENT.post("users/forgotten/password/otp", {
+        callback: "https://www.solvaafrica.com",
+        email,
+      });
+
+      if (res.status === 200) {
+        setLoading(false);
+        navigation.navigate("App", { screen: "forgotPasswordSuccess" });
+      }
+    } catch (error: any) {
+      setLoading(false);
+      console.log("Error in forgot password", error.response);
+      if (error.status === 400 || 401) {
+        Alert.alert("Error, check email and try again", "Try again!");
+        return;
+      }
+
+      Alert.alert("Error", "Something went wrong!");
+    } finally {
+      console.log("Operation complete");
+      setLoading(false);
+    }
+  };
+
+  return (
+    <View style={globalStyles.screen}>
+      <View style={{ marginHorizontal: "auto" }}>
+        <Logo />
+      </View>
+
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 30,
+          justifyContent: "space-between",
+          marginTop: 20,
+          // height: hscale(400),
+        }}
+      >
+        <Image
+          source={require("../../../../assets/images/forgotP.png")}
+          style={{
+            height: hscale(213),
+            width: wscale(208),
+            // backgroundColor: "#D9D9D9",
+            marginHorizontal: "auto",
+          }}
+        />
+
+        <ScreenHeadingText
+          text="update your password"
+          customStyle={{ textAlign: "center", marginVertical: "auto" }}
+        />
+        <Text
+          style={{
+            fontSize: mscale(17),
+            color: colors.bodyText,
+            textAlign: "center",
+            fontFamily: "Inter-Regular",
+          }}
+        >
+          Enter your email address and select send email
+        </Text>
+
+        <View style={styles.inputView}>
+          <Icon name="mail" size={20} color={colors.primary} />
+          <TextInput
+            ref={inputRef}
+            placeholderTextColor={colors.placeholderInput}
+            placeholder="Email Address"
+            style={styles.input}
+            onChangeText={(text) => setEmail(text)}
+          />
+        </View>
+
+        <PrimaryButton text="Send Email" onPress={handleFormSubmit} />
+
+        <LoadingView isLoading={loading} />
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  inputView: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: hscale(50),
+    backgroundColor: colors.inputField,
+    paddingHorizontal: wscale(20),
+    borderRadius: mscale(50),
+  },
+  input: {
+    flex: 1,
+    height: "100%",
+    fontFamily: "Inter-Bold",
+    color: colors.black,
+    fontSize: mscale(14),
+    paddingLeft: wscale(8),
+  },
+});

@@ -29,6 +29,8 @@ import {
 import { useUserSignedIn, useUserSignedOut } from "../hooks/userAuth";
 import TabsNavigator from "./BottomTabNavigation";
 import { colors } from "../constants/theme";
+import ForgotPassword from "../screens/auth/forgot-password/forgotPassword";
+import ForgotPasswordSuccess from "../screens/auth/forgot-password/forgotPasswordSuccess";
 
 const AppStackNavigator = createNativeStackNavigator({
   groups: {
@@ -148,6 +150,14 @@ const AppStackNavigator = createNativeStackNavigator({
           options: { headerShown: false },
         },
         Login: { screen: LoginScreen, options: { headerShown: false } },
+        forgotPassword: {
+          screen: ForgotPassword,
+          options: { headerShown: false },
+        },
+        forgotPasswordSuccess: {
+          screen: ForgotPasswordSuccess,
+          options: { headerShown: false },
+        },
         Terms: {
           screen: TermsAndConditions,
           options: {
