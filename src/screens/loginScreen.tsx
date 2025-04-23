@@ -14,11 +14,12 @@ import { PUB_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import Logo from "../components/logo";
-
+import { useNavigation } from "@react-navigation/native";
 
 export default function LoginScreen() {
   const [form, setForm] = useState<ILoginForm>({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const inputRef = useRef<TextInput>(null);
 
@@ -37,7 +38,7 @@ export default function LoginScreen() {
       if (res.status === 200) {
         const { data: UserData } = res.data;
         const userId = UserData.user.id;
-        const tokens = UserData.tokens
+        const tokens = UserData.tokens;
 
         // get user
         const getUserRes = await PUB_API_CLIENT.get(`/users/${userId}`, {
@@ -47,18 +48,27 @@ export default function LoginScreen() {
         if (getUserRes.status === 200) {
           const { data } = getUserRes.data;
 
-          console.log('User', data)
+          console.log("User", data);
 
           // save user
-          const { fullName, gender, email, address, phone, referralCode } = data;
-          const userProfile: UserProfile = { fullName, gender, email, address, phone, referralCode, userID: userId };
+          const { fullName, gender, email, address, phone, referralCode } =
+            data;
+          const userProfile: UserProfile = {
+            fullName,
+            gender,
+            email,
+            address,
+            phone,
+            referralCode,
+            userID: userId,
+          };
           const user: { profile: UserProfile; tokens: Tokens | null } = {
             profile: userProfile,
             tokens,
           };
 
           await AsyncStorage.setItem("User", JSON.stringify(user));
-          console.log('Auth User: \n', user);
+          console.log("Auth User: \n", user);
 
           // store user in global store
           useAuthStore.setState((state) => ({ ...state, user }));
@@ -79,6 +89,8 @@ export default function LoginScreen() {
     }
   };
 
+  const navigation = useNavigation();
+
   return (
     <View style={globalStyles.screen}>
       <View style={{ marginHorizontal: "auto" }}>
@@ -91,7 +103,13 @@ export default function LoginScreen() {
           text="Welcome Back"
           customStyle={{ textAlign: "center", marginVertical: "auto" }}
         />
-        <Text style={{ color: colors.bodyText, textAlign: "center", fontFamily: "Inter-Regular" }}>
+        <Text
+          style={{
+            color: colors.bodyText,
+            textAlign: "center",
+            fontFamily: "Inter-Regular",
+          }}
+        >
           It’s good to have you back. Always a good time to learn and earn
         </Text>
 
@@ -111,18 +129,30 @@ export default function LoginScreen() {
             <Icon name="lock" size={20} color={colors.primary} />
             <TextInput
               ref={inputRef}
-              secureTextEntry
+              secureTextEntry={!showPassword}
               placeholderTextColor={colors.placeholderInput}
               placeholder="Password"
               style={styles.input}
               onChangeText={(password) => setForm({ ...form, password })}
+            />
+            <Icon
+              name={showPassword ? "eye" : "eye-off"}
+              size={20}
+              color={colors.primary}
+              onPress={() => setShowPassword(!showPassword)}
+              style={{ paddingLeft: 10 }}
             />
           </View>
         </View>
 
         <View style={{ marginTop: hscale(40) }}>
           <PrimaryButton text="Login" onPress={handleFormSubmit} />
-          <TextLinkButton text="Forgot password" onPress={() => console.log("Forgot password")} />
+          <TextLinkButton
+            text="Forgot password"
+            onPress={() =>
+              navigation.navigate("App", { screen: "forgotPassword" })
+            }
+          />
         </View>
       </View>
       <LoadingView isLoading={isLoading} />

@@ -1,10 +1,30 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import { AskScreen, CourseMaterials, CoursesList, CoursesScreen, CreateAccountScreen, DownloadCourseMaterial, EarningScreen, ImageViewerPage, LoginScreen, OnboardScreen, PremiumScreen, ProjectsScreen, ServicesScreen, TermsAndConditions, UploadFilesScreen, UploadFilePreviewScreen, PdfViewerPage, Cashout } from "../screens";
+import {
+  AskScreen,
+  CourseMaterials,
+  CoursesList,
+  CoursesScreen,
+  CreateAccountScreen,
+  DownloadCourseMaterial,
+  EarningScreen,
+  ImageViewerPage,
+  LoginScreen,
+  OnboardScreen,
+  PremiumScreen,
+  ProjectsScreen,
+  ServicesScreen,
+  TermsAndConditions,
+  UploadFilesScreen,
+  UploadFilePreviewScreen,
+  PdfViewerPage,
+  Cashout,
+} from "../screens";
 import { useUserSignedIn, useUserSignedOut } from "../hooks/userAuth";
 import TabsNavigator from "./BottomTabNavigation";
 import { colors } from "../constants/theme";
-
+import ForgotPassword from "../screens/auth/forgot-password/forgotPassword";
+import ForgotPasswordSuccess from "../screens/auth/forgot-password/forgotPasswordSuccess";
 
 const AppStackNavigator = createNativeStackNavigator({
   groups: {
@@ -28,7 +48,7 @@ const AppStackNavigator = createNativeStackNavigator({
         },
         PdfViewer: {
           screen: PdfViewerPage,
-          options: { headerShown: false }
+          options: { headerShown: false },
         },
         CourseDownloadMaterial: { screen: DownloadCourseMaterial },
         Projects: { screen: ProjectsScreen },
@@ -43,9 +63,12 @@ const AppStackNavigator = createNativeStackNavigator({
         },
         UploadPreview: {
           screen: UploadFilePreviewScreen,
-          options: { headerTitle: '' }
+          options: { headerTitle: "" },
         },
-        Earning: { screen: EarningScreen, options: { headerTitle: 'Earnings' } },
+        Earning: {
+          screen: EarningScreen,
+          options: { headerTitle: "Earnings" },
+        },
         Cashout: { screen: Cashout },
         Services: { screen: ServicesScreen },
         Ask: { screen: AskScreen },
@@ -64,6 +87,14 @@ const AppStackNavigator = createNativeStackNavigator({
           options: { headerShown: false },
         },
         Login: { screen: LoginScreen, options: { headerShown: false } },
+        forgotPassword: {
+          screen: ForgotPassword,
+          options: { headerShown: false },
+        },
+        forgotPasswordSuccess: {
+          screen: ForgotPasswordSuccess,
+          options: { headerShown: false },
+        },
         Terms: {
           screen: TermsAndConditions,
           options: {

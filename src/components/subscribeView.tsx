@@ -10,13 +10,12 @@ import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import LoadingView from "./loadingView";
 
-
-type subscriptionPlans = "Basic" | "Premium";
+type subscriptionPlans = "Popular" | "Best Value";
 
 export default function SubscribeView() {
   const navigation = useNavigation();
 
-  const [activePlan, setActivePlan] = useState<subscriptionPlans>("Premium");
+  const [activePlan, setActivePlan] = useState<subscriptionPlans>("Best Value");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const planOffers: PlanOfferProps = {
@@ -75,15 +74,18 @@ export default function SubscribeView() {
 
       <View style={{ gap: 20, marginTop: hscale(40) }}>
         <SubButton
-          handleOnPress={() => handleSubButtonPress("Premium")}
-          subPlan="Premium"
-          subPrice="1,999"
-          isActive={activePlan === "Premium" ? true : false}
+          handleOnPress={() => handleSubButtonPress("Popular")}
+          subPlan="Popular"
+          subPrice="999"
+          isActive={activePlan === "Popular" ? true : false}
         />
-        {activePlan === "Premium" && (
+        {activePlan === "Popular" && (
           <View style={{ marginLeft: wscale(20), gap: hscale(8) }}>
-            {planOffers.premium.map((offer) => (
-              <View key={offer} style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+            {planOffers.basic.map((offer) => (
+              <View
+                key={offer}
+                style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
+              >
                 <CheckIcon name="check" size={20} color={"#ffffff"} />
                 <Text key={offer} style={styles.planOffer}>
                   {offer}
@@ -91,17 +93,20 @@ export default function SubscribeView() {
               </View>
             ))}
           </View>
-        )}
+        )}{" "}
         <SubButton
-          handleOnPress={() => handleSubButtonPress("Basic")}
-          subPlan="Basic"
-          subPrice="999"
-          isActive={activePlan === "Basic" ? true : false}
+          handleOnPress={() => handleSubButtonPress("Best Value")}
+          subPlan="Best Value"
+          subPrice="1,999"
+          isActive={activePlan === "Best Value" ? true : false}
         />
-        {activePlan === "Basic" && (
+        {activePlan === "Best Value" && (
           <View style={{ marginLeft: wscale(20), gap: hscale(8) }}>
-            {planOffers.basic.map((offer) => (
-              <View key={offer} style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+            {planOffers.premium.map((offer) => (
+              <View
+                key={offer}
+                style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
+              >
                 <CheckIcon name="check" size={20} color={"#ffffff"} />
                 <Text key={offer} style={styles.planOffer}>
                   {offer}
@@ -120,7 +125,7 @@ export default function SubscribeView() {
 }
 
 interface SubButtonProps {
-  subPlan: "Premium" | "Basic";
+  subPlan: "Best Value" | "Popular";
   subPrice: "999" | "1,999";
   isActive: boolean;
   handleOnPress: () => void;
@@ -131,11 +136,19 @@ interface PlanOfferProps {
   premium: string[];
 }
 
-const SubButton = ({ subPlan, subPrice, isActive, handleOnPress }: SubButtonProps) => {
+const SubButton = ({
+  subPlan,
+  subPrice,
+  isActive,
+  handleOnPress,
+}: SubButtonProps) => {
   return (
     <Pressable
       onPress={handleOnPress}
-      style={[styles.subButton, { backgroundColor: isActive ? "#ffffff" : colors.greyView }]}
+      style={[
+        styles.subButton,
+        { backgroundColor: isActive ? "#ffffff" : colors.greyView },
+      ]}
     >
       <Text
         style={{
@@ -153,7 +166,7 @@ const SubButton = ({ subPlan, subPrice, isActive, handleOnPress }: SubButtonProp
           color: isActive ? colors.primary : colors.bodyText,
         }}
       >
-        N{subPrice}/month
+        {`₦${subPrice}${subPlan === "Best Value" ? "/3month" : "month"}`}
       </Text>
     </Pressable>
   );
@@ -176,7 +189,11 @@ const styles = StyleSheet.create({
     borderRadius: mscale(10),
     alignItems: "center",
   },
-  planOffer: { fontFamily: "Inter-Medium", fontSize: mscale(14), color: "#ffffff" },
+  planOffer: {
+    fontFamily: "Inter-Medium",
+    fontSize: mscale(14),
+    color: "#ffffff",
+  },
   subscribeButton: {
     padding: hscale(20),
     marginTop: hscale(40),
