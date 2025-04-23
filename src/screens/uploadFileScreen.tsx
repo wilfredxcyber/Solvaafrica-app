@@ -1,13 +1,13 @@
 import { Alert, Linking, Pressable, Text, View } from "react-native";
-import { useCameraPermissions, CameraView } from 'expo-camera';
+import { useCameraPermissions, CameraView } from "expo-camera";
 import CameraIcon from "@expo/vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
 import WarnIcon from "@expo/vector-icons/FontAwesome5";
-import PdfPageImage from 'react-native-pdf-page-image';
-import CheckIcon from '@expo/vector-icons/FontAwesome';
-import * as DocumentPicker from 'expo-document-picker';
+import PdfPageImage from "react-native-pdf-page-image";
+import CheckIcon from "@expo/vector-icons/FontAwesome";
+import * as DocumentPicker from "expo-document-picker";
 import LeftIcon from "@expo/vector-icons/Ionicons";
-import { useRef, useState } from 'react';
+import { useRef, useState } from "react";
 import { Image } from "expo-image";
 
 import { colors, screenHorizontalPadding } from "../constants/theme";
@@ -15,7 +15,7 @@ import { hscale, mscale, wscale } from "../helpers/metric";
 import PrimaryButton from "../components/primaryButton";
 import ProtectPage from "../components/protectPage";
 import { PickedFile } from "../types";
-
+import ToastManager, { Toast } from "toastify-react-native";
 
 export default function UploadFilesScreen() {
   const navigation = useNavigation();
@@ -28,18 +28,25 @@ export default function UploadFilesScreen() {
   // open device camera
   const handleOpenCamera = async () => {
     if (!permission?.granted) {
-      Alert.alert('Permission required', 'We need your permission to show the camera', [
-        {
-          text: 'Grant access',
-          onPress: async () => await requestCameraPermission()
-        }
-      ])
-    } else if (permission.status === 'denied') {
-      Alert.alert('Permission required', 'We need your permission to show the camera');
-      await Linking.openSettings()
+      Alert.alert(
+        "Permission required",
+        "We need your permission to show the camera",
+        [
+          {
+            text: "Grant access",
+            onPress: async () => await requestCameraPermission(),
+          },
+        ]
+      );
+    } else if (permission.status === "denied") {
+      Alert.alert(
+        "Permission required",
+        "We need your permission to show the camera"
+      );
+      await Linking.openSettings();
       return;
     }
-    setLaunchCameraView(true)
+    setLaunchCameraView(true);
   };
 
   // camera capture
@@ -47,74 +54,113 @@ export default function UploadFilesScreen() {
     setCapturing(true);
     if (!cameraReady) return;
     try {
-      const capturedResult = CameraRef?.current && await CameraRef.current.takePictureAsync({ quality: 1 })
+      const capturedResult =
+        CameraRef?.current &&
+        (await CameraRef.current.takePictureAsync({ quality: 1 }));
       if (!capturedResult || !capturedResult.uri) return;
 
       // extract name from the captured image
       const { uri } = capturedResult;
-      const capturedImageName = uri.split('/').pop();
+      const capturedImageName = uri.split("/").pop();
       if (capturedImageName) {
-        navigation.navigate('App', {
-          screen: 'UploadPreview', params: {
+        navigation.navigate("App", {
+          screen: "UploadPreview",
+          params: {
             pickedFile: {
               name: capturedImageName,
               fileUri: uri,
               imageUri: uri,
-              mimeType: 'image/jpeg'
-            }
-          }
-        })
+              mimeType: "image/jpeg",
+            },
+          },
+        });
       }
     } catch (error) {
-      console.log('Error capturing image with device camera', error)
+      Toast.error("Error capturing image with device camera");
     } finally {
-      setCapturing(false)
+      setCapturing(false);
     }
-  }
+  };
 
   const handleUseFilePicker = async () => {
     try {
       const pickedFile = await DocumentPicker.getDocumentAsync({
-        type: ['application/pdf', 'image/jpeg'],
+        type: ["application/pdf", "image/jpeg"],
         copyToCacheDirectory: true,
-      })
+      });
       if (!pickedFile.canceled) {
         const { name, uri, mimeType } = pickedFile.assets[0];
-        if (!name || !uri || !mimeType) throw new Error('Invalid picked asset');
+        if (!name || !uri || !mimeType) throw new Error("Invalid picked asset");
         // route param picked file
-        const _pickedFile: PickedFile = { fileUri: uri, imageUri: uri, name, mimeType }
-        if (mimeType === 'application/pdf') {
+        const _pickedFile: PickedFile = {
+          fileUri: uri,
+          imageUri: uri,
+          name,
+          mimeType,
+        };
+        if (mimeType === "application/pdf") {
           // genrate image from pdf page
           const scale = 1.0;
           const pdfPageImage = await PdfPageImage.generate(uri, 1, scale);
           _pickedFile.imageUri = pdfPageImage.uri;
         }
-        navigation.navigate('App', { screen: 'UploadPreview', params: { pickedFile: _pickedFile } })
+        navigation.navigate("App", {
+          screen: "UploadPreview",
+          params: { pickedFile: _pickedFile },
+        });
       }
     } catch (error) {
-      Alert.alert('Error', 'Kindly contact support')
-      console.log('Error picking file from  document directory', error)
+      // Alert.alert("Error", "Kindly contact support");
+      // console.log("Error picking file from  document directory", error);
+      Toast.error("Error picking file from document directory");
     }
   };
 
   if (launchCameraView) {
     return (
-      <CameraView onCameraReady={() => setCameraReady(true)} ref={CameraRef} style={{ flex: 1, justifyContent: 'flex-end' }} >
-        <View style={{ backgroundColor: '#F3EDF7', padding: hscale(20), gap: 12 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', }}>
-            <Text style={{ fontFamily: 'Inter-Bold', fontSize: mscale(14) }}>Ensure the enviroment is well lit</Text>
-            <CheckIcon name="check-circle" size={24} color={'green'} />
+      <CameraView
+        onCameraReady={() => setCameraReady(true)}
+        ref={CameraRef}
+        style={{ flex: 1, justifyContent: "flex-end" }}
+      >
+        <View
+          style={{ backgroundColor: "#F3EDF7", padding: hscale(20), gap: 12 }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text style={{ fontFamily: "Inter-Bold", fontSize: mscale(14) }}>
+              Ensure the enviroment is well lit
+            </Text>
+            <CheckIcon name="check-circle" size={24} color={"green"} />
           </View>
 
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', }}>
-            <Text style={{ fontFamily: 'Inter-Bold', fontSize: mscale(14) }}>Keep the camera steady and focused</Text>
-            <CheckIcon name="check-circle" size={24} color={'green'} />
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text style={{ fontFamily: "Inter-Bold", fontSize: mscale(14) }}>
+              Keep the camera steady and focused
+            </Text>
+            <CheckIcon name="check-circle" size={24} color={"green"} />
           </View>
 
-          <PrimaryButton text="Capture" onPress={handleCapture} isLoading={capturing} />
+          <PrimaryButton
+            text="Capture"
+            onPress={handleCapture}
+            isLoading={capturing}
+          />
         </View>
-      </CameraView >
-    )
+        <ToastManager />
+      </CameraView>
+    );
   }
 
   return (
@@ -134,7 +180,13 @@ export default function UploadFilesScreen() {
         </Pressable>
 
         <View style={{ flex: 1 }}>
-          <View style={{ height: hscale(142), width: wscale(113), marginHorizontal: "auto" }}>
+          <View
+            style={{
+              height: hscale(142),
+              width: wscale(113),
+              marginHorizontal: "auto",
+            }}
+          >
             <Image
               source={require("../../assets/images/file.png")}
               style={{ height: "100%", width: "100%" }}
@@ -191,10 +243,27 @@ export default function UploadFilesScreen() {
                 }}
               >
                 <CameraIcon name="photo-camera" size={24} color={"#ffffff"} />
-                <Text style={{ fontFamily: "Inter-Bold", marginLeft: wscale(12), color: "#ffffff" }}>
+                <Text
+                  style={{
+                    fontFamily: "Inter-Bold",
+                    marginLeft: wscale(12),
+                    color: "#ffffff",
+                  }}
+                >
                   Use Camera
                 </Text>
               </Pressable>
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontFamily: "Inter-Bold",
+                  color: colors.primary,
+                  fontSize: mscale(14),
+                  marginVertical: mscale(5),
+                }}
+              >
+                OR
+              </Text>
               <Text
                 onPress={handleUseFilePicker}
                 style={{
@@ -202,10 +271,10 @@ export default function UploadFilesScreen() {
                   color: colors.primary,
                   fontSize: mscale(20),
                   textAlign: "center",
-                  marginTop: hscale(20),
+                  // marginTop: hscale(20),
                 }}
               >
-                Select the file from storage
+                Click to select a file from storage
               </Text>
 
               <View
@@ -223,7 +292,11 @@ export default function UploadFilesScreen() {
                   marginTop: hscale(20),
                 }}
               >
-                <WarnIcon name="exclamation-triangle" size={24} color={"#E28400"} />
+                <WarnIcon
+                  name="exclamation-triangle"
+                  size={24}
+                  color={"#E28400"}
+                />
                 <Text
                   style={{
                     fontFamily: "Inter-Bold",
@@ -239,8 +312,7 @@ export default function UploadFilesScreen() {
           </View>
         </View>
       </View>
+      <ToastManager />
     </ProtectPage>
   );
 }
-
-

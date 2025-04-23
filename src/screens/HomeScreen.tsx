@@ -1,4 +1,14 @@
-import { View, Text, StyleSheet, Image, Dimensions, Pressable, Linking, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Dimensions,
+  Pressable,
+  Linking,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import MenuIcon from "@expo/vector-icons/Ionicons";
@@ -12,7 +22,6 @@ import { useAuthStore } from "../stores/authStore";
 import AvatarView from "../components/avatarView";
 import { getSliderImages } from "../api/queries";
 import { globalStyles } from "../styles/global";
-
 
 enum MenuItemScreensRoutes {
   "COURSES" = "Courses",
@@ -45,15 +54,21 @@ export default function HomeScreen() {
     },
     {
       item: MenuItemScreensRoutes.PROJECTS,
-      icon: () => <MenuIcon name="folder-open-outline" size={20} color={"#ffffff"} />,
+      icon: () => (
+        <MenuIcon name="folder-open-outline" size={20} color={"#ffffff"} />
+      ),
     },
     {
       item: MenuItemScreensRoutes.UPLOAD,
-      icon: () => <MenuIcon name="cloud-upload-outline" size={20} color={"#ffffff"} />,
+      icon: () => (
+        <MenuIcon name="cloud-upload-outline" size={20} color={"#ffffff"} />
+      ),
     },
     {
       item: MenuItemScreensRoutes.PREMIUM,
-      icon: () => <MenuIcon name="pricetags-outline" size={20} color={"#ffffff"} />,
+      icon: () => (
+        <MenuIcon name="pricetags-outline" size={20} color={"#ffffff"} />
+      ),
     },
     {
       item: MenuItemScreensRoutes.EARNING,
@@ -61,15 +76,25 @@ export default function HomeScreen() {
     },
     {
       item: MenuItemScreensRoutes.SERVICES,
-      icon: () => <MenuIcon name="briefcase-outline" size={20} color={"#ffffff"} />,
+      icon: () => (
+        <MenuIcon name="briefcase-outline" size={20} color={"#ffffff"} />
+      ),
     },
     {
       item: MenuItemScreensRoutes.ASK,
-      icon: () => <MenuIcon name="chatbubble-ellipses-outline" size={20} color={"#ffffff"} />,
+      icon: () => (
+        <MenuIcon
+          name="chatbubble-ellipses-outline"
+          size={20}
+          color={"#ffffff"}
+        />
+      ),
     },
     {
       item: MenuItemScreensRoutes.ESCROW_SITE,
-      icon: () => <MenuIcon name="shield-checkmark-outline" size={20} color={"#ffffff"} />,
+      icon: () => (
+        <MenuIcon name="shield-checkmark-outline" size={20} color={"#ffffff"} />
+      ),
     },
   ];
 
@@ -81,16 +106,16 @@ export default function HomeScreen() {
     } else if (pressedItem === MenuItemScreensRoutes.UPLOAD) {
       navigation.navigate("App", { screen: "Upload" });
     } else if (pressedItem === MenuItemScreensRoutes.PREMIUM) {
-      // navigation.navigate("App", { screen: "Premium" });
-      return
+      navigation.navigate("App", { screen: "Premium" });
+      return;
     } else if (pressedItem === MenuItemScreensRoutes.EARNING) {
       navigation.navigate("App", { screen: "Earning" });
     } else if (pressedItem === MenuItemScreensRoutes.SERVICES) {
-      // navigation.navigate("App", { screen: "Services" });
-      return
+      navigation.navigate("App", { screen: "Services" });
+      return;
     } else if (pressedItem === MenuItemScreensRoutes.ASK) {
       // navigation.navigate("App", { screen: "Ask" });
-      return
+      return;
     } else if (pressedItem === MenuItemScreensRoutes.ESCROW_SITE) {
       Linking.openURL("https://www.solvaafrica.com/").catch((error) => {
         Alert.alert("URL Error!", error?.message ?? "Could not open link");
@@ -115,7 +140,11 @@ export default function HomeScreen() {
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <AvatarView />
+          <TouchableOpacity
+          // onPress={() => navigation.navigate("Settings")}
+          >
+            <AvatarView />
+          </TouchableOpacity>
           <View style={{ marginLeft: 8 }}>
             <Text style={styles.greetUserText}>
               Hello, {userProfile.fullName.trim().split(" ")[0]}
@@ -127,11 +156,17 @@ export default function HomeScreen() {
         </View>
 
         {/* notification icon */}
-        <Icon name="bell" color={colors.primary} size={24} />
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("App", { screen: "Notifications" })
+          }
+        >
+          <Icon name="bell" color={colors.primary} size={24} />
+        </TouchableOpacity>
       </View>
 
       <Carousel
-        height={hscale(100)}
+        height={hscale(150)}
         showsControls={false}
         autoplay={true}
         autoplayInterval={2000}
@@ -145,24 +180,37 @@ export default function HomeScreen() {
       >
         {data
           ? data.map((currentSlideImage, index) => (
-            <View
-              style={{ width: width - screenHorizontalPadding * 2, height: "100%" }}
-              key={index + currentSlideImage}
-            >
-              <Image
-                source={{ uri: currentSlideImage }}
-                style={{ width: "100%", height: "100%" }}
-              />
-            </View>
-          ))
+              <View
+                style={{
+                  width: width - screenHorizontalPadding * 2,
+                  height: "100%",
+                }}
+                key={index + currentSlideImage}
+              >
+                <Image
+                  source={{ uri: currentSlideImage }}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: mscale(10),
+                  }}
+                />
+              </View>
+            ))
           : new Array(3).map((_, index) => (
-            <View
-              style={{ width: width - screenHorizontalPadding * 2, height: "100%" }}
-              key={index}
-            >
-              <Image source={slidesPlaceholder} style={{ width: "100%", height: "100%" }} />
-            </View>
-          ))}
+              <View
+                style={{
+                  width: width - screenHorizontalPadding * 2,
+                  height: "100%",
+                }}
+                key={index}
+              >
+                <Image
+                  source={slidesPlaceholder}
+                  style={{ width: "100%", height: "100%" }}
+                />
+              </View>
+            ))}
       </Carousel>
 
       {/* menu view */}
@@ -176,9 +224,9 @@ export default function HomeScreen() {
             <View style={styles.menuItemIconView}>{currentItem.icon()}</View>
             <Text
               style={{
-                textAlign: "justify",
+                textAlign: "center",
                 marginTop: 8,
-                fontFamily: "Inter-Medium",
+                fontFamily: "Inter-Bold",
                 color: colors.bodyText,
                 fontSize: mscale(12),
               }}
@@ -193,7 +241,11 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  greetUserText: { fontFamily: "Inter-Bold", fontSize: mscale(16), color: colors.black },
+  greetUserText: {
+    fontFamily: "Inter-Bold",
+    fontSize: mscale(16),
+    color: colors.black,
+  },
   menuView: {
     backgroundColor: "#F9F1FE",
     marginTop: hscale(24),
@@ -216,8 +268,8 @@ const styles = StyleSheet.create({
   },
   menuItemIconView: {
     backgroundColor: colors.primary,
-    height: hscale(40),
-    width: wscale(40),
+    height: hscale(50),
+    width: wscale(50),
     borderRadius: "100%",
     justifyContent: "center",
     alignItems: "center",

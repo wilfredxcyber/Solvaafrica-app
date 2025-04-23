@@ -1,5 +1,15 @@
-import { DrawerContentComponentProps, DrawerContentScrollView } from "@react-navigation/drawer";
-import { Pressable, StyleSheet, Text, View, Linking, Alert } from "react-native";
+import {
+  DrawerContentComponentProps,
+  DrawerContentScrollView,
+} from "@react-navigation/drawer";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  Linking,
+  Alert,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LogoutIcon from "@expo/vector-icons/MaterialIcons";
 import SocialIcon from "@expo/vector-icons/FontAwesome";
@@ -10,7 +20,7 @@ import { hscale, mscale, wscale } from "../helpers/metric";
 import { useAuthStore } from "../stores/authStore";
 import LoadingView from "./loadingView";
 import AvatarView from "./avatarView";
-
+import ErrorModal from "./errorModal";
 
 type TDrawerScreens = "Profile" | "Complaints";
 
@@ -18,6 +28,9 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
   const { navigation } = props;
   const [activeScreen, setActiveScreen] = useState<TDrawerScreens>("Profile");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const authUser = useAuthStore((state) => state.user);
 
@@ -29,7 +42,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
       navigation.navigate(selectedScreen);
     } else if (selectedScreen === "Complaints") {
       // screen is incomplete
-      return
+      // return
       setActiveScreen(selectedScreen);
       navigation.navigate(selectedScreen);
     }
@@ -38,18 +51,27 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
   const handleSocialIconPressed = async (icon: "tw" | "ig" | "fb") => {
     try {
       if (icon === "tw") {
-        await Linking.openURL("https://x.com/solva_africa?t=GTrgJcb-uy8BOkJ94_3cfw&s=09");
+        await Linking.openURL(
+          "https://x.com/solva_africa?t=GTrgJcb-uy8BOkJ94_3cfw&s=09"
+        );
       }
 
       if (icon === "fb") {
-        await Linking.openURL("https://www.facebook.com/profile.php?id=61562756354347");
+        await Linking.openURL(
+          "https://www.facebook.com/profile.php?id=61562756354347"
+        );
       }
 
       if (icon === "ig") {
-        await Linking.openURL("https://www.instagram.com/solva_africa?igsh=eGF1eW1rYWx0bWxy");
+        await Linking.openURL(
+          "https://www.instagram.com/solva_africa?igsh=eGF1eW1rYWx0bWxy"
+        );
       }
     } catch (error) {
       console.log("Error opening social link");
+      let message = "Error opening social link";
+      setErrorMessage(message);
+      setErrorVisible(true);
     }
   };
 
@@ -65,7 +87,10 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
       } catch (error) {
         console.log("Error logging out user", error);
 
-        Alert.alert("Error", "Sorry, could not log you out. Try again.");
+        // Alert.alert("Error", "Sorry, could not log you out. Try again.");
+        let message = "Error, Sorry, could not log you out. Try again.";
+        setErrorMessage(message);
+        setErrorVisible(true);
       } finally {
         setIsLoading(false);
       }
@@ -82,16 +107,28 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
     <DrawerContentScrollView style={styles.drawerView}>
       <View style={styles.drawerHeaderView}>
         <AvatarView />
-        <Text style={{ fontFamily: "Inter-Bold", marginTop: hscale(12), fontSize: mscale(18) }}>
+        <Text
+          style={{
+            fontFamily: "Inter-Bold",
+            marginTop: hscale(12),
+            fontSize: mscale(18),
+          }}
+        >
           {fullName}
         </Text>
       </View>
 
-      <Pressable onPress={() => handleSetActiveProfile("Profile")} style={styles.customDrawerItem}>
+      <Pressable
+        onPress={() => handleSetActiveProfile("Profile")}
+        style={styles.customDrawerItem}
+      >
         <Text
           style={[
             styles.activeScreenTextLink,
-            { color: activeScreen === "Profile" ? colors.primary : colors.bodyText },
+            {
+              color:
+                activeScreen === "Profile" ? colors.primary : colors.bodyText,
+            },
           ]}
         >
           Profile
@@ -104,7 +141,12 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         <Text
           style={[
             styles.activeScreenTextLink,
-            { color: activeScreen === "Complaints" ? colors.primary : colors.bodyText },
+            {
+              color:
+                activeScreen === "Complaints"
+                  ? colors.primary
+                  : colors.bodyText,
+            },
           ]}
         >
           Complaints
@@ -113,18 +155,30 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
 
       <View style={{ justifyContent: "flex-end", height: "80%" }}>
         <View style={styles.socialIconsView}>
-          <SocialIcon name="twitter" size={24} onPress={() => handleSocialIconPressed("tw")} />
-          <SocialIcon name="facebook" size={24} onPress={() => handleSocialIconPressed("fb")} />
-          <SocialIcon name="instagram" size={24} onPress={() => handleSocialIconPressed("ig")} />
+          <SocialIcon
+            name="twitter"
+            size={24}
+            onPress={() => handleSocialIconPressed("tw")}
+          />
+          <SocialIcon
+            name="facebook"
+            size={24}
+            onPress={() => handleSocialIconPressed("fb")}
+          />
+          <SocialIcon
+            name="instagram"
+            size={24}
+            onPress={() => handleSocialIconPressed("ig")}
+          />
         </View>
         <Pressable style={styles.logoutView} onPress={handleLogout}>
-          <LogoutIcon name="logout" size={32} color={"#ffffff"} />
+          <LogoutIcon name="logout" size={20} color={"#ffffff"} />
           <Text
             style={{
               fontFamily: "Inter-Bold",
-              fontSize: mscale(16),
+              fontSize: mscale(14),
               color: "#ffffff",
-              marginLeft: 8,
+              marginLeft: 4,
             }}
           >
             Logout
@@ -132,6 +186,11 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         </Pressable>
       </View>
       <LoadingView isLoading={isLoading} />
+      <ErrorModal
+        visible={errorVisible}
+        message={errorMessage}
+        onClose={() => setErrorVisible(false)}
+      />
     </DrawerContentScrollView>
   );
 }
@@ -144,7 +203,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderColor: "#C9CFC9",
   },
-  drawerView: { backgroundColor: "#F5F6F5", paddingHorizontal: screenHorizontalPadding },
+  drawerView: {
+    backgroundColor: "#F5F6F5",
+    paddingHorizontal: screenHorizontalPadding,
+  },
   socialIconsView: {
     flexDirection: "row",
     justifyContent: "space-between",

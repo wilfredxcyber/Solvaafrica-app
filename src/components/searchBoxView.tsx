@@ -15,6 +15,7 @@ export const SearchBoxView = ({
         style={{ flex: 1 }}
         onChangeText={handleSearchInputTextChange}
         cursorColor={colors.primary}
+        placeholder="Search by name"
       />
       <SearchIcon name="search" size={20} color={colors.primary} />
     </View>

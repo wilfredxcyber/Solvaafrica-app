@@ -1,4 +1,8 @@
-import { StaticScreenProps, useNavigation, StackActions } from "@react-navigation/native";
+import {
+  StaticScreenProps,
+  useNavigation,
+  StackActions,
+} from "@react-navigation/native";
 import { Alert, Dimensions, View } from "react-native";
 import { useEffect, useState } from "react";
 import { Image } from "expo-image";
@@ -8,6 +12,7 @@ import { useDownloadFile } from "../hooks/useDownloadFile";
 import PrimaryButton from "../components/primaryButton";
 import { globalStyles } from "../styles/global";
 import { hscale } from "../helpers/metric";
+import ErrorModal from "../components/errorModal";
 
 export default function DownloadCourseMaterial({
   route,
@@ -23,6 +28,9 @@ export default function DownloadCourseMaterial({
   const [fileExist, setFileExist] = useState(false);
   const downloadFile = useDownloadFile(startDownload, params.fileCode);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     navigation.setOptions({ title: params.screenTitle });
@@ -43,7 +51,14 @@ export default function DownloadCourseMaterial({
           return;
         }
       } catch (error) {
-        Alert.alert("Download Failed.", "Please try again later or contact support");
+        let message =
+          "Download error, Please try again later or contact support!";
+        setErrorMessage(message);
+        setErrorVisible(true);
+        // Alert.alert(
+        //   "Download Failed.",
+        //   "Please try again later or contact support"
+        // );
       } finally {
         setIsLoading(false);
       }
@@ -85,6 +100,11 @@ export default function DownloadCourseMaterial({
           isLoading={isLoading}
         />
       )}
+      <ErrorModal
+        visible={errorVisible}
+        message={errorMessage}
+        onClose={() => setErrorVisible(false)}
+      />
     </View>
   );
 }

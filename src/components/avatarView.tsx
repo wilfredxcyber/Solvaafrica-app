@@ -24,8 +24,8 @@ export default function AvatarView() {
 
 const styles = StyleSheet.create({
   avatarView: {
-    width: wscale(60),
-    height: hscale(60),
+    width: wscale(40),
+    height: hscale(40),
     backgroundColor: colors.primary,
     borderRadius: mscale(30),
     justifyContent: "center",

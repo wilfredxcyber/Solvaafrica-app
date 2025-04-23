@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, Alert } from "react-native";
+import { View, Text, StyleSheet, TextInput, Alert, Image } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "@expo/vector-icons/Feather";
 import { useRef, useState } from "react";
@@ -14,16 +14,20 @@ import { PUB_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import Logo from "../components/logo";
-
+import ErrorModal from "../components/errorModal";
 
 export default function LoginScreen() {
   const [form, setForm] = useState<ILoginForm>({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const inputRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+  const emailRef = useRef<TextInput>(null);
 
   const handleFormSubmit = async () => {
-    inputRef.current?.blur();
+    emailRef.current?.blur();
     console.log("The form", form);
 
     const { email, password } = form;
@@ -37,7 +41,7 @@ export default function LoginScreen() {
       if (res.status === 200) {
         const { data: UserData } = res.data;
         const userId = UserData.user.id;
-        const tokens = UserData.tokens
+        const tokens = UserData.tokens;
 
         // get user
         const getUserRes = await PUB_API_CLIENT.get(`/users/${userId}`, {
@@ -47,18 +51,27 @@ export default function LoginScreen() {
         if (getUserRes.status === 200) {
           const { data } = getUserRes.data;
 
-          console.log('User', data)
+          console.log("User", data);
 
           // save user
-          const { fullName, gender, email, address, phone, referralCode } = data;
-          const userProfile: UserProfile = { fullName, gender, email, address, phone, referralCode, userID: userId };
+          const { fullName, gender, email, address, phone, referralCode } =
+            data;
+          const userProfile: UserProfile = {
+            fullName,
+            gender,
+            email,
+            address,
+            phone,
+            referralCode,
+            userID: userId,
+          };
           const user: { profile: UserProfile; tokens: Tokens | null } = {
             profile: userProfile,
             tokens,
           };
 
           await AsyncStorage.setItem("User", JSON.stringify(user));
-          console.log('Auth User: \n', user);
+          console.log("Auth User: \n", user);
 
           // store user in global store
           useAuthStore.setState((state) => ({ ...state, user }));
@@ -67,12 +80,14 @@ export default function LoginScreen() {
       }
     } catch (error: any) {
       console.log("Error logging in user", error);
-      if (error.status === 400 || 401) {
-        Alert.alert("Error", "Email or Password is incorrect. Try again!");
-        return;
+
+      let message = "Something went wrong!";
+      if (error.status === 400 || error.status === 401) {
+        message = "Email or Password is incorrect. Try again!";
       }
 
-      Alert.alert("Error", "Something went wrong!");
+      setErrorMessage(message);
+      setErrorVisible(true);
     } finally {
       console.log("Operation complete");
       setIsLoading(false);
@@ -87,11 +102,27 @@ export default function LoginScreen() {
 
       {/* form view */}
       <View style={styles.formView}>
+        <View>
+          <Image
+            source={require("../../assets/images/hello.png")}
+            style={{
+              width: wscale(200),
+              height: hscale(200),
+              marginHorizontal: "auto",
+            }}
+          />
+        </View>
         <ScreenHeadingText
           text="Welcome Back"
           customStyle={{ textAlign: "center", marginVertical: "auto" }}
         />
-        <Text style={{ color: colors.bodyText, textAlign: "center", fontFamily: "Inter-Regular" }}>
+        <Text
+          style={{
+            color: colors.bodyText,
+            textAlign: "center",
+            fontFamily: "Inter-Regular",
+          }}
+        >
           It’s good to have you back. Always a good time to learn and earn
         </Text>
 
@@ -99,33 +130,63 @@ export default function LoginScreen() {
           <View style={styles.inputView}>
             <Icon name="mail" size={20} color={colors.primary} />
             <TextInput
-              ref={inputRef}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              ref={emailRef}
               placeholderTextColor={colors.placeholderInput}
               placeholder="Email"
               style={styles.input}
-              onChangeText={(email) => setForm({ ...form, email })}
+              value={form.email}
+              onChangeText={(email) => setForm((prev) => ({ ...prev, email }))}
+              // onEndEditing={(e) =>
+              //   setForm((prev) => ({ ...prev, email: e.nativeEvent.text }))
+              // }
             />
           </View>
 
           <View style={styles.inputView}>
             <Icon name="lock" size={20} color={colors.primary} />
             <TextInput
-              ref={inputRef}
-              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={!showPassword}
+              ref={passwordRef}
               placeholderTextColor={colors.placeholderInput}
               placeholder="Password"
               style={styles.input}
-              onChangeText={(password) => setForm({ ...form, password })}
+              value={form.password}
+              onChangeText={(password) =>
+                setForm((prev) => ({ ...prev, password }))
+              }
+              // onEndEditing={(e) =>
+              //   setForm((prev) => ({ ...prev, password: e.nativeEvent.text }))
+              // }
+            />
+            <Icon
+              name={showPassword ? "eye-off" : "eye"}
+              size={20}
+              color={colors.primary}
+              style={{ marginLeft: 6 }}
+              onPress={() => setShowPassword(!showPassword)}
             />
           </View>
         </View>
 
         <View style={{ marginTop: hscale(40) }}>
           <PrimaryButton text="Login" onPress={handleFormSubmit} />
-          <TextLinkButton text="Forgot password" onPress={() => console.log("Forgot password")} />
+          <TextLinkButton
+            text="Forgot password"
+            onPress={() => console.log("Forgot password")}
+          />
         </View>
       </View>
       <LoadingView isLoading={isLoading} />
+      <ErrorModal
+        visible={errorVisible}
+        message={errorMessage}
+        onClose={() => setErrorVisible(false)}
+      />
     </View>
   );
 }

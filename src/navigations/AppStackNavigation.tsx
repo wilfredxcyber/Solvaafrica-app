@@ -1,10 +1,34 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import { AskScreen, CourseMaterials, CoursesList, CoursesScreen, CreateAccountScreen, DownloadCourseMaterial, EarningScreen, ImageViewerPage, LoginScreen, OnboardScreen, PremiumScreen, ProjectsScreen, ServicesScreen, TermsAndConditions, UploadFilesScreen, UploadFilePreviewScreen, PdfViewerPage, Cashout } from "../screens";
+import {
+  AskScreen,
+  CourseMaterials,
+  CoursesList,
+  CoursesScreen,
+  CreateAccountScreen,
+  DownloadCourseMaterial,
+  EarningScreen,
+  ImageViewerPage,
+  LoginScreen,
+  OnboardScreen,
+  PremiumScreen,
+  ProjectsScreen,
+  ServicesScreen,
+  TermsAndConditions,
+  UploadFilesScreen,
+  UploadFilePreviewScreen,
+  PdfViewerPage,
+  Cashout,
+  Grants,
+  ScholarshipScreen,
+  CertificateOnCourses,
+  Innovation,
+  Theraphy,
+  Notifications,
+} from "../screens";
 import { useUserSignedIn, useUserSignedOut } from "../hooks/userAuth";
 import TabsNavigator from "./BottomTabNavigation";
 import { colors } from "../constants/theme";
-
 
 const AppStackNavigator = createNativeStackNavigator({
   groups: {
@@ -28,11 +52,64 @@ const AppStackNavigator = createNativeStackNavigator({
         },
         PdfViewer: {
           screen: PdfViewerPage,
-          options: { headerShown: false }
+          options: { headerShown: false },
         },
         CourseDownloadMaterial: { screen: DownloadCourseMaterial },
         Projects: { screen: ProjectsScreen },
-        Premium: { screen: PremiumScreen },
+        Premium: {
+          screen: PremiumScreen,
+          options: {
+            headerTitle: "Premium",
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
+            headerTintColor: colors.black,
+          },
+        },
+        Grants: {
+          screen: Grants,
+          options: {
+            headerTitle: "Grant Information",
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
+            headerTintColor: colors.black,
+          },
+        },
+        Scholarship: {
+          screen: ScholarshipScreen,
+          options: {
+            headerTitle: "Scholarship Information",
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
+            headerTintColor: colors.black,
+          },
+        },
+        CourseCertificate: {
+          screen: CertificateOnCourses,
+          options: {
+            headerTitle: "Cetificate on short courses",
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
+            headerTintColor: colors.black,
+          },
+        },
+        Innovation: {
+          screen: Innovation,
+          options: {
+            headerTitle: "Innovation/Angel investors news",
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
+            headerTintColor: colors.black,
+          },
+        },
+        Theraphy: {
+          screen: Theraphy,
+          options: {
+            headerTitle: "Theraphy",
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
+            headerTintColor: colors.black,
+          },
+        },
         Upload: {
           screen: UploadFilesScreen,
           options: {
@@ -41,11 +118,18 @@ const AppStackNavigator = createNativeStackNavigator({
             headerShown: false,
           },
         },
+        Notifications: {
+          screen: Notifications,
+          options: { headerTitle: "Notifications" },
+        },
         UploadPreview: {
           screen: UploadFilePreviewScreen,
-          options: { headerTitle: '' }
+          options: { headerTitle: "" },
         },
-        Earning: { screen: EarningScreen, options: { headerTitle: 'Earnings' } },
+        Earning: {
+          screen: EarningScreen,
+          options: { headerTitle: "Earnings" },
+        },
         Cashout: { screen: Cashout },
         Services: { screen: ServicesScreen },
         Ask: { screen: AskScreen },

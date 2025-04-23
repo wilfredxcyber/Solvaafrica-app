@@ -1,10 +1,10 @@
-import CheckCircleIcon from '@expo/vector-icons/FontAwesome';
+import CheckCircleIcon from "@expo/vector-icons/FontAwesome";
 import { Alert, Pressable, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import PDFIcon from "@expo/vector-icons/FontAwesome6";
 import { useEffect, useRef, useState } from "react";
 import { FlashList } from "@shopify/flash-list";
-import LottieView from 'lottie-react-native';
+import LottieView from "lottie-react-native";
 
 import { SearchBoxView } from "../components/searchBoxView";
 import { useDownloadFile } from "../hooks/useDownloadFile";
@@ -13,78 +13,89 @@ import ProtectPage from "../components/protectPage";
 import { AUTH_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
-
+import EmptyStateView from "../components/emptyStateView";
+import { Toast } from "toastify-react-native";
 
 export default function ProjectsScreen() {
-  const [projects, setProjects] = useState<any[]>();
-  const [projectFiles, setProjectFiles] = useState<any[]>();
+  const [initialProjects, setInitialProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [projectFiles, setProjectFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchProjects = async (searchQuery: string) => {
-    try {
-      const res = await AUTH_API_CLIENT.get("/projects", {
-        params: { search: searchQuery.trim().toLowerCase() },
-      });
-      if (res.status === 200) {
-        const data = res.data;
-        return Promise.resolve(data);
+  useEffect(() => {
+    const fetchInitialProjects = async () => {
+      setLoading(true);
+      try {
+        const res = await AUTH_API_CLIENT.get("/projects");
+        if (res.status === 200) {
+          const allProjects = res.data?.data || [];
+          setInitialProjects(allProjects);
+          setProjects(allProjects);
+          setProjectFiles(
+            allProjects.flatMap((project: any) => project.document)
+          );
+        }
+      } catch (error) {
+        // console.log("Error fetching initial projects:", error);
+        Toast.error("Error fetching initial projects")
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      Promise.reject(error);
-    }
-  };
+    };
 
-  let timeOutId: null | NodeJS.Timeout = null;
+    fetchInitialProjects();
+  }, []);
 
   const handleInputChange = (value: string) => {
-    if (!value.trim().length) return;
-
-    if (timeOutId) {
-      clearTimeout(timeOutId);
+    const query = value.trim().toLowerCase();
+    if (!query.length) {
+      setProjects(initialProjects);
+      setProjectFiles(
+        initialProjects.flatMap((project: any) => project.document)
+      );
+      return;
     }
 
-    // this is a debounce to delay requests to the server as the user types
-    timeOutId = setTimeout(async () => {
-      setLoading(true)
-      try {
-        const fetchedData = await fetchProjects(value.trim().toLowerCase());
-        setProjects(fetchedData?.data);
-        fetchedData?.data.forEach((currentItem: any) => {
-          setProjectFiles([...currentItem?.document]);
-        });
+    const filteredProjects = initialProjects.filter((project: any) =>
+      project.project.name.toLowerCase().includes(query)
+    );
 
-      } catch (error) {
-        console.log('Error fetching projects', error)
-      } finally {
-        setLoading(false)
-      }
-    }, 500);
+    setProjects(filteredProjects);
+    setProjectFiles(
+      filteredProjects.flatMap((project: any) => project.document)
+    );
   };
-
-  useEffect(() => {
-    return () => {
-      timeOutId && clearTimeout(timeOutId);
-    };
-  }, []);
 
   return (
     <ProtectPage>
       <View style={globalStyles.screen}>
         <SearchBoxView handleSearchInputTextChange={handleInputChange} />
         <View style={{ flex: 1, marginTop: hscale(12) }}>
-          {projects?.length && projectFiles?.length ? (
+          {loading ? (
+            <LottieView
+              autoPlay
+              style={{
+                width: wscale(50),
+                height: hscale(50),
+                alignSelf: "center",
+              }}
+              source={require("../../assets/animations/spin.json")}
+            />
+          ) : projects?.length && projectFiles?.length ? (
             <FlashList
               showsVerticalScrollIndicator={false}
               data={projectFiles}
               estimatedItemSize={56}
               renderItem={({ item, index }) => (
-                <ProjectItemView fileName={projects[index].project.name} fileURI={item?.url} />
+                <ProjectItemView
+                  fileName={projects[index].project.name}
+                  fileURI={item?.url}
+                />
               )}
             />
           ) : (
-            loading ? (
-              <LottieView autoPlay style={{ width: wscale(100), height: hscale(100), marginHorizontal: 'auto' }} source={require('../../assets/animations/spin.json')} />
-            ) : <Text style={globalStyles.bodyText}>Search and download new projects files</Text>
+            // <Text style={globalStyles.bodyText}>No projects found.</Text>
+            <EmptyStateView/>
           )}
         </View>
       </View>
@@ -92,13 +103,18 @@ export default function ProjectsScreen() {
   );
 }
 
-const ProjectItemView = ({ fileName, fileURI }: { fileName: string; fileURI: string }) => {
+const ProjectItemView = ({
+  fileName,
+  fileURI,
+}: {
+  fileName: string;
+  fileURI: string;
+}) => {
   const [startDownload, setStartDownload] = useState(false);
   const [fileExist, setFileExist] = useState(false);
   // set file code to PRJ for project files
-  const downloadFile = useDownloadFile(startDownload, 'PRJ');
+  const downloadFile = useDownloadFile(startDownload, "PRJ");
   const DownloadIconRef = useRef<LottieView>(null);
-
 
   useEffect(() => {
     const initiateDownload = async () => {
@@ -114,7 +130,10 @@ const ProjectItemView = ({ fileName, fileURI }: { fileName: string; fileURI: str
           return;
         }
       } catch (error) {
-        Alert.alert("Download Failed.", "Please try again later or contact support");
+        Alert.alert(
+          "Download Failed.",
+          "Please try again later or contact support"
+        );
       }
     };
 
@@ -122,8 +141,8 @@ const ProjectItemView = ({ fileName, fileURI }: { fileName: string; fileURI: str
   }, [startDownload]);
 
   const handleInitiateDownload = () => {
-    DownloadIconRef.current && DownloadIconRef.current.play()
-    setStartDownload(true)
+    DownloadIconRef.current && DownloadIconRef.current.play();
+    setStartDownload(true);
   };
   return (
     <View
@@ -135,10 +154,17 @@ const ProjectItemView = ({ fileName, fileURI }: { fileName: string; fileURI: str
         height: hscale(60),
         paddingVertical: hscale(8),
         borderRadius: mscale(8),
-        justifyContent: 'space-between'
+        justifyContent: "space-between",
+        marginVertical: hscale(8),
       }}
     >
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: wscale(20) }}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          marginLeft: wscale(20),
+        }}
+      >
         <PDFIcon name="file-pdf" size={32} color={colors.primary} />
         <Text
           numberOfLines={1}
@@ -152,9 +178,22 @@ const ProjectItemView = ({ fileName, fileURI }: { fileName: string; fileURI: str
           {fileName}
         </Text>
       </View>
-      {!fileExist ? <Pressable onPress={handleInitiateDownload}>
-        <LottieView ref={DownloadIconRef} style={{ width: wscale(64), height: hscale(64) }} source={require('../../assets/animations/download.json')} />
-      </Pressable> : <CheckCircleIcon style={{ marginRight: wscale(20) }} name="check-circle" size={24} color={colors.primary} />}
+      {!fileExist ? (
+        <Pressable onPress={handleInitiateDownload}>
+          <LottieView
+            ref={DownloadIconRef}
+            style={{ width: wscale(64), height: hscale(64) }}
+            source={require("../../assets/animations/download.json")}
+          />
+        </Pressable>
+      ) : (
+        <CheckCircleIcon
+          style={{ marginRight: wscale(20) }}
+          name="check-circle"
+          size={24}
+          color={colors.primary}
+        />
+      )}
     </View>
   );
 };

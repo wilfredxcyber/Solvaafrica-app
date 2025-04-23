@@ -9,7 +9,7 @@ import { hscale, mscale, wscale } from "../helpers/metric";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import LoadingView from "./loadingView";
-
+import ErrorModal from "./errorModal";
 
 type subscriptionPlans = "Basic" | "Premium";
 
@@ -18,6 +18,9 @@ export default function SubscribeView() {
 
   const [activePlan, setActivePlan] = useState<subscriptionPlans>("Premium");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const planOffers: PlanOfferProps = {
     basic: ["Past questions", "Project Materials"],
@@ -55,6 +58,9 @@ export default function SubscribeView() {
       }
     } catch (error: any) {
       console.log("Error in subscribe", error?.response);
+      let message = `Subscription error: ${error?.response}`;
+      setErrorMessage(message);
+      setErrorVisible(true);
     } finally {
       setIsLoading(false);
     }
@@ -83,7 +89,10 @@ export default function SubscribeView() {
         {activePlan === "Premium" && (
           <View style={{ marginLeft: wscale(20), gap: hscale(8) }}>
             {planOffers.premium.map((offer) => (
-              <View key={offer} style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+              <View
+                key={offer}
+                style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
+              >
                 <CheckIcon name="check" size={20} color={"#ffffff"} />
                 <Text key={offer} style={styles.planOffer}>
                   {offer}
@@ -101,7 +110,10 @@ export default function SubscribeView() {
         {activePlan === "Basic" && (
           <View style={{ marginLeft: wscale(20), gap: hscale(8) }}>
             {planOffers.basic.map((offer) => (
-              <View key={offer} style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+              <View
+                key={offer}
+                style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
+              >
                 <CheckIcon name="check" size={20} color={"#ffffff"} />
                 <Text key={offer} style={styles.planOffer}>
                   {offer}
@@ -115,6 +127,11 @@ export default function SubscribeView() {
       <Text onPress={handleSubscribe} style={styles.subscribeButton}>
         Subscribe
       </Text>
+      <ErrorModal
+        visible={errorVisible}
+        message={errorMessage}
+        onClose={() => setErrorVisible(false)}
+      />
     </View>
   );
 }
@@ -131,11 +148,19 @@ interface PlanOfferProps {
   premium: string[];
 }
 
-const SubButton = ({ subPlan, subPrice, isActive, handleOnPress }: SubButtonProps) => {
+const SubButton = ({
+  subPlan,
+  subPrice,
+  isActive,
+  handleOnPress,
+}: SubButtonProps) => {
   return (
     <Pressable
       onPress={handleOnPress}
-      style={[styles.subButton, { backgroundColor: isActive ? "#ffffff" : colors.greyView }]}
+      style={[
+        styles.subButton,
+        { backgroundColor: isActive ? "#ffffff" : colors.greyView },
+      ]}
     >
       <Text
         style={{
@@ -176,7 +201,11 @@ const styles = StyleSheet.create({
     borderRadius: mscale(10),
     alignItems: "center",
   },
-  planOffer: { fontFamily: "Inter-Medium", fontSize: mscale(14), color: "#ffffff" },
+  planOffer: {
+    fontFamily: "Inter-Medium",
+    fontSize: mscale(14),
+    color: "#ffffff",
+  },
   subscribeButton: {
     padding: hscale(20),
     marginTop: hscale(40),
