@@ -25,12 +25,12 @@ import {
   Innovation,
   Theraphy,
   Notifications,
+  ForgotPassword,
+  ForgotPasswordSuccess
 } from "../screens";
 import { useUserSignedIn, useUserSignedOut } from "../hooks/userAuth";
 import TabsNavigator from "./BottomTabNavigation";
 import { colors } from "../constants/theme";
-import ForgotPassword from "../screens/auth/forgot-password/forgotPassword";
-import ForgotPasswordSuccess from "../screens/auth/forgot-password/forgotPasswordSuccess";
 
 const AppStackNavigator = createNativeStackNavigator({
   groups: {

@@ -28,6 +28,8 @@ import CertificateOnCourses from "./Premiums/certificateOnCourses";
 import Innovation from "./Premiums/Innovation";
 import Theraphy from "./Premiums/Theraphy";
 import Notifications from "./Notifications/Notifications";
+import ForgotPassword from "./auth/forgot-password/forgotPassword";
+import ForgotPasswordSuccess from "./auth/forgot-password/forgotPasswordSuccess";
 
 
 export {
@@ -60,5 +62,7 @@ export {
   CertificateOnCourses,
   Innovation,
   Theraphy,
-  Notifications
+  Notifications,
+  ForgotPassword,
+  ForgotPasswordSuccess
 };
