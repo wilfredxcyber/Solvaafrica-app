@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, Alert } from "react-native";
+import { View, Text, StyleSheet, TextInput, Alert, Image } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "@expo/vector-icons/Feather";
 import { useRef, useState } from "react";
@@ -15,16 +15,20 @@ import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import Logo from "../components/logo";
 import { useNavigation } from "@react-navigation/native";
+import ErrorModal from "../components/errorModal";
 
 export default function LoginScreen() {
   const [form, setForm] = useState<ILoginForm>({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const inputRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+  const emailRef = useRef<TextInput>(null);
 
   const handleFormSubmit = async () => {
-    inputRef.current?.blur();
+    emailRef.current?.blur();
     console.log("The form", form);
 
     const { email, password } = form;
@@ -77,12 +81,14 @@ export default function LoginScreen() {
       }
     } catch (error: any) {
       console.log("Error logging in user", error);
-      if (error.status === 400 || 401) {
-        Alert.alert("Error", "Email or Password is incorrect. Try again!");
-        return;
+
+      let message = "Something went wrong!";
+      if (error.status === 400 || error.status === 401) {
+        message = "Email or Password is incorrect. Try again!";
       }
 
-      Alert.alert("Error", "Something went wrong!");
+      setErrorMessage(message);
+      setErrorVisible(true);
     } finally {
       console.log("Operation complete");
       setIsLoading(false);
@@ -99,6 +105,16 @@ export default function LoginScreen() {
 
       {/* form view */}
       <View style={styles.formView}>
+        <View>
+          <Image
+            source={require("../../assets/images/hello.png")}
+            style={{
+              width: wscale(200),
+              height: hscale(200),
+              marginHorizontal: "auto",
+            }}
+          />
+        </View>
         <ScreenHeadingText
           text="Welcome Back"
           customStyle={{ textAlign: "center", marginVertical: "auto" }}
@@ -117,23 +133,45 @@ export default function LoginScreen() {
           <View style={styles.inputView}>
             <Icon name="mail" size={20} color={colors.primary} />
             <TextInput
-              ref={inputRef}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              ref={emailRef}
               placeholderTextColor={colors.placeholderInput}
               placeholder="Email"
               style={styles.input}
-              onChangeText={(email) => setForm({ ...form, email })}
+              value={form.email}
+              onChangeText={(email) => setForm((prev) => ({ ...prev, email }))}
+              // onEndEditing={(e) =>
+              //   setForm((prev) => ({ ...prev, email: e.nativeEvent.text }))
+              // }
             />
           </View>
 
           <View style={styles.inputView}>
             <Icon name="lock" size={20} color={colors.primary} />
             <TextInput
-              ref={inputRef}
+              autoCapitalize="none"
+              autoCorrect={false}
               secureTextEntry={!showPassword}
+              ref={passwordRef}
               placeholderTextColor={colors.placeholderInput}
               placeholder="Password"
               style={styles.input}
-              onChangeText={(password) => setForm({ ...form, password })}
+              value={form.password}
+              onChangeText={(password) =>
+                setForm((prev) => ({ ...prev, password }))
+              }
+              // onEndEditing={(e) =>
+              //   setForm((prev) => ({ ...prev, password: e.nativeEvent.text }))
+              // }
+            />
+            <Icon
+              name={showPassword ? "eye-off" : "eye"}
+              size={20}
+              color={colors.primary}
+              style={{ marginLeft: 6 }}
+              onPress={() => setShowPassword(!showPassword)}
             />
             <Icon
               name={showPassword ? "eye" : "eye-off"}
@@ -156,6 +194,11 @@ export default function LoginScreen() {
         </View>
       </View>
       <LoadingView isLoading={isLoading} />
+      <ErrorModal
+        visible={errorVisible}
+        message={errorMessage}
+        onClose={() => setErrorVisible(false)}
+      />
     </View>
   );
 }

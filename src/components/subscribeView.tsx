@@ -10,13 +10,16 @@ import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import LoadingView from "./loadingView";
 
-type subscriptionPlans = "Popular" | "Best Value";
+type subscriptionPlans = "Popular" | "Best Value"
 
 export default function SubscribeView() {
   const navigation = useNavigation();
 
   const [activePlan, setActivePlan] = useState<subscriptionPlans>("Best Value");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const planOffers: PlanOfferProps = {
     basic: ["Past questions", "Project Materials"],
@@ -54,6 +57,9 @@ export default function SubscribeView() {
       }
     } catch (error: any) {
       console.log("Error in subscribe", error?.response);
+      let message = `Subscription error: ${error?.response}`;
+      setErrorMessage(message);
+      setErrorVisible(true);
     } finally {
       setIsLoading(false);
     }
@@ -81,6 +87,7 @@ export default function SubscribeView() {
         />
         {activePlan === "Popular" && (
           <View style={{ marginLeft: wscale(20), gap: hscale(8) }}>
+
             {planOffers.basic.map((offer) => (
               <View
                 key={offer}
@@ -102,6 +109,7 @@ export default function SubscribeView() {
         />
         {activePlan === "Best Value" && (
           <View style={{ marginLeft: wscale(20), gap: hscale(8) }}>
+
             {planOffers.premium.map((offer) => (
               <View
                 key={offer}
@@ -120,6 +128,11 @@ export default function SubscribeView() {
       <Text onPress={handleSubscribe} style={styles.subscribeButton}>
         Subscribe
       </Text>
+      <ErrorModal
+        visible={errorVisible}
+        message={errorMessage}
+        onClose={() => setErrorVisible(false)}
+      />
     </View>
   );
 }

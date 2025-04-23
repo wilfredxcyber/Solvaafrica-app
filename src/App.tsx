@@ -11,7 +11,7 @@ import { useEffect } from "react";
 import { RootStackNavigation } from "./navigations/RootStackNavigation";
 import { bootstrapApp } from "./helpers/bootstrapApp";
 import { useAuthStore } from "./stores/authStore";
-
+import ToastManager from "toastify-react-native";
 
 SplashScreen.setOptions({
   duration: 1000,
@@ -31,7 +31,7 @@ export default function App() {
     });
   });
 
-  process.env.NODE_ENV === 'development' && useKeepAwake();
+  process.env.NODE_ENV === "development" && useKeepAwake();
   useEffect(() => {
     // bootstrap app
     (async () => {
@@ -45,6 +45,7 @@ export default function App() {
   return (
     <GestureHandlerRootView>
       <QueryClientProvider client={queryClient}>
+        <ToastManager />
         <RootStackNavigation />
       </QueryClientProvider>
     </GestureHandlerRootView>

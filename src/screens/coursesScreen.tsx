@@ -139,7 +139,7 @@ const DropDownPicker = ({ data, setSelectedValue, defaultValue }: DropdownPicker
           style={{ flex: 1, height: "100%" }}
         />
         <DropdownIcon
-          name={!dropdownIsVisibile ? "chevron-small-up" : "chevron-small-down"}
+          name={dropdownIsVisibile ? "chevron-small-up" : "chevron-small-down"}
           size={20}
           color={colors.black}
         />

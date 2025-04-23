@@ -30,3 +30,4 @@ export const getUserSubscriptionStatus = async () => {
     return Promise.reject(error);
   }
 };
+//add notification query to add red dot

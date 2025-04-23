@@ -19,6 +19,12 @@ import {
   UploadFilePreviewScreen,
   PdfViewerPage,
   Cashout,
+  Grants,
+  ScholarshipScreen,
+  CertificateOnCourses,
+  Innovation,
+  Theraphy,
+  Notifications,
 } from "../screens";
 import { useUserSignedIn, useUserSignedOut } from "../hooks/userAuth";
 import TabsNavigator from "./BottomTabNavigation";
@@ -52,7 +58,60 @@ const AppStackNavigator = createNativeStackNavigator({
         },
         CourseDownloadMaterial: { screen: DownloadCourseMaterial },
         Projects: { screen: ProjectsScreen },
-        Premium: { screen: PremiumScreen },
+        Premium: {
+          screen: PremiumScreen,
+          options: {
+            headerTitle: "Premium",
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
+            headerTintColor: colors.black,
+          },
+        },
+        Grants: {
+          screen: Grants,
+          options: {
+            headerTitle: "Grant Information",
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
+            headerTintColor: colors.black,
+          },
+        },
+        Scholarship: {
+          screen: ScholarshipScreen,
+          options: {
+            headerTitle: "Scholarship Information",
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
+            headerTintColor: colors.black,
+          },
+        },
+        CourseCertificate: {
+          screen: CertificateOnCourses,
+          options: {
+            headerTitle: "Cetificate on short courses",
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
+            headerTintColor: colors.black,
+          },
+        },
+        Innovation: {
+          screen: Innovation,
+          options: {
+            headerTitle: "Innovation/Angel investors news",
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
+            headerTintColor: colors.black,
+          },
+        },
+        Theraphy: {
+          screen: Theraphy,
+          options: {
+            headerTitle: "Theraphy",
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
+            headerTintColor: colors.black,
+          },
+        },
         Upload: {
           screen: UploadFilesScreen,
           options: {
@@ -60,6 +119,10 @@ const AppStackNavigator = createNativeStackNavigator({
             statusBarStyle: "light",
             headerShown: false,
           },
+        },
+        Notifications: {
+          screen: Notifications,
+          options: { headerTitle: "Notifications" },
         },
         UploadPreview: {
           screen: UploadFilePreviewScreen,
