@@ -42,7 +42,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
       navigation.navigate(selectedScreen);
     } else if (selectedScreen === "Complaints") {
       // screen is incomplete
-      // return
+      return
       setActiveScreen(selectedScreen);
       navigation.navigate(selectedScreen);
     }

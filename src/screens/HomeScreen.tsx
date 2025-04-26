@@ -157,9 +157,9 @@ export default function HomeScreen() {
 
         {/* notification icon */}
         <TouchableOpacity
-          onPress={() =>
-            navigation.navigate("App", { screen: "Notifications" })
-          }
+          // onPress={() =>
+          //   navigation.navigate("App", { screen: "Notifications" })
+          // }
         >
           <Icon name="bell" color={colors.primary} size={24} />
         </TouchableOpacity>
