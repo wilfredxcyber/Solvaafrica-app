@@ -166,13 +166,13 @@ export default function LoginScreen() {
               //   setForm((prev) => ({ ...prev, password: e.nativeEvent.text }))
               // }
             />
-            <Icon
+            {/* <Icon
               name={showPassword ? "eye-off" : "eye"}
               size={20}
               color={colors.primary}
               style={{ marginLeft: 6 }}
               onPress={() => setShowPassword(!showPassword)}
-            />
+            /> */}
             <Icon
               name={showPassword ? "eye" : "eye-off"}
               size={20}

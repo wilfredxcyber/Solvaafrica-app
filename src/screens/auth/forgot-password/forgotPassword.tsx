@@ -6,17 +6,23 @@ import Icon from "@expo/vector-icons/Feather";
 import { View, Text, StyleSheet, TextInput, Alert, Image } from "react-native";
 import { globalStyles } from "@/src/styles/global";
 import { colors } from "@/src/constants/theme";
+
 import { hscale, mscale, wscale } from "@/src/helpers/metric";
+
 import PrimaryButton from "@/src/components/primaryButton";
 import { PUB_API_CLIENT } from "@/src/api/apiClient";
 import { useNavigation } from "@react-navigation/native";
 import LoadingView from "@/src/components/loadingView";
+import ErrorModal from "@/src/components/errorModal";
 
 export default function ForgotPassword() {
   const inputRef = useRef<TextInput>(null);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
+
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleFormSubmit = async () => {
     inputRef.current?.blur();
@@ -33,17 +39,37 @@ export default function ForgotPassword() {
 
       if (res.status === 200) {
         setLoading(false);
-        navigation.navigate("App", { screen: "forgotPasswordSuccess" });
+        navigation.navigate("App", { screen: "otpforgotPassword" });
       }
     } catch (error: any) {
       setLoading(false);
       console.log("Error in forgot password", error.response);
+
       if (error.status === 400 || 401) {
-        Alert.alert("Error, check email and try again", "Try again!");
+        const message = "Error, check email and try again Try again!";
+        setErrorMessage(message);
+        setErrorVisible(true);
         return;
       }
 
-      Alert.alert("Error", "Something went wrong!");
+      if (error.status === 500) {
+        const message = "Server error, please try again later!";
+        setErrorMessage(message);
+        setErrorVisible(true);
+        return;
+      }
+
+      if (error.status === 404) {
+        const message = "Email not found!";
+        setErrorMessage(message);
+        setErrorVisible(true);
+        return;
+      }
+
+      // Alert.alert("Error", "Something went wrong!");
+      const message = "Something went wrong!";
+      setErrorMessage(message);
+      setErrorVisible(true);
     } finally {
       console.log("Operation complete");
       setLoading(false);
@@ -102,10 +128,15 @@ export default function ForgotPassword() {
           />
         </View>
 
-        <PrimaryButton text="Send Email" onPress={handleFormSubmit} />
+        <PrimaryButton text="Next" onPress={handleFormSubmit} />
 
         <LoadingView isLoading={loading} />
       </View>
+      <ErrorModal
+        visible={errorVisible}
+        message={errorMessage}
+        onClose={() => setErrorVisible(false)}
+      />
     </View>
   );
 }
@@ -127,4 +158,5 @@ const styles = StyleSheet.create({
     fontSize: mscale(14),
     paddingLeft: wscale(8),
   },
+  
 });

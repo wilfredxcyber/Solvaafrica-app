@@ -25,12 +25,13 @@ import {
   Innovation,
   Theraphy,
   Notifications,
+  ForgotPasswordOtp,
+  ForgotPassword,
+  ForgotPasswordSuccess,
 } from "../screens";
 import { useUserSignedIn, useUserSignedOut } from "../hooks/userAuth";
 import TabsNavigator from "./BottomTabNavigation";
 import { colors } from "../constants/theme";
-import ForgotPassword from "../screens/auth/forgot-password/forgotPassword";
-import ForgotPasswordSuccess from "../screens/auth/forgot-password/forgotPasswordSuccess";
 
 const AppStackNavigator = createNativeStackNavigator({
   groups: {
@@ -152,6 +153,10 @@ const AppStackNavigator = createNativeStackNavigator({
         Login: { screen: LoginScreen, options: { headerShown: false } },
         forgotPassword: {
           screen: ForgotPassword,
+          options: { headerShown: false },
+        },
+        otpforgotPassword: {
+          screen: ForgotPasswordOtp,
           options: { headerShown: false },
         },
         forgotPasswordSuccess: {
