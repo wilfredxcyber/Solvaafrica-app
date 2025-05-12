@@ -39,7 +39,10 @@ export default function ForgotPassword() {
 
       if (res.status === 200) {
         setLoading(false);
-        navigation.navigate("App", { screen: "otpforgotPassword" });
+
+        setTimeout(() => {
+          navigation.navigate("App", { screen: "otpforgotPassword" });
+        }, 2000);
       }
     } catch (error: any) {
       setLoading(false);
@@ -125,6 +128,9 @@ export default function ForgotPassword() {
             placeholder="Email Address"
             style={styles.input}
             onChangeText={(text) => setEmail(text)}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false} 
           />
         </View>
 
@@ -158,5 +164,4 @@ const styles = StyleSheet.create({
     fontSize: mscale(14),
     paddingLeft: wscale(8),
   },
-  
 });

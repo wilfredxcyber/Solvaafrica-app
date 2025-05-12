@@ -42,7 +42,7 @@ const ForgotPasswordOtp = () => {
           }}
         />
         <ScreenHeadingText
-          text="update your password"
+          text="OTP sent"
           customStyle={{ textAlign: "center", marginVertical: "auto" }}
         />
         <Text
