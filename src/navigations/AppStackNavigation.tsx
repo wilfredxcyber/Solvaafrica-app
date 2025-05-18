@@ -25,8 +25,9 @@ import {
   Innovation,
   Theraphy,
   Notifications,
+  ForgotPasswordOtp,
   ForgotPassword,
-  ForgotPasswordSuccess
+  ForgotPasswordSuccess,
 } from "../screens";
 import { useUserSignedIn, useUserSignedOut } from "../hooks/userAuth";
 import TabsNavigator from "./BottomTabNavigation";
@@ -152,6 +153,10 @@ const AppStackNavigator = createNativeStackNavigator({
         Login: { screen: LoginScreen, options: { headerShown: false } },
         forgotPassword: {
           screen: ForgotPassword,
+          options: { headerShown: false },
+        },
+        otpforgotPassword: {
+          screen: ForgotPasswordOtp,
           options: { headerShown: false },
         },
         forgotPasswordSuccess: {
