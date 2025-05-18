@@ -14,6 +14,7 @@ import { PUB_API_CLIENT } from "@/src/api/apiClient";
 import { useNavigation } from "@react-navigation/native";
 import LoadingView from "@/src/components/loadingView";
 import ErrorModal from "@/src/components/errorModal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function ForgotPassword() {
   const inputRef = useRef<TextInput>(null);
@@ -34,15 +35,17 @@ export default function ForgotPassword() {
       //forgotPassword
       const res = await PUB_API_CLIENT.post("users/forgotten/password/otp", {
         callback: "https://www.solvaafrica.com",
-        email,
+        email: email.trim(),
       });
 
       if (res.status === 200) {
         setLoading(false);
 
-        setTimeout(() => {
-          navigation.navigate("App", { screen: "otpforgotPassword" });
-        }, 2000);
+        const userId = res.data.userId;
+        await AsyncStorage.setItem("userId", String(userId));
+        navigation.navigate("App", { screen: "otpforgotPassword" });
+
+        
       }
     } catch (error: any) {
       setLoading(false);
@@ -117,7 +120,7 @@ export default function ForgotPassword() {
             fontFamily: "Inter-Regular",
           }}
         >
-          Enter your email address and select send email
+          Enter your email address
         </Text>
 
         <View style={styles.inputView}>

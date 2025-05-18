@@ -1,5 +1,12 @@
 import React, { useState, useRef } from "react";
-import { View, Text, Image, StyleSheet, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { globalStyles } from "@/src/styles/global";
 import Logo from "@/src/components/logo";
@@ -12,6 +19,8 @@ import { PUB_API_CLIENT } from "@/src/api/apiClient";
 import LoadingView from "@/src/components/loadingView";
 import ErrorModal from "@/src/components/errorModal";
 import TextLinkButton from "@/src/components/textLinkButton";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import ToastManager, { Toast } from "toastify-react-native";
 
 const ForgotPasswordSuccess = () => {
   const navigation = useNavigation();
@@ -26,26 +35,42 @@ const ForgotPasswordSuccess = () => {
   const handlePasswordChange = async () => {
     passwordRef.current?.blur();
 
-    if (!password) return;
+    if (!password || password.length < 6) {
+      Toast.error("Password must be at least 6 characters.");
+      return;
+    }
+
     setLoading(true);
     try {
       //updatepassword
-      const res = await PUB_API_CLIENT.post("users/forgotten/password/otp", {
-        callback: "https://www.solvaafrica.com",
-        password,
-      });
 
+      const otp = await AsyncStorage.getItem("otp");
+      const userId = await AsyncStorage.getItem("userId");
+
+      const payload = {
+        userId: userId,
+        otpCode: otp,
+        newPassword: password,
+      };
+
+      const res = await PUB_API_CLIENT.post(
+        "users/forgotten/password/reset",
+        payload
+      );
+      
       if (res.status === 200) {
-        setLoading(false);
+        console.log(res, "password change");
 
+        Toast.success("Password reset successful");
         setTimeout(() => {
           navigation.navigate("App", { screen: "Login" });
         }, 2000);
       }
     } catch (error: any) {
       setLoading(false);
+    
 
-      const message = error?.message || "Something went wrong!";
+      const message = "Something went wrong!";
       setErrorMessage(message);
       setErrorVisible(true);
     } finally {
@@ -79,7 +104,7 @@ const ForgotPasswordSuccess = () => {
         />
 
         <ScreenHeadingText
-          text="Update ypur password"
+          text="Update your password"
           customStyle={{ textAlign: "center", marginVertical: "auto" }}
         />
 
@@ -97,22 +122,20 @@ const ForgotPasswordSuccess = () => {
             onChange={(e) => setPassword(e.nativeEvent.text)}
           />
 
-          <Icon
-            name={showPassword ? "eye" : "eye-off"}
-            size={20}
-            color={colors.primary}
-            onPress={() => setShowPassword(!showPassword)}
-            style={{ paddingLeft: 10 }}
-          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <Icon
+              name={showPassword ? "eye" : "eye-off"}
+              size={20}
+              color={colors.primary}
+            />
+          </TouchableOpacity>
         </View>
 
         <PrimaryButton text="Proceed" onPress={handlePasswordChange} />
         <LoadingView isLoading={loading} />
         <TextLinkButton
           text="Back to login"
-          onPress={() =>
-            navigation.navigate("App", { screen: "Login" })
-          }
+          onPress={() => navigation.navigate("App", { screen: "Login" })}
         />
       </View>
       <ErrorModal

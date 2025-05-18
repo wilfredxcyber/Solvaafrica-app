@@ -7,13 +7,14 @@ import { hscale, mscale, wscale } from "@/src/helpers/metric";
 import ScreenHeadingText from "@/src/components/screenHeadingText";
 import { colors } from "@/src/constants/theme";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ForgotPasswordOtp = () => {
   const navigation = useNavigation();
 
-  const handleOtpSubmit = (otp: string) => {
-
-    Alert.alert("OTP Entered", otp);
+  const handleOtpSubmit = async (otp: string) => {
+    // Alert.alert("OTP Entered", otp);
+    await AsyncStorage.setItem("otp", otp);
 
     navigation.navigate("App", { screen: "forgotPasswordSuccess" });
   };
