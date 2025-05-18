@@ -12,7 +12,7 @@ import LoadingView from "../components/loadingView";
 import { AUTH_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
-
+import ErrorModal from "../components/errorModal";
 
 interface ISearchListParams {
   university: string;
@@ -26,6 +26,8 @@ export default function CoursesList({ route }: ScreenProps) {
   const params = route.params;
   const [coursesList, setCoursesList] = useState<any[] | []>([]);
   const [loadingCourses, setLoadingCourses] = useState<boolean>(false);
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     // fetch courses based on params
@@ -41,6 +43,10 @@ export default function CoursesList({ route }: ScreenProps) {
         setCoursesList(courses);
       } catch (error) {
         console.log("error fetching courses", error);
+        let message = "Something went wrong!";
+
+        setErrorMessage(message);
+        setErrorVisible(true);
       } finally {
         setLoadingCourses(false);
       }
@@ -73,6 +79,11 @@ export default function CoursesList({ route }: ScreenProps) {
           )}
         />
       )}
+      <ErrorModal
+        visible={errorVisible}
+        message={errorMessage}
+        onClose={() => setErrorVisible(false)}
+      />
     </View>
   );
 }

@@ -9,15 +9,23 @@ import EmptyStateView from "../components/emptyStateView";
 import LoadingView from "../components/loadingView";
 import { hscale, mscale } from "../helpers/metric";
 import { AUTH_API_CLIENT } from "../api/apiClient";
+import ErrorModal from "../components/errorModal";
 
-
-type ScreenProps = StaticScreenProps<{ courseId: string; headerTitle: string; courseCode: string }>;
+type ScreenProps = StaticScreenProps<{
+  courseId: string;
+  headerTitle: string;
+  courseCode: string;
+}>;
 
 export default function CourseMaterials({ route }: ScreenProps) {
   const { courseId, headerTitle, courseCode } = route.params;
   const [courses, setCourses] = useState<any[] | []>([]);
-  const [fetchingCourseMaterials, setFetchingCourseMaterials] = useState<boolean>(false);
+  const [fetchingCourseMaterials, setFetchingCourseMaterials] =
+    useState<boolean>(false);
   const navigation = useNavigation();
+
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     navigation.setOptions({ title: `${headerTitle}` });
@@ -28,7 +36,10 @@ export default function CourseMaterials({ route }: ScreenProps) {
         const { data: coursesList } = res.data;
         setCourses(coursesList.documents);
       } catch (error) {
-        console.log("Error getting course materials", error);
+        // console.log("Error getting course materials", error);
+        let message = "Error getting course materials";
+        setErrorMessage(message);
+        setErrorVisible(true);
       } finally {
         setFetchingCourseMaterials(false);
       }
@@ -37,7 +48,8 @@ export default function CourseMaterials({ route }: ScreenProps) {
     fetchCourseMaterials();
   }, []);
 
-  if (fetchingCourseMaterials) return <LoadingView isLoading={fetchingCourseMaterials} />;
+  if (fetchingCourseMaterials)
+    return <LoadingView isLoading={fetchingCourseMaterials} />;
 
   return (
     <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
@@ -62,6 +74,11 @@ export default function CourseMaterials({ route }: ScreenProps) {
           contentContainerStyle={{ paddingHorizontal: screenHorizontalPadding }}
         />
       )}
+      <ErrorModal
+        visible={errorVisible}
+        message={errorMessage}
+        onClose={() => setErrorVisible(false)}
+      />
     </View>
   );
 }
@@ -81,7 +98,12 @@ const CourseItemView = ({
   const handleImagePress = () => {
     navigation.navigate("App", {
       screen: "CourseDownloadMaterial",
-      params: { url, screenTitle: title, originalFileName: fileName, fileCode: courseCode },
+      params: {
+        url,
+        screenTitle: title,
+        originalFileName: fileName,
+        fileCode: courseCode,
+      },
     });
   };
   return (
