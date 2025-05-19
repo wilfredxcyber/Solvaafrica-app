@@ -33,8 +33,7 @@ export default function PremiumScreen() {
   const navigation = useNavigation();
 
   const handleItemPress = (item: any) => {
-    // console.log("Item clicked:", item);
-    // Example: navigate somewhere with item data
+    
     navigation.navigate("App", { screen: item.route });
   };
 
