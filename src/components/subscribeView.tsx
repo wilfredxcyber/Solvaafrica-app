@@ -9,13 +9,14 @@ import { hscale, mscale, wscale } from "../helpers/metric";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import LoadingView from "./loadingView";
+import ErrorModal from "./errorModal";
 
-type subscriptionPlans = "Popular" | "Best Value"
+type subscriptionPlans = "Basic" | "Premium"
 
 export default function SubscribeView() {
   const navigation = useNavigation();
 
-  const [activePlan, setActivePlan] = useState<subscriptionPlans>("Best Value");
+  const [activePlan, setActivePlan] = useState<subscriptionPlans>("Premium");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [errorVisible, setErrorVisible] = useState(false);
@@ -50,6 +51,7 @@ export default function SubscribeView() {
       const res = await AUTH_API_CLIENT.get(
         `/sub/${activePlan}/link?callback=https://www.solvaafrica.com`
       );
+      console.log(activePlan, "active plan");
       if (res.status === 200) {
         const subLink = res.data.data.authorization_url;
         console.log("Subscription response", res.data);
@@ -57,7 +59,7 @@ export default function SubscribeView() {
       }
     } catch (error: any) {
       console.log("Error in subscribe", error?.response);
-      let message = `Subscription error: ${error?.response}`;
+      const message = "Subscription error: Something went wrong!";
       setErrorMessage(message);
       setErrorVisible(true);
     } finally {
@@ -80,12 +82,12 @@ export default function SubscribeView() {
 
       <View style={{ gap: 20, marginTop: hscale(40) }}>
         <SubButton
-          handleOnPress={() => handleSubButtonPress("Popular")}
-          subPlan="Popular"
+          handleOnPress={() => handleSubButtonPress("Basic")}
+          subPlan="Basic"
           subPrice="999"
-          isActive={activePlan === "Popular" ? true : false}
+          isActive={activePlan === "Basic" ? true : false}
         />
-        {activePlan === "Popular" && (
+        {activePlan === "Basic" && (
           <View style={{ marginLeft: wscale(20), gap: hscale(8) }}>
 
             {planOffers.basic.map((offer) => (
@@ -102,12 +104,12 @@ export default function SubscribeView() {
           </View>
         )}{" "}
         <SubButton
-          handleOnPress={() => handleSubButtonPress("Best Value")}
-          subPlan="Best Value"
+          handleOnPress={() => handleSubButtonPress("Premium")}
+          subPlan="Premium"
           subPrice="1,999"
-          isActive={activePlan === "Best Value" ? true : false}
+          isActive={activePlan === "Premium" ? true : false}
         />
-        {activePlan === "Best Value" && (
+        {activePlan === "Premium" && (
           <View style={{ marginLeft: wscale(20), gap: hscale(8) }}>
 
             {planOffers.premium.map((offer) => (
@@ -138,7 +140,7 @@ export default function SubscribeView() {
 }
 
 interface SubButtonProps {
-  subPlan: "Best Value" | "Popular";
+  subPlan: "Premium" | "Basic";
   subPrice: "999" | "1,999";
   isActive: boolean;
   handleOnPress: () => void;
@@ -179,7 +181,7 @@ const SubButton = ({
           color: isActive ? colors.primary : colors.bodyText,
         }}
       >
-        {`₦${subPrice}${subPlan === "Best Value" ? "/3month" : "month"}`}
+        {`₦ ${subPrice}${subPlan === "Premium" ? " / 3months" : " / month"}`}
       </Text>
     </Pressable>
   );

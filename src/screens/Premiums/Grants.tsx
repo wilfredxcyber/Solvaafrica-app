@@ -8,7 +8,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { globalStyles } from "@/src/styles/global";
 import { AUTH_API_CLIENT } from "@/src/api/apiClient";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+
 import ErrorModal from "@/src/components/errorModal";
 import { hscale, mscale, wscale } from "@/src/helpers/metric";
 import EmptyStateView from "@/src/components/emptyStateView";
