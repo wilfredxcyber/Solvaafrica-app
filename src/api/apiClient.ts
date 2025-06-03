@@ -5,9 +5,8 @@ import axios from "axios";
 import { useAuthStore } from "../stores/authStore";
 import { ENV_CONFIG } from "../env.config";
 
-
 const API_BASE_URL =
-  process.env.NODE_ENV === "development" || "preview"
+  process.env.NODE_ENV === "development" || process.env.NODE_ENV === "preview"
     ? ENV_CONFIG.dev.BASE_API_URL
     : process.env.NODE_ENV === "production"
       ? ENV_CONFIG.prod.BASE_API_URL
@@ -47,7 +46,7 @@ AUTH_API_CLIENT.interceptors.request.use(
   },
   (err) => {
     Promise.reject(err);
-  }
+  },
 );
 
 AUTH_API_CLIENT.interceptors.response.use(
@@ -63,19 +62,27 @@ AUTH_API_CLIENT.interceptors.response.use(
           const user = JSON.parse(serializedUser);
           const refreshToken = user.tokens.refreshToken;
 
-          const serverResponse = await axios.post(`${API_BASE_URL}/users/generate/token`, {
-            refreshToken,
-          });
+          const serverResponse = await axios.post(
+            `${API_BASE_URL}/users/generate/token`,
+            {
+              refreshToken,
+            },
+          );
 
           const responseData = serverResponse.data;
 
-          const { accessToken: newAccessToken, refreshToken: newRefreshToken } = responseData.data;
+          const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+            responseData.data;
 
-          user.tokens = { accessToken: newAccessToken, refreshToken: newRefreshToken };
+          user.tokens = {
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken,
+          };
 
           await AsyncStorage.setItem("User", JSON.stringify(user));
 
-          AUTH_API_CLIENT.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
+          AUTH_API_CLIENT.defaults.headers.common["Authorization"] =
+            `Bearer ${newAccessToken}`;
           console.log("Refreshed user", user);
 
           return AUTH_API_CLIENT(originalRequest);
@@ -83,12 +90,15 @@ AUTH_API_CLIENT.interceptors.response.use(
       } catch (refreshError) {
         // failed to refresh token
         console.error("Token refresh failed", refreshError);
-        Alert.alert("Sign in", "Your current session has expired. Kindly login again");
+        Alert.alert(
+          "Sign in",
+          "Your current session has expired. Kindly login again",
+        );
         await AsyncStorage.removeItem("User");
         useAuthStore.setState((state) => ({ ...state, user: null }));
         return Promise.reject(refreshError);
       }
     }
     return Promise.reject(err);
-  }
+  },
 );
