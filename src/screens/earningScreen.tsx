@@ -30,6 +30,7 @@ export default function EarningScreen() {
           );
           const { balance } = response.data.data;
           setUserBalance(balance);
+          console.log("User balance fetched:", response.data);
         } catch (error) {
           Toast.error("Error fetching user balance");
           // console.log('Error fetching user balance', error)
@@ -243,7 +244,7 @@ const EarningsBalanceView = ({
           Earnings
         </Text>
         {userBalance !== undefined && (
-          <Text style={styles.text}>{`${userBalance.toFixed(2)} NGN`}</Text>
+          <Text style={styles.text}>{`${userBalance?.toFixed(2)} NGN`}</Text>
         )}
       </View>
       <Text style={styles.textButton} onPress={handleNavigateCashout}>

@@ -44,7 +44,7 @@ export default function HomeScreen() {
   const navigation = useNavigation();
   const userProfile = user.profile;
   const { width } = Dimensions.get("window");
-  const slidesPlaceholder = require("../../assets/images/placeholder.png");
+  // const slidesPlaceholder = ;
   const [isSubscribed, setIsSubscribed] = useState(true);
 
   const MENU_ITEMS: IMenuItems[] = [
@@ -157,9 +157,9 @@ export default function HomeScreen() {
 
         {/* notification icon */}
         <TouchableOpacity
-          // onPress={() =>
-          //   navigation.navigate("App", { screen: "Notifications" })
-          // }
+        // onPress={() =>
+        //   navigation.navigate("App", { screen: "Notifications" })
+        // }
         >
           <Icon name="bell" color={colors.primary} size={24} />
         </TouchableOpacity>
@@ -168,46 +168,48 @@ export default function HomeScreen() {
       <Carousel
         height={hscale(150)}
         showsControls={false}
-        autoplay={true}
+        autoplay
         autoplayInterval={2000}
-        loop={true}
-        pagingEnabled={true}
-        bounces={true}
+        loop
+        pagingEnabled
+        bounces
         activeDotStyle={{ backgroundColor: colors.primary }}
         dotStyle={{ backgroundColor: colors.sliderDotsInactive }}
         dotsContainerStyle={{ bottom: hscale(-20) }}
-        mergeStyles={true}
+        mergeStyles
       >
-        {data
-          ? data.map((currentSlideImage, index) => (
+        {data?.length === 0
+          ? new Array(3).fill(null).map((_, index) => (
               <View
+                key={`placeholder-${index}`}
                 style={{
                   width: width - screenHorizontalPadding * 2,
                   height: "100%",
                 }}
-                key={index + currentSlideImage}
               >
                 <Image
-                  source={{ uri: currentSlideImage }}
+                  source={require("../../assets/images/placeholder.png")}
+                  style={{ width: "100%", height: "100%" }}
+                  resizeMode="cover"
+                />
+              </View>
+            ))
+          : (data ?? []).map((imageUri, index) => (
+              <View
+                key={`slide-${index}`}
+                style={{
+                  width: width - screenHorizontalPadding * 2,
+                  height: "100%",
+                }}
+              >
+                <Image
+                  source={{ uri: imageUri }}
                   style={{
                     width: "100%",
                     height: "100%",
                     borderRadius: mscale(10),
                   }}
-                />
-              </View>
-            ))
-          : new Array(3).map((_, index) => (
-              <View
-                style={{
-                  width: width - screenHorizontalPadding * 2,
-                  height: "100%",
-                }}
-                key={index}
-              >
-                <Image
-                  source={slidesPlaceholder}
-                  style={{ width: "100%", height: "100%" }}
+                  resizeMode="cover"
                 />
               </View>
             ))}
