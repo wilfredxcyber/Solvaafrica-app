@@ -24,14 +24,16 @@ export default function Scholarship() {
   useEffect(() => {
     const getScholarships = async () => {
       setLoading(true);
+      console.log("Fetching scholarships...");
       try {
         const response = await AUTH_API_CLIENT.get("/scholarships");
         if (response.status === 200) {
           setData(response.data?.data || []);
         }
+        console.log(response.data.data);
       } catch (error: any) {
         let message = "Something went wrong!";
-
+        console.log(error);
         setErrorMessage(message);
         setErrorVisible(true);
         setLoading(false);
@@ -56,62 +58,62 @@ export default function Scholarship() {
 
   return (
     // <ProtectPage>
-      <View style={globalStyles.screen}>
-        <View>
-          {loading ? (
-            <View
+    <View style={globalStyles.screen}>
+      <View>
+        {loading ? (
+          <View
+            style={{
+              height: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <LottieView
+              autoPlay
               style={{
-                height: "100%",
-                justifyContent: "center",
-                alignItems: "center",
+                width: wscale(50),
+                height: hscale(50),
+                alignSelf: "center",
               }}
-            >
-              <LottieView
-                autoPlay
-                style={{
-                  width: wscale(50),
-                  height: hscale(50),
-                  alignSelf: "center",
-                }}
-                source={require("../../../assets/animations/spin.json")}
-              />
-              <Text>Loading, Please wait!</Text>
-            </View>
-          ) : data.length === 0 ? (
-            <EmptyStateView />
-          ) : (
-            data.map((item) => (
-              <View style={styles.card} key={item.id}>
-                <Text style={styles.title}>{item.name}</Text>
-                <Text style={styles.description}>
-                  {capitalizeFirstLetter(item.description)}
-                </Text>
+              source={require("../../../assets/animations/spin.json")}
+            />
+            <Text>Loading, Please wait!</Text>
+          </View>
+        ) : data.length === 0 ? (
+          <EmptyStateView />
+        ) : (
+          data.map((item) => (
+            <View style={styles.card} key={item.id}>
+              <Text style={styles.title}>{item.name}</Text>
+              <Text style={styles.description}>
+                {capitalizeFirstLetter(item.description)}
+              </Text>
+              <Text
+                style={styles.link}
+                onPress={() => handleOpenLink(item.link)}
+              >
+                Click link to open:{" "}
                 <Text
-                  style={styles.link}
-                  onPress={() => handleOpenLink(item.link)}
+                  style={{
+                    color: "blue",
+                    textDecorationLine: "underline",
+                  }}
                 >
-                  Click link to open:{" "}
-                  <Text
-                    style={{
-                      color: "blue",
-                      textDecorationLine: "underline",
-                    }}
-                  >
-                    {" "}
-                    {item.link}
-                  </Text>
+                  {" "}
+                  {item.link}
                 </Text>
-              </View>
-            ))
-          )}
-        </View>
-
-        <ErrorModal
-          visible={errorVisible}
-          message={errorMessage}
-          onClose={() => setErrorVisible(false)}
-        />
+              </Text>
+            </View>
+          ))
+        )}
       </View>
+
+      <ErrorModal
+        visible={errorVisible}
+        message={errorMessage}
+        onClose={() => setErrorVisible(false)}
+      />
+    </View>
     // </ProtectPage>
   );
 }

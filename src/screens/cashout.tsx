@@ -347,7 +347,7 @@ const EarningsBalanceView = ({
               },
             ]}
           >
-            {`NGN ${userBalance.toFixed(2)}`}
+            {`NGN ${userBalance?.toFixed(2)}`}
           </Text>
         )}
       </View>
