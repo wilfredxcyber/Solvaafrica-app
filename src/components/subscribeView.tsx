@@ -11,7 +11,7 @@ import { colors } from "../constants/theme";
 import LoadingView from "./loadingView";
 import ErrorModal from "./errorModal";
 
-type subscriptionPlans = "Basic" | "Premium"
+type subscriptionPlans = "Basic" | "Premium";
 
 export default function SubscribeView() {
   const navigation = useNavigation();
@@ -49,7 +49,7 @@ export default function SubscribeView() {
     try {
       setIsLoading(true);
       const res = await AUTH_API_CLIENT.get(
-        `/sub/${activePlan}/link?callback=https://www.solvaafrica.com`
+        `/sub/${activePlan}/link?callback=https://www.solvaafrica.com`,
       );
       console.log(activePlan, "active plan");
       if (res.status === 200) {
@@ -89,7 +89,6 @@ export default function SubscribeView() {
         />
         {activePlan === "Basic" && (
           <View style={{ marginLeft: wscale(20), gap: hscale(8) }}>
-
             {planOffers.basic.map((offer) => (
               <View
                 key={offer}
@@ -102,7 +101,7 @@ export default function SubscribeView() {
               </View>
             ))}
           </View>
-        )}{" "}
+        )}
         <SubButton
           handleOnPress={() => handleSubButtonPress("Premium")}
           subPlan="Premium"
@@ -111,7 +110,6 @@ export default function SubscribeView() {
         />
         {activePlan === "Premium" && (
           <View style={{ marginLeft: wscale(20), gap: hscale(8) }}>
-
             {planOffers.premium.map((offer) => (
               <View
                 key={offer}

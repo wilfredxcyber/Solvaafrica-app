@@ -26,7 +26,7 @@ export default function EarningScreen() {
       const getUserEarnedBalance = async () => {
         try {
           const response = await AUTH_API_CLIENT.get(
-            `/users/balance/${userID}`
+            `/users/balance/${userID}`,
           );
           const { balance } = response.data.data;
           setUserBalance(balance);
@@ -38,7 +38,7 @@ export default function EarningScreen() {
       };
 
       getUserEarnedBalance();
-    }, [])
+    }, []),
   );
 
   return (
@@ -244,7 +244,9 @@ const EarningsBalanceView = ({
           Earnings
         </Text>
         {userBalance !== undefined && (
-          <Text style={styles.text}>{`${userBalance?.toFixed(2)} NGN`}</Text>
+          <Text
+            style={styles.text}
+          >{`${userBalance ? userBalance?.toFixed(2) : "---"} NGN`}</Text>
         )}
       </View>
       <Text style={styles.textButton} onPress={handleNavigateCashout}>
