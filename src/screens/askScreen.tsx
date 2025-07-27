@@ -9,39 +9,69 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  ToastAndroid,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { AUTH_API_CLIENT } from "@/src/api/apiClient";
 import { mscale, hscale, wscale } from "@/src/helpers/metric";
 import { colors } from "@/src/constants/theme";
 import { useAuthStore } from "../stores/authStore";
-import { socket } from "@/src/lib/socket";
+import { connectSocket } from "@/src/lib/socket";
 
 export default function AskChatbotScreen() {
   const [prompt, setPrompt] = useState("");
   const [chatHistory, setChatHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [socket, setSocket] = useState<any>(null);
   const AuthUser = useAuthStore((state) => state.user);
   const { userID } = AuthUser.profile;
 
   useEffect(() => {
-    socket.connect();
-    socket.emit("join", userID);
+    let isMounted = true;
 
-    socket.on("chatReply", (data) => {
-      if (!data?.prompt || !data?.response) return;
-      setChatHistory((prev) => [
-        { prompt: data.prompt, response: data.response },
-        ...prev,
-      ]);
-    });
+    const setupSocket = async () => {
+      try {
+        const newSocket = await connectSocket();
+        if (!isMounted) return;
 
+        setSocket(newSocket);
+
+        newSocket.on("connect", () => {
+          newSocket.emit("join", userID);
+        });
+
+        newSocket.on("chatReply", (data) => {
+          if (!data?.prompt || !data?.response) return;
+          setChatHistory((prev) => [
+            { prompt: data.prompt, response: data.response },
+            ...prev,
+          ]);
+        });
+
+        newSocket.on("connect_error", (err) => {
+          ToastAndroid.show(err?.message, ToastAndroid.LONG);
+        });
+
+        newSocket.on("error", (err) => {
+          ToastAndroid.show(err?.message, ToastAndroid.LONG);
+          // console.error("⚠️ Socket error:", err?.message || err);
+        });
+      } catch (err:any) {
+        ToastAndroid.show(err, ToastAndroid.LONG);
+        // console.error("🚨 Failed to connect socket:", err);
+      }
+    };
+
+    setupSocket();
     fetchChat();
 
     return () => {
-      socket.off("chatReply");
-      socket.disconnect();
+      isMounted = false;
+      if (socket) {
+        socket.off("chatReply");
+        socket.disconnect();
+      }
     };
   }, []);
 
@@ -53,7 +83,8 @@ export default function AskChatbotScreen() {
         setChatHistory(response.data.data);
       }
     } catch (error) {
-      console.error("Failed to load chat:", error);
+      // console.error("Failed to load chat:", error);
+      ToastAndroid.show(`Failed to load chat ${error}`, ToastAndroid.LONG);
     } finally {
       setLoading(false);
     }
@@ -72,7 +103,11 @@ export default function AskChatbotScreen() {
         owner: userID,
       });
     } catch (error: any) {
-      console.log("Send failed:", error?.response?.data || error.message);
+      ToastAndroid.show(
+        `Send failed: ${error?.response?.data || error.message}`,
+        ToastAndroid.LONG
+      );
+      // console.log("Send failed:", error?.response?.data || error.message);
     } finally {
       setSending(false);
     }

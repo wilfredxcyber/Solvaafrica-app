@@ -11,8 +11,8 @@ import {
   Image,
   ActivityIndicator,
   ToastAndroid,
+  Platform,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 import { colors } from "@/src/constants/theme";
 import { mscale, hscale, wscale } from "@/src/helpers/metric";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
@@ -21,8 +21,7 @@ import { ServiceType } from "@/src/types";
 import ErrorModal from "@/src/components/errorModal";
 import { Picker } from "@react-native-picker/picker";
 import ToastManager, { Toast } from "toastify-react-native";
-import { useAuthStore } from "@/src/stores/authStore";
-import axios from "axios";
+import { launchImageLibrary, launchCamera } from "react-native-image-picker";
 
 export default function SetUpProfile() {
   const [loading, setLoading] = useState(true);
@@ -55,7 +54,7 @@ export default function SetUpProfile() {
     getServices();
   }, []);
 
-  const [profileImageUri, setProfileImageUri] = useState<string | null>(null);
+  const [profileImageUri, setProfileImageUri] = useState<string | any>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
@@ -66,23 +65,24 @@ export default function SetUpProfile() {
   const navigation = useNavigation();
 
   const handlePickProfileImage = async () => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 1,
-        allowsEditing: true,
-      });
-
-      if (!result.canceled && result.assets.length > 0) {
-        const { uri } = result.assets[0];
-        setProfileImageUri(uri);
+    launchImageLibrary({ mediaType: "photo" }, (response) => {
+      if (response.didCancel) return;
+      if (response.errorCode) {
+        ToastAndroid.show("Error selecting image", ToastAndroid.SHORT);
+        console.error("Picker Error:", response.errorMessage);
+        return;
       }
-    } catch (error) {
-      Toast.error("Error, Failed to pick image. Please try again.");
-    }
+
+      const asset = response.assets?.[0];
+      if (asset?.uri) {
+        setProfileImageUri(asset);
+      }
+    });
   };
 
   const handleUpdate = async () => {
+    console.log("clicked");
+
     if (
       !name ||
       !selectedCategoryId ||
@@ -91,7 +91,7 @@ export default function SetUpProfile() {
       !portfolio ||
       !phone ||
       !whatsapp ||
-      !profileImageUri
+      !profileImageUri?.uri
     ) {
       ToastAndroid.show(
         "Ensure all fields are filled and an image is added.",
@@ -99,6 +99,8 @@ export default function SetUpProfile() {
       );
       return;
     }
+
+    setUpdating(true);
 
     const formData = new FormData();
     formData.append("fullName", name);
@@ -109,26 +111,24 @@ export default function SetUpProfile() {
     formData.append("phoneNumber", phone);
     formData.append("whatsappLink", whatsapp);
 
-    const fileName = profileImageUri.split("/").pop() || "photo.jpg";
-    const mimeType = fileName.endsWith(".png") ? "image/png" : "image/jpeg";
+    const fileName = profileImageUri.uri?.split("/").pop() || "photo.jpg";
 
     formData.append("profilePic", {
-      uri: profileImageUri,
-      name: fileName,
-      type: mimeType,
+      uri: profileImageUri.uri,
+      name: profileImageUri.fileName || fileName,
+      type: Platform.select({
+        android: "image/jpeg",
+        default: profileImageUri?.type || "image",
+      }),
     } as any);
 
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/freelancers/create`,
+      const response = await AUTH_API_CLIENT.post(
+        "/freelancers/create",
         formData,
         {
           headers: {
-            Accept: "application/json",
-          },
-          transformRequest: (data, headers) => {
-            delete headers["Content-Type"]; // let axios handle this automatically
-            return data;
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -165,7 +165,7 @@ export default function SetUpProfile() {
       >
         {profileImageUri ? (
           <Image
-            source={{ uri: profileImageUri }}
+            source={{ uri: profileImageUri.uri }}
             style={styles.profileImage}
           />
         ) : (

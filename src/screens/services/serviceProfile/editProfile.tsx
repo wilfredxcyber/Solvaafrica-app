@@ -125,33 +125,35 @@ export default function EditProfile({ route }: Props) {
       } as any);
     }
     console.log(formData,"fd")
-    // try {
-    //   setUpdating(true);
-    //   const response = await AUTH_API_CLIENT.patch(
-    //     `/freelancers/edit`,
-    //     formData,
-    //     {
-    //       headers: { "Content-Type": "multipart/form-data" },
-    //     }
-    //   );
+    try {
+      setUpdating(true);
+      const response = await AUTH_API_CLIENT.patch(
+        `/freelancers/edit`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
-    //   if (response.status === 200) {
-    //     Toast.success("Profile updated successfully!");
-    //     navigation.goBack();
-    //   } else {
-    //     Toast.error("Unexpected response from server.");
-    //   }
-    // } catch (error: any) {
-    //   if (error.response) {
-    //     Toast.error(error.response.data?.message || "Server error.");
-    //   } else if (error.request) {
-    //     Toast.error("No response from server.");
-    //   } else {
-    //     Toast.error("An unexpected error occurred.");
-    //   }
-    // } finally {
-    //   setUpdating(false);
-    // }
+      console.log(response, "edit res")
+      if (response.status === 200) {
+        Toast.success("Profile updated successfully!");
+        navigation.goBack();
+        
+      } else {
+        Toast.error("Unexpected response from server.");
+      }
+    } catch (error: any) {
+      if (error.response) {
+        Toast.error(error.response.data?.message || "Server error.");
+      } else if (error.request) {
+        Toast.error("No response from server.");
+      } else {
+        Toast.error("An unexpected error occurred.");
+      }
+    } finally {
+      setUpdating(false);
+    }
   };
 
   return (

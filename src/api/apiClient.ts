@@ -22,7 +22,7 @@ export const PUB_API_CLIENT = axios.create({
 export const AUTH_API_CLIENT = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    // "Content-Type": "application/json",
+    "Content-Type": "application/json",
   },
 });
 

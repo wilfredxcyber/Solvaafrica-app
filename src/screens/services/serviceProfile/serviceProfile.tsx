@@ -24,7 +24,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import Carousel from "pinar";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AUTH_API_CLIENT } from "@/src/api/apiClient";
-import { Ionicons } from "@expo/vector-icons";
+import { createIconSetFromFontello, Ionicons } from "@expo/vector-icons";
 import { FreelancerProfile } from "@/src/types";
 
 export default function ServiceProfile() {
@@ -37,43 +37,46 @@ export default function ServiceProfile() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewLoading, setReviewLoading] = useState(true);
 
-  useEffect(() => {
-    const getFreelancerInfo = async () => {
-      try {
-        setLoading(true);
-        const response = await AUTH_API_CLIENT.get(`/freelancers/`);
-        if (response.status === 200) {
-          const fetchedUser = response.data.data[0];
-          setUser(fetchedUser);
-          getReviews(fetchedUser.id);
-        }
-      } catch (error) {
-        console.error("Job fetch error:", error);
-        setErrorMessage("Something went wrong while fetching services!");
-        setErrorVisible(true);
-      } finally {
-        setLoading(false);
+  const getFreelancerInfo = async () => {
+    try {
+      setLoading(true);
+      const response = await AUTH_API_CLIENT.get(`/freelancers/`);
+      if (response.status === 200) {
+        const fetchedUser = response.data.data[0];
+        setUser(fetchedUser);
+        getReviews(fetchedUser.id);
       }
-    };
+    } catch (error) {
+      console.error("Job fetch error:", error);
+      setErrorMessage("Something went wrong while fetching services!");
+      setErrorVisible(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const getReviews = async (freelancerId: number) => {
-      try {
-        setReviewLoading(true);
-        const response = await AUTH_API_CLIENT.get(
-          `/freelancers/comment/${freelancerId}`
-        );
-        if (response.status === 200) {
-          setReviews(response.data.data || []);
-        }
-      } catch (err) {
-        console.error("Failed to load reviews", err);
-      } finally {
-        setReviewLoading(false);
+  const getReviews = async (freelancerId: number) => {
+    try {
+      setReviewLoading(true);
+      const response = await AUTH_API_CLIENT.get(
+        `/freelancers/comment/${freelancerId}`
+      );
+      console.log(response.data.data.comments, "reviews");
+      if (response.status === 200) {
+        setReviews(response.data.data.comments || []);
       }
-    };
+    } catch (err) {
+      console.error("Failed to load reviews", err);
+    } finally {
+      setReviewLoading(false);
+    }
+  };
 
-    getFreelancerInfo();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getFreelancerInfo();
+    }, [])
+  );
 
   useLayoutEffect(() => {
     if (!user) return;
@@ -85,7 +88,6 @@ export default function ServiceProfile() {
           name="create-outline"
           size={24}
           color="black"
-          // style={{ marginRight: mscale(10) }}
           onPress={() =>
             navigation.navigate("App", {
               screen: "ServiceEditProfile",
@@ -129,20 +131,26 @@ export default function ServiceProfile() {
       >
         <Image
           source={{ uri: user?.profilePic }}
-          style={{ width: 100, height: 100, borderRadius: 10 }}
+          style={{
+            width: 100,
+            height: 100,
+            borderRadius: 10,
+            borderColor: colors.primary,
+            borderWidth: 2,
+          }}
           resizeMode="cover"
         />
       </View>
       <View>
         <Text
           style={{
-            fontSize: mscale(20),
+            fontSize: mscale(16),
             fontFamily: "Inter-Medium",
             color: colors.black,
             marginTop: mscale(5),
           }}
         >
-          About me
+          About
         </Text>
         <View>
           <Text
@@ -161,7 +169,7 @@ export default function ServiceProfile() {
       <View>
         <Text
           style={{
-            fontSize: mscale(20),
+            fontSize: mscale(16),
             fontFamily: "Inter-Medium",
             color: colors.black,
             marginTop: mscale(5),
@@ -211,7 +219,7 @@ export default function ServiceProfile() {
       >
         <Text
           style={{
-            fontSize: mscale(20),
+            fontSize: mscale(16),
             fontFamily: "Inter-Medium",
             color: colors.black,
             marginTop: mscale(5),
@@ -254,7 +262,7 @@ export default function ServiceProfile() {
       <View>
         <Text
           style={{
-            fontSize: mscale(20),
+            fontSize: mscale(16),
             fontFamily: "Inter-Medium",
             color: colors.black,
             marginTop: mscale(5),
@@ -262,67 +270,57 @@ export default function ServiceProfile() {
         >
           Reviews
         </Text>
-        <Carousel
-          height={hscale(220)}
-          showsControls={false}
-          loop
-          //   pagingEnabled
-          //   bounces
-          activeDotStyle={{ backgroundColor: colors.primary }}
-          dotStyle={{ backgroundColor: colors.sliderDotsInactive }}
-          dotsContainerStyle={{ bottom: hscale(9) }}
-          mergeStyles
-        >
-          {reviewLoading ? (
-            <ActivityIndicator size="small" color={colors.primary} />
-          ) : reviews.length > 0 ? (
-            <Carousel
-              height={hscale(220)}
-              showsControls={false}
-              loop
-              activeDotStyle={{ backgroundColor: colors.primary }}
-              dotStyle={{ backgroundColor: colors.sliderDotsInactive }}
-              dotsContainerStyle={{ bottom: hscale(9) }}
-              mergeStyles
-            >
-              {reviews.map((review: any) => (
+        {reviewLoading ? (
+          <ActivityIndicator size="small" color={colors.primary} />
+        ) : reviews.length > 0 ? (
+          <Carousel
+            height={hscale(180)} 
+            showsControls={false}
+            loop
+            activeDotStyle={{ backgroundColor: colors.primary }}
+            dotStyle={{ backgroundColor: colors.sliderDotsInactive }}
+            dotsContainerStyle={{
+              bottom: hscale(5),
+            }}
+            mergeStyles
+          >
+            {reviews.map((review: any) => (
+              <View
+                key={review.id}
+                style={{
+                  backgroundColor: "#EBEDEB80",
+                  padding: mscale(10),
+                  borderRadius: mscale(16),
+                  marginTop: mscale(10),
+                  marginHorizontal: mscale(10),
+                  height: hscale(140),
+                  justifyContent: "space-between",
+                }}
+              >
                 <View
-                  key={review.id}
                   style={{
-                    backgroundColor: "#EBEDEB80",
-                    padding: mscale(20),
-                    borderRadius: mscale(16),
-                    marginVertical: mscale(10),
-                    height: hscale(182),
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    marginLeft: mscale(5),
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: mscale(10),
                   }}
                 >
-                  <View
+                  <FontAwesome name="user" size={20} color="black" />
+                  <Text
                     style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: mscale(10),
+                      fontFamily: "Inter-Bold",
+                      color: "#1E1E1E",
+                      fontSize: mscale(18),
                     }}
                   >
-                    <FontAwesome name="user" size={20} color="black" />
-                    <View>
-                      <Text
-                        style={{
-                          fontFamily: "Inter-Medium",
-                          color: "#1E1E1E",
-                          fontSize: mscale(18),
-                        }}
-                      >
-                        {review.reviewerName}
-                      </Text>
-                      <Text style={{ fontSize: mscale(12), color: "#1E1E1E" }}>
-                        {review.country || "Unknown"}
-                      </Text>
-                    </View>
-                  </View>
+                    {review?.name}
+                  </Text>
+                </View>
 
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  style={{ flex: 1, marginTop: mscale(10) }}
+                  contentContainerStyle={{ paddingRight: 10 }}
+                >
                   <Text
                     style={{
                       fontFamily: "Inter-Regular",
@@ -330,34 +328,23 @@ export default function ServiceProfile() {
                       color: colors.black,
                     }}
                   >
-                    {review.comment}
+                    {review?.message}
                   </Text>
-
-                  <View style={{ flexDirection: "row", gap: mscale(5) }}>
-                    {Array.from({ length: review.rating || 0 }).map((_, i) => (
-                      <FontAwesome
-                        key={i}
-                        name="star"
-                        size={20}
-                        color="black"
-                      />
-                    ))}
-                  </View>
-                </View>
-              ))}
-            </Carousel>
-          ) : (
-            <Text
-              style={{
-                fontSize: mscale(14),
-                fontFamily: "Inter-Regular",
-                marginVertical: mscale(10),
-              }}
-            >
-              No reviews yet.
-            </Text>
-          )}
-        </Carousel>
+                </ScrollView>
+              </View>
+            ))}
+          </Carousel>
+        ) : (
+          <Text
+            style={{
+              fontSize: mscale(14),
+              fontFamily: "Inter-Regular",
+              marginVertical: mscale(10),
+            }}
+          >
+            No reviews yet.
+          </Text>
+        )}
 
         <TouchableOpacity
           onPress={() =>

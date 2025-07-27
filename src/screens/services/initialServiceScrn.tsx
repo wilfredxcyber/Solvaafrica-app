@@ -31,7 +31,7 @@ export default function InitialServiceScreen() {
         </Text>
 
         <TouchableOpacity style={styles.ctaButton} onPress={handleNav}>
-          <Text style={styles.ctaText}>Explore Services</Text>
+          <Text style={styles.ctaText}>Explore our services</Text>
           <AntDesign name="arrowright" size={20} color="#fff" />
         </TouchableOpacity>
       </View>

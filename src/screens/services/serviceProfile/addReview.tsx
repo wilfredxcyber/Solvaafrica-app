@@ -80,7 +80,12 @@ export default function AddReview({ route }: Props) {
         style={styles.input}
       />
 
-      <Text style={styles.label}>Message</Text>
+      <Text style={styles.label}>
+        Message
+        <Text style={{
+          fontSize: mscale(12)
+        }}> (max 200 characters.)</Text>
+      </Text>
       <TextInput
         value={message}
         onChangeText={setMessage}
