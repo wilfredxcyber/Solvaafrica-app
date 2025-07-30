@@ -292,7 +292,7 @@ export default function ServiceProfile() {
                   padding: mscale(10),
                   borderRadius: mscale(16),
                   marginTop: mscale(10),
-                  marginHorizontal: mscale(10),
+                  marginVertical: mscale(10),
                   height: hscale(140),
                   justifyContent: "space-between",
                 }}

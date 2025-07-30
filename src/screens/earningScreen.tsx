@@ -117,7 +117,7 @@ const EarnTabView = ({ userBalance }: { userBalance: number | null }) => {
           Job Offers
         </Text>
         <TouchableOpacity
-          onPress={() => navigation.navigate("App", { screen: "Job" })}
+          onPress={() => navigation.navigate("App", { screen: "JobOffers" })}
         >
           <Text
             style={{

@@ -203,7 +203,7 @@ export default function SetUpProfile() {
         >
           <Picker.Item label="Select a category" value={null} />
           {categories.map((cat) => (
-            <Picker.Item key={cat.id} label={cat.title} value={cat.id} />
+            <Picker.Item key={cat.id} label={cat.title} value={cat.id} style={styles.input} />
           ))}
         </Picker>
       </View>

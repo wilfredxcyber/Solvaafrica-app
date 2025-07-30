@@ -12,7 +12,11 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { colors } from "@/src/constants/theme";
 import { mscale, hscale, wscale } from "@/src/helpers/metric";
-import { StaticScreenProps, useNavigation } from "@react-navigation/native";
+import {
+  CommonActions,
+  StaticScreenProps,
+  useNavigation,
+} from "@react-navigation/native";
 import { AUTH_API_CLIENT } from "@/src/api/apiClient";
 import { FreelancerProfile, ServiceType } from "@/src/types";
 import ErrorModal from "@/src/components/errorModal";
@@ -124,7 +128,7 @@ export default function EditProfile({ route }: Props) {
         type: mimeType,
       } as any);
     }
-    console.log(formData,"fd")
+    console.log(formData, "fd");
     try {
       setUpdating(true);
       const response = await AUTH_API_CLIENT.patch(
@@ -135,11 +139,15 @@ export default function EditProfile({ route }: Props) {
         }
       );
 
-      console.log(response, "edit res")
+      console.log(response, "edit res");
       if (response.status === 200) {
         Toast.success("Profile updated successfully!");
-        navigation.goBack();
-        
+
+        if (navigation.canGoBack()) {
+          navigation.goBack();
+        } else {
+          navigation.navigate("App", { screen: "ServiceProfile" });
+        }
       } else {
         Toast.error("Unexpected response from server.");
       }
@@ -188,6 +196,7 @@ export default function EditProfile({ route }: Props) {
           <Picker.Item label="Select a category" value={null} />
           {categories.map((cat) => (
             <Picker.Item
+              style={styles.input}
               key={cat.id}
               label={cat.title}
               value={cat.id.toString()}
@@ -289,14 +298,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: mscale(8),
-    padding: mscale(12),
+    padding: mscale(14),
     marginBottom: hscale(16),
     fontFamily: "Inter-Regular",
     fontSize: mscale(14),
   },
   updateButton: {
     backgroundColor: colors.primary,
-    padding: mscale(14),
+    padding: mscale(12),
     borderRadius: mscale(8),
     alignItems: "center",
     marginBottom: 10,
