@@ -30,6 +30,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: wscale(20),
     borderRadius: mscale(30),
     alignItems: "center",
-    marginTop: hscale(40),
+    marginTop: hscale(10),
   },
 });

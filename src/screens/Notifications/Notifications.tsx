@@ -177,7 +177,7 @@ export default function NotificationsScreen() {
     setMarkingRead(true);
     try {
       await AUTH_API_CLIENT.patch(endpoint);
-      Toast.error("Notification marked as read");
+      // Toast.error("Notification marked as read");
       fetchNotifications();
     } catch (error) {
       Toast.error("Failed to mark notification as read");
@@ -191,7 +191,7 @@ export default function NotificationsScreen() {
     setMarkingRead(true);
     try {
       await AUTH_API_CLIENT.patch(endpoint);
-      Toast.error("All notifications marked as read");
+      // Toast.error("All notifications marked as read");
       fetchNotifications();
     } catch (error) {
       Toast.error("Failed to mark all as read");
@@ -333,13 +333,14 @@ const styles = StyleSheet.create({
   notificationCard: {
     padding: mscale(20),
     borderRadius: mscale(10),
+    marginVertical: mscale(4)
   },
   unreadCard: {
     backgroundColor: "#D0BCFF",
   },
   readCard: {
     backgroundColor: "white",
-    boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
+    boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.1)",
   },
   title: {
     fontFamily: "Inter-Bold",

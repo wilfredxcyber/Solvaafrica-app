@@ -113,9 +113,10 @@ export default function HomeScreen() {
     queryFn: getSliderImages,
   });
 
-  const { data: unreadCount } = useQuery({
+  const { data: unreadCount, refetch } = useQuery({
     queryKey: ["unreadNotificationCount"],
     queryFn: fetchUnreadCount,
+    staleTime: 0,
   });
 
   return (
@@ -129,11 +130,9 @@ export default function HomeScreen() {
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <TouchableOpacity
-          // onPress={() => navigation.navigate("Settings")}
-          >
+          {/* <TouchableOpacity onPress={() => navigation.navigate("App", { screen: "settingsTab" })}> */}
             <AvatarView />
-          </TouchableOpacity>
+          {/* </TouchableOpacity> */}
           <View style={{ marginLeft: 8 }}>
             <Text style={styles.greetUserText}>
               Hello, {userProfile.fullName.trim().split(" ")[0]}

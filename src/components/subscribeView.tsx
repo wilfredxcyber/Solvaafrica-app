@@ -11,7 +11,7 @@ import { colors } from "../constants/theme";
 import LoadingView from "./loadingView";
 import ErrorModal from "./errorModal";
 
-type subscriptionPlans = "Basic" | "Premium"
+type subscriptionPlans = "Premium" | "Basic";
 
 export default function SubscribeView() {
   const navigation = useNavigation();
@@ -23,12 +23,19 @@ export default function SubscribeView() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const planOffers: PlanOfferProps = {
-    basic: ["Past questions", "Project Materials"],
+    basic: [
+      "Upload PQ/Project (earn money)",
+      // "Project Materials",
+      "Grant/Scholarship Information",
+      "Get certificate on short courses",
+      "Innovation / Angel investors news",
+      "Therapy",
+    ],
     premium: [
       "Past questions",
       "Project Materials",
       "Grant/Scholarship Information",
-      "GEt certifictate on short courses",
+      "Get certificate on short courses",
       "Innovation / Angel investors news",
       "Therapy",
     ],
@@ -50,6 +57,7 @@ export default function SubscribeView() {
   const handleSubscribe = async () => {
     try {
       setIsLoading(true);
+
       const res = await AUTH_API_CLIENT.get(
         `/sub/${activePlan}/link?callback=https://www.solvaafrica.com`
       );
@@ -84,14 +92,13 @@ export default function SubscribeView() {
 
       <View style={{ gap: 20, marginTop: hscale(40) }}>
         <SubButton
-          handleOnPress={() => handleSubButtonPress("Basic")}
-          subPlan="Basic"
+          handleOnPress={() => handleSubButtonPress("Premium")}
+          subPlan="Premium"
           subPrice="999"
-          isActive={activePlan === "Basic" ? true : false}
+          isActive={activePlan === "Premium" ? true : false}
         />
-        {activePlan === "Basic" && (
+        {activePlan === "Premium" && (
           <View style={{ marginLeft: wscale(20), gap: hscale(8) }}>
-
             {planOffers.basic.map((offer) => (
               <View
                 key={offer}
@@ -104,8 +111,8 @@ export default function SubscribeView() {
               </View>
             ))}
           </View>
-        )}{" "}
-        <SubButton
+        )}
+        {/* <SubButton
           handleOnPress={() => handleSubButtonPress("Premium")}
           subPlan="Premium"
           subPrice="1,999"
@@ -126,7 +133,7 @@ export default function SubscribeView() {
               </View>
             ))}
           </View>
-        )}
+        )} */}
       </View>
 
       <Text onPress={handleSubscribe} style={styles.subscribeButton}>

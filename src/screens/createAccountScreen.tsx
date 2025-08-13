@@ -35,20 +35,20 @@ const CreateAccountSchema = Yup.object().shape({
       return names.length >= 2;
     })
     .min(2, "Name cannot be less than 2 characters")
-    .required(requiredFieldMessage),
+    .required("Fullname is required"),
   email: Yup.string()
     .matches(
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
       "Kindly provide a valid email address"
     )
-    .required(requiredFieldMessage),
-  phone: Yup.string().max(14).required(requiredFieldMessage),
+    .required("Email is required"),
+  phone: Yup.string().max(14).required("Phone number is required"),
   password: Yup.string()
     .min(8, "Minimum password length allowed is 8")
-    .required(requiredFieldMessage),
+    .required("Password is required"),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref("password")], "Password must match")
-    .required(requiredFieldMessage),
+    .required("Confirm password is required"),
   referral: Yup.string(),
 });
 
@@ -97,7 +97,7 @@ export default function CreateAccountScreen() {
     } catch (error: any) {
       console.log("Error creating user", error.response.data);
 
-      if (error.status === 401) {
+      if (error.response?.status === 401) {
         const { message } = error.response.data;
         Toast.error(message);
         return;
@@ -148,7 +148,13 @@ export default function CreateAccountScreen() {
           <View style={{ marginTop: hscale(40), gap: hscale(8) }}>
             {/* full name input field */}
             <View>
-              <View style={styles.inputView}>
+              <View
+                style={
+                  errors.fullName
+                    ? [styles.inputView, styles.errorField]
+                    : styles.inputView
+                }
+              >
                 <Icon name="user" size={20} color={colors.primary} />
                 <TextInput
                   autoCapitalize="words"
@@ -160,14 +166,17 @@ export default function CreateAccountScreen() {
                   style={styles.input}
                 />
               </View>
-              {errors.fullName && (
-                <Text style={styles.errorText}>{errors.fullName}</Text>
-              )}
             </View>
 
             {/* email input field */}
             <View>
-              <View style={styles.inputView}>
+              <View
+                style={
+                  errors.email
+                    ? [styles.inputView, styles.errorField]
+                    : styles.inputView
+                }
+              >
                 <Icon name="mail" size={20} color={colors.primary} />
                 <TextInput
                   placeholderTextColor={colors.placeholderInput}
@@ -178,14 +187,17 @@ export default function CreateAccountScreen() {
                   style={styles.input}
                 />
               </View>
-              {errors.email && (
-                <Text style={styles.errorText}>{errors.email}</Text>
-              )}
             </View>
 
             {/* phone input field */}
             <View>
-              <View style={styles.inputView}>
+              <View
+                style={
+                  errors.phone
+                    ? [styles.inputView, styles.errorField]
+                    : styles.inputView
+                }
+              >
                 <Icon name="phone" size={20} color={colors.primary} />
                 <TextInput
                   placeholderTextColor={colors.placeholderInput}
@@ -197,15 +209,18 @@ export default function CreateAccountScreen() {
                   style={styles.input}
                 />
               </View>
-              {errors.phone && (
-                <Text style={styles.errorText}>{errors.phone}</Text>
-              )}
             </View>
 
             {/* password input field */}
             {/* password input field */}
             <View>
-              <View style={styles.inputView}>
+              <View
+                style={
+                  errors.password
+                    ? [styles.inputView, styles.errorField]
+                    : styles.inputView
+                }
+              >
                 <Icon name="lock" size={20} color={colors.primary} />
                 <TextInput
                   secureTextEntry={!showPassword}
@@ -223,15 +238,18 @@ export default function CreateAccountScreen() {
                   onPress={() => setShowPassword((prev) => !prev)}
                 />
               </View>
-              {errors.password && (
-                <Text style={styles.errorText}>{errors.password}</Text>
-              )}
             </View>
 
             {/* confirm password input field */}
             {/* confirm password input field */}
             <View>
-              <View style={styles.inputView}>
+              <View
+                style={
+                  errors.confirmPassword
+                    ? [styles.inputView, styles.errorField]
+                    : styles.inputView
+                }
+              >
                 <Icon name="lock" size={20} color={colors.primary} />
                 <TextInput
                   secureTextEntry={!showConfirmPassword}
@@ -249,9 +267,6 @@ export default function CreateAccountScreen() {
                   onPress={() => setShowConfirmPassword((prev) => !prev)}
                 />
               </View>
-              {errors.confirmPassword && (
-                <Text style={styles.errorText}>{errors.confirmPassword}</Text>
-              )}
             </View>
 
             {/* referral code input field */}
@@ -283,7 +298,11 @@ export default function CreateAccountScreen() {
               <TextLinkButton
                 text="By checking this box, you agree to our terms/conditions."
                 onPress={() => navigation.navigate("App", { screen: "Terms" })}
-                customStyle={{ textAlign: "left", color: colors.textLink, fontSize: mscale(12) }}
+                customStyle={{
+                  textAlign: "left",
+                  color: colors.textLink,
+                  fontSize: mscale(12),
+                }}
               />
             </View>
 
@@ -318,6 +337,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.inputField,
     paddingHorizontal: wscale(20),
     borderRadius: mscale(50),
+  },
+  errorField: {
+    borderWidth: 1,
+    borderColor: "red",
+    backgroundColor: "white",
   },
   input: {
     flex: 1,

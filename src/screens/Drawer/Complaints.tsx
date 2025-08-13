@@ -5,7 +5,7 @@ import { mscale, hscale } from "@/src/helpers/metric";
 import { colors } from "@/src/constants/theme";
 
 export default function Complaints() {
-  const email = "support@example.com"; 
+  const email = "solvaapp@gmail.com"; 
 
   return (
     <View style={[globalStyles.screen, styles.container]}>

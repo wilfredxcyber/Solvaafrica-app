@@ -44,7 +44,7 @@ export default function CoursesScreen() {
   };
 
   return (
-    <ProtectPage>
+    // <ProtectPage>
       <View style={globalStyles.screen}>
         <View style={{ gap: 12 }}>
           {/* university */}
@@ -67,7 +67,7 @@ export default function CoursesScreen() {
           </View>
         </View>
       </View>
-    </ProtectPage>
+    // </ProtectPage>
   );
 }
 

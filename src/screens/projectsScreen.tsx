@@ -68,7 +68,7 @@ export default function ProjectsScreen() {
   };
 
   return (
-    <ProtectPage>
+    // <ProtectPage>
       <View style={globalStyles.screen}>
         <SearchBoxView handleSearchInputTextChange={handleInputChange} />
         <View style={{ flex: 1, marginTop: hscale(12) }}>
@@ -100,7 +100,7 @@ export default function ProjectsScreen() {
           )}
         </View>
       </View>
-    </ProtectPage>
+    // </ProtectPage>
   );
 }
 
