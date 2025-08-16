@@ -14,6 +14,8 @@
       "bundleIdentifier": "com.solvaafrica"
     },
     "android": {
+      "compileSdkVersion": 35,
+      "targetSdkVersion": 35,
       "intentFilters": [
         {
           "action": "VIEW",
