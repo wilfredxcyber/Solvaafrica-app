@@ -13,8 +13,8 @@ import ProtectPage from "@/src/components/protectPage";
 
 export default function PremiumScreen() {
   const data = [
-    { id: "2", title: "Past Question", route: "Courses" },
-    { id: "3", title: "Project Material", route: "Projects" },
+    // { id: "2", title: "Past Question", route: "Courses" },
+    // { id: "3", title: "Project Material", route: "Projects" },
     { id: "1", title: "Grant/Scholarship Information ", route: "Grants" },
     // { id: "2", title: "Scholarship Information", route: "Scholarship" },
     {

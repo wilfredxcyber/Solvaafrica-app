@@ -16,7 +16,6 @@ import { colors } from "../constants/theme";
 import EmptyStateView from "../components/emptyStateView";
 import ToastManager, { Toast } from "toastify-react-native";
 
-
 export default function ProjectsScreen() {
   const [initialProjects, setInitialProjects] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
@@ -30,14 +29,18 @@ export default function ProjectsScreen() {
         const res = await AUTH_API_CLIENT.get("/projects");
         if (res.status === 200) {
           const allProjects = res.data?.data || [];
-          setInitialProjects(allProjects);
-          setProjects(allProjects);
-          setProjectFiles(
-            allProjects.flatMap((project: any) => project.document)
+
+          const flattenedFiles = allProjects.flatMap((project: any) =>
+            (project.document || []).map((doc: any) => ({
+              fileName: project.project?.name || "Untitled Project",
+              fileURI: doc?.url,
+            }))
           );
+
+          setInitialProjects(flattenedFiles);
+          setProjects(flattenedFiles);
         }
       } catch (error) {
-        // console.log("Error fetching initial projects:", error);
         Toast.error("Error fetching initial projects");
       } finally {
         setLoading(false);
@@ -49,6 +52,7 @@ export default function ProjectsScreen() {
 
   const handleInputChange = (value: string) => {
     const query = value.trim().toLowerCase();
+
     if (!query.length) {
       setProjects(initialProjects);
       setProjectFiles(
@@ -58,7 +62,7 @@ export default function ProjectsScreen() {
     }
 
     const filteredProjects = initialProjects.filter((project: any) =>
-      project.project.name.toLowerCase().includes(query)
+      project.project?.name?.toLowerCase().includes(query)
     );
 
     setProjects(filteredProjects);
@@ -69,37 +73,37 @@ export default function ProjectsScreen() {
 
   return (
     // <ProtectPage>
-      <View style={globalStyles.screen}>
-        <SearchBoxView handleSearchInputTextChange={handleInputChange} />
-        <View style={{ flex: 1, marginTop: hscale(12) }}>
-          {loading ? (
-            <LottieView
-              autoPlay
-              style={{
-                width: wscale(50),
-                height: hscale(50),
-                alignSelf: "center",
-              }}
-              source={require("../../assets/animations/spin.json")}
-            />
-          ) : projects?.length && projectFiles?.length ? (
-            <FlashList
-              showsVerticalScrollIndicator={false}
-              data={projectFiles}
-              estimatedItemSize={56}
-              renderItem={({ item, index }) => (
-                <ProjectItemView
-                  fileName={projects[index].project.name}
-                  fileURI={item?.url}
-                />
-              )}
-            />
-          ) : (
-            // <Text style={globalStyles.bodyText}>No projects found.</Text>
-            <EmptyStateView />
-          )}
-        </View>
+    <View style={globalStyles.screen}>
+      <SearchBoxView handleSearchInputTextChange={handleInputChange} />
+      <View style={{ flex: 1, marginTop: hscale(12) }}>
+        {loading ? (
+          <LottieView
+            autoPlay
+            style={{
+              width: wscale(50),
+              height: hscale(50),
+              alignSelf: "center",
+            }}
+            source={require("../../assets/animations/spin.json")}
+          />
+        ) : projects?.length && projectFiles?.length ? (
+          <FlashList
+            showsVerticalScrollIndicator={false}
+            data={projects}
+            estimatedItemSize={56}
+            renderItem={({ item }) => (
+              <ProjectItemView
+                fileName={item.fileName}
+                fileURI={item.fileURI}
+              />
+            )}
+          />
+        ) : (
+          // <Text style={globalStyles.bodyText}>No projects found.</Text>
+          <EmptyStateView />
+        )}
       </View>
+    </View>
     // </ProtectPage>
   );
 }
