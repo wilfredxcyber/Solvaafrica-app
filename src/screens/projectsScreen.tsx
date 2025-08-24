@@ -1,5 +1,5 @@
 import CheckCircleIcon from "@expo/vector-icons/FontAwesome";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Alert, Pressable, Text, ToastAndroid, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import PDFIcon from "@expo/vector-icons/FontAwesome6";
 import { useEffect, useRef, useState } from "react";
@@ -41,7 +41,8 @@ export default function ProjectsScreen() {
           setProjects(flattenedFiles);
         }
       } catch (error) {
-        Toast.error("Error fetching initial projects");
+        ToastAndroid.show("Error fetching initial projects", ToastAndroid.LONG);
+        // Toast.error("Error fetching initial projects");
       } finally {
         setLoading(false);
       }

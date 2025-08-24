@@ -1,4 +1,4 @@
-import { Alert, Linking, Pressable, Text, View } from "react-native";
+import { Alert, Linking, Pressable, Text, ToastAndroid, View } from "react-native";
 import { useCameraPermissions, CameraView } from "expo-camera";
 import CameraIcon from "@expo/vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
@@ -76,7 +76,8 @@ export default function UploadFilesScreen() {
         });
       }
     } catch (error) {
-      Toast.error("Error capturing image with device camera");
+      ToastAndroid.show("Error capturing image with device camera", ToastAndroid.LONG);
+      // Toast.error("Error capturing image with device camera");
     } finally {
       setCapturing(false);
     }
@@ -112,7 +113,8 @@ export default function UploadFilesScreen() {
     } catch (error) {
       // Alert.alert("Error", "Kindly contact support");
       // console.log("Error picking file from  document directory", error);
-      Toast.error("Error picking file from document directory");
+      ToastAndroid.show("Error picking file from document directory", ToastAndroid.LONG);
+      // Toast.error("Error picking file from document directory");
     }
   };
 

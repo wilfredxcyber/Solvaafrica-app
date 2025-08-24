@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
+  ToastAndroid,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
@@ -49,7 +50,8 @@ export default function EarningScreen() {
           setUserBalance(balance);
           console.log("User balance fetched:", response.data);
         } catch (error) {
-          Toast.error("Error fetching user balance");
+          // Toast.error("Error fetching user balance");
+          ToastAndroid.show("Error fetching balance", ToastAndroid.LONG);
           // console.log('Error fetching user balance', error)
         }
       };
@@ -275,11 +277,16 @@ const ReferTabView = () => {
       if (supported) {
         await Linking.openURL(url);
       } else {
-        Toast.error("Unable to open share link. Try copying manually.");
+        ToastAndroid.show(
+          "Unable to open share link. Try copying manually.",
+          ToastAndroid.LONG
+        );
+        // Toast.error("Unable to open share link. Try copying manually.");
       }
     } catch (error) {
       console.error("Social share error:", error);
-      Toast.error("Could not open social sharing.");
+      ToastAndroid.show("Could not open social sharing.", ToastAndroid.LONG);
+      // Toast.error("Could not open social sharing.");
     }
   };
 
@@ -291,10 +298,10 @@ const ReferTabView = () => {
         );
         if (response.status === 200) {
           setReferrals(response.data.data.referralUsers);
-        
         }
       } catch (error) {
-        Toast.error("Error fetching user referrals");
+        ToastAndroid.show("Error fetching user referrals", ToastAndroid.LONG);
+        // Toast.error("Error fetching user referrals");
       }
     };
 

@@ -8,6 +8,7 @@ import {
   Linking,
   Alert,
   TouchableOpacity,
+  ToastAndroid,
 } from "react-native";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
@@ -101,9 +102,10 @@ export default function HomeScreen() {
       navigation.navigate("App", { screen: "Ask" });
       return;
     } else if (pressedItem === MenuItemScreensRoutes.ESCROW_SITE) {
-      Linking.openURL("https://www.solvaafrica.com/").catch((error) => {
-        Alert.alert("URL Error!", error?.message ?? "Could not open link");
-      });
+      ToastAndroid.show("Platform in progress", ToastAndroid.LONG);
+      // Linking.openURL("https://www.solvaafrica.com/").catch((error) => {
+      //   Alert.alert("URL Error!", error?.message ?? "Could not open link");
+      // });
     }
     return;
   };
@@ -131,7 +133,7 @@ export default function HomeScreen() {
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           {/* <TouchableOpacity onPress={() => navigation.navigate("App", { screen: "settingsTab" })}> */}
-            <AvatarView />
+          <AvatarView />
           {/* </TouchableOpacity> */}
           <View style={{ marginLeft: 8 }}>
             <Text style={styles.greetUserText}>

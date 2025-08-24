@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   Pressable,
   ActivityIndicator,
+  ToastAndroid,
 } from "react-native";
 import { StaticScreenProps } from "@react-navigation/native";
 import { Job, PickedFile } from "@/src/types";
@@ -56,7 +57,8 @@ const JobDetailsScreen = ({ route }: Props) => {
         setPickedFile(file);
       }
     } catch (error) {
-      Toast.error("Error picking file from document directory");
+      ToastAndroid.show("Error picking file from document directory", ToastAndroid.LONG);
+      // Toast.error("Error picking file from document directory");
     }
   };
 

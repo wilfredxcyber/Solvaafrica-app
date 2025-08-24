@@ -6,6 +6,7 @@ import {
   Alert,
   ScrollView,
   ActivityIndicator,
+  ToastAndroid,
 } from "react-native";
 import React, { useState } from "react";
 import { mscale, hscale } from "@/src/helpers/metric";
@@ -32,7 +33,8 @@ export default function AddReview({ route }: Props) {
 
   const handleSubmit = async () => {
     if (!name || !title || !message) {
-      Toast.error("Please fill in all fields.");
+      ToastAndroid.show("Please fill in all fields.", ToastAndroid.LONG);
+      // Toast.error("Please fill in all fields.");
       return;
     }
 
@@ -52,11 +54,19 @@ export default function AddReview({ route }: Props) {
         setMessage("");
         navigation.navigate("App", { screen: "ServiceProfile" });
       } else {
-        Toast.error("Failed to submit review.");
+        ToastAndroid.show(
+          "Failed to submit review.",
+          ToastAndroid.LONG
+        );
+        // Toast.error("Failed to submit review.");
       }
     } catch (error) {
       console.error("Review submit error:", error);
-      Toast.error("Something went wrong while submitting review.");
+      // Toast.error("Something went wrong while submitting review.");
+      ToastAndroid.show(
+        "Something went wrong while submitting review.",
+        ToastAndroid.LONG
+      );
     } finally {
       setLoading(false);
     }
@@ -82,9 +92,14 @@ export default function AddReview({ route }: Props) {
 
       <Text style={styles.label}>
         Message
-        <Text style={{
-          fontSize: mscale(12)
-        }}> (max 200 characters.)</Text>
+        <Text
+          style={{
+            fontSize: mscale(12),
+          }}
+        >
+          {" "}
+          (max 200 characters.)
+        </Text>
       </Text>
       <TextInput
         value={message}

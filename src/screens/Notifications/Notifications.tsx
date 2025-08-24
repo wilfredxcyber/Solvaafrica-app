@@ -9,6 +9,7 @@ import {
   Modal,
   Pressable,
   ActivityIndicator,
+  ToastAndroid,
 } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { AUTH_API_CLIENT } from "@/src/api/apiClient";
@@ -135,9 +136,11 @@ const NotificationModal = ({
                 day: "numeric",
               })}
           </Text>
-          <View style={{
-            marginTop: mscale(20),
-          }}>
+          <View
+            style={{
+              marginTop: mscale(20),
+            }}
+          >
             <PrimaryButton text="Close" onPress={onClose} />
           </View>
         </View>
@@ -162,10 +165,12 @@ export default function NotificationsScreen() {
       if (response.status === 200) {
         setNotifications(response.data.data);
       } else {
-        Toast.error("Failed to fetch notifications");
+        // Toast.error("Failed to fetch notifications");
+        ToastAndroid.show("Failed to fetch notifications", ToastAndroid.LONG);
       }
     } catch (error) {
-      Toast.error("Failed to fetch notifications");
+      ToastAndroid.show("Failed to fetch notifications", ToastAndroid.LONG);
+      // Toast.error("Failed to fetch notifications");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -194,7 +199,8 @@ export default function NotificationsScreen() {
       // Toast.error("All notifications marked as read");
       fetchNotifications();
     } catch (error) {
-      Toast.error("Failed to mark all as read");
+      ToastAndroid.show("Failed to mark all as read", ToastAndroid.LONG);
+      // Toast.error("Failed to mark all as read");
     } finally {
       setMarkingRead(false);
     }
@@ -333,7 +339,7 @@ const styles = StyleSheet.create({
   notificationCard: {
     padding: mscale(20),
     borderRadius: mscale(10),
-    marginVertical: mscale(4)
+    marginVertical: mscale(4),
   },
   unreadCard: {
     backgroundColor: "#D0BCFF",

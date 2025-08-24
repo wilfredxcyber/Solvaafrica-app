@@ -55,11 +55,11 @@ export default function AskChatbotScreen() {
 
         newSocket.on("error", (err) => {
           ToastAndroid.show(err?.message, ToastAndroid.LONG);
-          // console.error("⚠️ Socket error:", err?.message || err);
+          console.error("⚠️ Socket error:", err?.message || err);
         });
       } catch (err:any) {
         ToastAndroid.show(err, ToastAndroid.LONG);
-        // console.error("🚨 Failed to connect socket:", err);
+        console.error("🚨 Failed to connect socket:", err);
       }
     };
 

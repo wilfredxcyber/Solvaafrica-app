@@ -1,4 +1,11 @@
-import { Text, TextInput, View, StyleSheet, Alert } from "react-native";
+import {
+  Text,
+  TextInput,
+  View,
+  StyleSheet,
+  Alert,
+  ToastAndroid,
+} from "react-native";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import ToastManager, { Toast } from "toastify-react-native";
 import Icon from "@expo/vector-icons/Feather";
@@ -75,7 +82,8 @@ export default function CreateAccountScreen() {
     // extract required fields
     const { fullName, email, phone, password, referral } = values;
     if (!agreeTerms) {
-      Toast.error("Accept user terms and agreement");
+      ToastAndroid.show("Accept user terms and agreement", ToastAndroid.LONG);
+      // Toast.error("Accept user terms and agreement");
       return;
     }
     // post to api
@@ -99,14 +107,16 @@ export default function CreateAccountScreen() {
 
       if (error.response?.status === 401) {
         const { message } = error.response.data;
-        Toast.error(message);
+        // Toast.error(message);
+        ToastAndroid.show(message, ToastAndroid.LONG);
         return;
       }
 
       // temporary: for everything else
       // Alert.alert('Error', 'Something went wrong...')
       let message = "Error, Something went wrong!";
-      Toast.error(message);
+      // Toast.error(message);
+      ToastAndroid.show(message, ToastAndroid.LONG);
     } finally {
       setIsLoading(false);
     }

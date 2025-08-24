@@ -8,6 +8,7 @@ import {
   Image,
   ActivityIndicator,
   StyleSheet,
+  ToastAndroid,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { colors } from "@/src/constants/theme";
@@ -91,7 +92,11 @@ export default function EditProfile({ route }: Props) {
         setProfileImageUri(result.assets[0].uri);
       }
     } catch {
-      Toast.error("Failed to pick image. Please try again.");
+      ToastAndroid.show(
+        "Failed to pick image. Please try again.",
+        ToastAndroid.LONG
+      );
+      // Toast.error("Failed to pick image. Please try again.");
     }
   };
 
@@ -105,7 +110,8 @@ export default function EditProfile({ route }: Props) {
       !phone ||
       !whatsapp
     ) {
-      Toast.error("All fields are required.");
+      // Toast.error("All fields are required.");
+      ToastAndroid.show("All fields are required.", ToastAndroid.LONG);
       return;
     }
 
@@ -149,15 +155,19 @@ export default function EditProfile({ route }: Props) {
           navigation.navigate("App", { screen: "ServiceProfile" });
         }
       } else {
-        Toast.error("Unexpected response from server.");
+        ToastAndroid.show("Unexpected response from server.", ToastAndroid.LONG);
+        // Toast.error("Unexpected response from server.");
       }
     } catch (error: any) {
       if (error.response) {
-        Toast.error(error.response.data?.message || "Server error.");
+        ToastAndroid.show(error.response.data?.message || "Server error.", ToastAndroid.LONG);
+        // Toast.error(error.response.data?.message || "Server error.");
       } else if (error.request) {
-        Toast.error("No response from server.");
+        ToastAndroid.show("No response from server.", ToastAndroid.LONG);
+        // Toast.error("No response from server.");
       } else {
-        Toast.error("An unexpected error occurred.");
+        ToastAndroid.show("An unexpected error occurred.", ToastAndroid.LONG);
+        // Toast.error("An unexpected error occurred.");
       }
     } finally {
       setUpdating(false);

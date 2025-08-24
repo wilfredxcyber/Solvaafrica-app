@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  ToastAndroid,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { globalStyles } from "@/src/styles/global";
@@ -36,7 +37,8 @@ const ForgotPasswordSuccess = () => {
     passwordRef.current?.blur();
 
     if (!password || password.length < 6) {
-      Toast.error("Password must be at least 6 characters.");
+      ToastAndroid.show("Password must be at least 6 characters.", ToastAndroid.LONG);
+      // Toast.error("Password must be at least 6 characters.");
       return;
     }
 
