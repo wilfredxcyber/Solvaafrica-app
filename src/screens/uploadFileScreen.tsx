@@ -25,7 +25,6 @@ export default function UploadFilesScreen() {
   const CameraRef = useRef<CameraView>(null);
   const [capturing, setCapturing] = useState(false);
 
-  // open device camera
   const handleOpenCamera = async () => {
     if (!permission?.granted) {
       Alert.alert(
@@ -49,7 +48,6 @@ export default function UploadFilesScreen() {
     setLaunchCameraView(true);
   };
 
-  // camera capture
   const handleCapture = async () => {
     setCapturing(true);
     if (!cameraReady) return;
@@ -59,7 +57,6 @@ export default function UploadFilesScreen() {
         (await CameraRef.current.takePictureAsync({ quality: 1 }));
       if (!capturedResult || !capturedResult.uri) return;
 
-      // extract name from the captured image
       const { uri } = capturedResult;
       const capturedImageName = uri.split("/").pop();
       if (capturedImageName) {
@@ -77,7 +74,6 @@ export default function UploadFilesScreen() {
       }
     } catch (error) {
       ToastAndroid.show("Error capturing image with device camera", ToastAndroid.LONG);
-      // Toast.error("Error capturing image with device camera");
     } finally {
       setCapturing(false);
     }
@@ -92,7 +88,6 @@ export default function UploadFilesScreen() {
       if (!pickedFile.canceled) {
         const { name, uri, mimeType } = pickedFile.assets[0];
         if (!name || !uri || !mimeType) throw new Error("Invalid picked asset");
-        // route param picked file
         const _pickedFile: PickedFile = {
           fileUri: uri,
           imageUri: uri,
@@ -100,7 +95,6 @@ export default function UploadFilesScreen() {
           mimeType,
         };
         if (mimeType === "application/pdf") {
-          // genrate image from pdf page
           const scale = 1.0;
           const pdfPageImage = await PdfPageImage.generate(uri, 1, scale);
           _pickedFile.imageUri = pdfPageImage.uri;
@@ -111,10 +105,7 @@ export default function UploadFilesScreen() {
         });
       }
     } catch (error) {
-      // Alert.alert("Error", "Kindly contact support");
-      // console.log("Error picking file from  document directory", error);
       ToastAndroid.show("Error picking file from document directory", ToastAndroid.LONG);
-      // Toast.error("Error picking file from document directory");
     }
   };
 
