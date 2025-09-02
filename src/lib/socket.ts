@@ -12,7 +12,7 @@ export const connectSocket = async () => {
   const isDev = process.env.NODE_ENV !== "production";
   const SOCKET_URL = isDev
     ? "wss://solva-backend-prod.onrender.com"
-    : "wss://api.solvaafrica.com/api/v1";
+    : "wss://api.solvaafrica.com";
 
   const socket = io(SOCKET_URL, {
     transports: ["websocket"],

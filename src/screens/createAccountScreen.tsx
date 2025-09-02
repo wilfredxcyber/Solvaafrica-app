@@ -107,7 +107,6 @@ export default function CreateAccountScreen() {
 
       if (error.response?.status === 401) {
         const { message } = error.response.data;
-        // Toast.error(message);
         ToastAndroid.show(message, ToastAndroid.LONG);
         return;
       }
@@ -116,7 +115,7 @@ export default function CreateAccountScreen() {
       // Alert.alert('Error', 'Something went wrong...')
       let message = "Error, Something went wrong!";
       // Toast.error(message);
-      ToastAndroid.show(message, ToastAndroid.LONG);
+      ToastAndroid.show(error?.response?.data?.message || "Something went wrong!", ToastAndroid.LONG);
     } finally {
       setIsLoading(false);
     }
