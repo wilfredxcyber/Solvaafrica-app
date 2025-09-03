@@ -59,7 +59,7 @@ export default function SubscribeView() {
       setIsLoading(true);
 
       const res = await AUTH_API_CLIENT.get(
-        `/sub/${activePlan}/link?callback=https://www.solvaafrica.com`
+        `/sub/${activePlan}/link?callback=https://www.solvaafrica.com/payment-callback`
       );
       console.log(activePlan, "active plan");
       if (res.status === 200) {

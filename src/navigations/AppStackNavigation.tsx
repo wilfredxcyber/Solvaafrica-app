@@ -78,12 +78,6 @@ const AppStackNavigator = createNativeStackNavigator({
         },
         JobOffers: {
           screen: JobOffers,
-          // options: {
-          //   headerTitle: "Job Offer",
-          //   headerShadowVisible: false,
-          //   headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
-          //   headerTintColor: colors.black,
-          // },
         },
         JobDetails: {
           screen: JobDetailsScreen,

@@ -24,6 +24,10 @@
             {
               "scheme": "https",
               "host": "www.solvaafrica.com"
+            },
+            {
+              "scheme": "https",
+              "host": "solvaafrica.com"
             }
           ],
           "category": ["BROWSABLE", "DEFAULT"]
