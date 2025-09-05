@@ -52,7 +52,7 @@ export default function AddReview({ route }: Props) {
         setName("");
         setTitle("");
         setMessage("");
-        navigation.navigate("App", { screen: "ServiceProfile" });
+        navigation.goBack();
       } else {
         ToastAndroid.show(
           "Failed to submit review.",

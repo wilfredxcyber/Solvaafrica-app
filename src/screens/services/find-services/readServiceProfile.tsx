@@ -361,7 +361,7 @@ export default function ReadServiceProfile({ route }: Props) {
           </Text>
         )}
 
-        {/* <TouchableOpacity
+        <TouchableOpacity
           onPress={() =>
             navigation.navigate("App", {
               screen: "Review",
@@ -385,7 +385,7 @@ export default function ReadServiceProfile({ route }: Props) {
           >
             Add review
           </Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );

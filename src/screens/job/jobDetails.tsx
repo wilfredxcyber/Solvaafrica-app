@@ -11,6 +11,7 @@ import {
   Pressable,
   ActivityIndicator,
   ToastAndroid,
+  Linking,
 } from "react-native";
 import { StaticScreenProps } from "@react-navigation/native";
 import { Job, PickedFile } from "@/src/types";
@@ -28,6 +29,8 @@ const JobDetailsScreen = ({ route }: Props) => {
   const [pickedFile, setPickedFile] = useState<PickedFile | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [pressed, setPressed] = useState(false);
+
+  const email = "solvaapp@gmail.com";
 
   const handleUseFilePicker = async () => {
     try {
@@ -57,7 +60,10 @@ const JobDetailsScreen = ({ route }: Props) => {
         setPickedFile(file);
       }
     } catch (error) {
-      ToastAndroid.show("Error picking file from document directory", ToastAndroid.LONG);
+      ToastAndroid.show(
+        "Error picking file from document directory",
+        ToastAndroid.LONG
+      );
       // Toast.error("Error picking file from document directory");
     }
   };
@@ -116,7 +122,7 @@ const JobDetailsScreen = ({ route }: Props) => {
         <Text style={styles.description}>{job.description}</Text>
       </View>
 
-      <View>
+      {/* <View>
         <Text style={styles.headerText}>Upload file</Text>
 
         {pickedFile ? (
@@ -159,9 +165,17 @@ const JobDetailsScreen = ({ route }: Props) => {
             </View>
           </TouchableOpacity>
         )}
-      </View>
-
-      <Pressable
+      </View> */}
+      <Text>
+        Send Resume to{" "}
+        <Text
+          style={styles.email}
+          onPress={() => Linking.openURL(`mailto:${email}`)}
+        >
+          {email}
+        </Text>
+      </Text>
+      {/* <Pressable
         onPressIn={() => setPressed(true)}
         onPressOut={() => setPressed(false)}
         onPress={handleUpload}
@@ -174,7 +188,7 @@ const JobDetailsScreen = ({ route }: Props) => {
         ) : (
           <ActivityIndicator size={"small"} color={"#ffffff"} />
         )}
-      </Pressable>
+      </Pressable> */}
       <ToastManager />
     </ScrollView>
   );
@@ -241,6 +255,11 @@ const styles = StyleSheet.create({
     fontFamily: "Inter-SemiBold",
     marginTop: hscale(10),
     textAlign: "center",
+  },
+  email: {
+    color: colors.primary,
+    textDecorationLine: "underline",
+    fontFamily: "Inter-Medium",
   },
 });
 

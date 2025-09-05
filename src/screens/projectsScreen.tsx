@@ -1,7 +1,5 @@
 import CheckCircleIcon from "@expo/vector-icons/FontAwesome";
 import { Alert, Pressable, Text, ToastAndroid, View } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import PDFIcon from "@expo/vector-icons/FontAwesome6";
 import { useEffect, useRef, useState } from "react";
 import { FlashList } from "@shopify/flash-list";
 import LottieView from "lottie-react-native";
@@ -9,17 +7,15 @@ import LottieView from "lottie-react-native";
 import { SearchBoxView } from "../components/searchBoxView";
 import { useDownloadFile } from "../hooks/useDownloadFile";
 import { hscale, mscale, wscale } from "../helpers/metric";
-import ProtectPage from "../components/protectPage";
 import { AUTH_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import EmptyStateView from "../components/emptyStateView";
-import ToastManager, { Toast } from "toastify-react-native";
+import ToastManager from "toastify-react-native";
 
 export default function ProjectsScreen() {
   const [initialProjects, setInitialProjects] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
-  const [projectFiles, setProjectFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -27,22 +23,16 @@ export default function ProjectsScreen() {
       setLoading(true);
       try {
         const res = await AUTH_API_CLIENT.get("/projects");
+
         if (res.status === 200) {
           const allProjects = res.data?.data || [];
+          console.log("Projects API response:", allProjects);
 
-          const flattenedFiles = allProjects.flatMap((project: any) =>
-            (project.document || []).map((doc: any) => ({
-              fileName: project.project?.name || "Untitled Project",
-              fileURI: doc?.url,
-            }))
-          );
-
-          setInitialProjects(flattenedFiles);
-          setProjects(flattenedFiles);
+          setInitialProjects(allProjects);
+          setProjects(allProjects);
         }
       } catch (error) {
-        ToastAndroid.show("Error fetching initial projects", ToastAndroid.LONG);
-        // Toast.error("Error fetching initial projects");
+        ToastAndroid.show("Error fetching projects", ToastAndroid.LONG);
       } finally {
         setLoading(false);
       }
@@ -56,24 +46,17 @@ export default function ProjectsScreen() {
 
     if (!query.length) {
       setProjects(initialProjects);
-      setProjectFiles(
-        initialProjects.flatMap((project: any) => project.document)
-      );
       return;
     }
 
-    const filteredProjects = initialProjects.filter((project: any) =>
-      project.project?.name?.toLowerCase().includes(query)
+    const filteredProjects = initialProjects.filter((item: any) =>
+      item.project?.name?.toLowerCase().includes(query)
     );
 
     setProjects(filteredProjects);
-    setProjectFiles(
-      filteredProjects.flatMap((project: any) => project.document)
-    );
   };
 
   return (
-    // <ProtectPage>
     <View style={globalStyles.screen}>
       <SearchBoxView handleSearchInputTextChange={handleInputChange} />
       <View style={{ flex: 1, marginTop: hscale(12) }}>
@@ -87,25 +70,47 @@ export default function ProjectsScreen() {
             }}
             source={require("../../assets/animations/spin.json")}
           />
-        ) : projects?.length && projectFiles?.length ? (
+        ) : projects?.length ? (
           <FlashList
             showsVerticalScrollIndicator={false}
             data={projects}
             estimatedItemSize={56}
             renderItem={({ item }) => (
-              <ProjectItemView
-                fileName={item.fileName}
-                fileURI={item.fileURI}
-              />
+              <View
+                style={{
+                  marginBottom: hscale(16),
+                  paddingHorizontal: wscale(16),
+                  borderWidth: 1,
+                  borderColor: "black",
+                  borderRadius: mscale(8),
+                  paddingVertical: hscale(8),
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: mscale(16),
+                    fontFamily: "Inter-SemiBold",
+                    marginBottom: hscale(4),
+                  }}
+                >
+                  {item.project?.name}
+                </Text>
+
+                {item.document?.map((doc: any) => (
+                  <ProjectItemView
+                    key={doc.id}
+                    fileName={doc.name}
+                    fileURI={doc.url}
+                  />
+                ))}
+              </View>
             )}
           />
         ) : (
-          // <Text style={globalStyles.bodyText}>No projects found.</Text>
           <EmptyStateView />
         )}
       </View>
     </View>
-    // </ProtectPage>
   );
 }
 
@@ -118,14 +123,13 @@ const ProjectItemView = ({
 }) => {
   const [startDownload, setStartDownload] = useState(false);
   const [fileExist, setFileExist] = useState(false);
-  // set file code to PRJ for project files
   const downloadFile = useDownloadFile(startDownload, "PRJ");
   const DownloadIconRef = useRef<LottieView>(null);
 
   useEffect(() => {
     const initiateDownload = async () => {
       try {
-        if (!fileURI || !fileName) return; // prevent falsy values from being passed
+        if (!fileURI || !fileName) return;
         const { isExistingFile } = await downloadFile(
           "Projects",
           fileURI,
@@ -147,13 +151,13 @@ const ProjectItemView = ({
   }, [startDownload]);
 
   const handleInitiateDownload = () => {
-    DownloadIconRef.current && DownloadIconRef.current.play();
+    DownloadIconRef.current?.play();
     setStartDownload(true);
   };
+
   return (
     <View
       style={{
-        flex: 1,
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: colors.inputField,
@@ -171,7 +175,6 @@ const ProjectItemView = ({
           marginLeft: wscale(20),
         }}
       >
-        <PDFIcon name="file-pdf" size={32} color={colors.primary} />
         <Text
           numberOfLines={1}
           style={{

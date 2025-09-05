@@ -356,7 +356,7 @@ export default function ServiceProfile() {
           </Text>
         )}
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() =>
             navigation.navigate("App", {
               screen: "Review",
@@ -380,7 +380,7 @@ export default function ServiceProfile() {
           >
             Add review
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </ScrollView>
   );

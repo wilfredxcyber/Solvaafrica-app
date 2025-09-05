@@ -21,6 +21,7 @@ import { useAuthStore } from "../stores/authStore";
 import LoadingView from "./loadingView";
 import AvatarView from "./avatarView";
 import ErrorModal from "./errorModal";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 type TDrawerScreens = "Profile" | "Complaints";
 
@@ -41,14 +42,13 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
       setActiveScreen(selectedScreen);
       navigation.navigate(selectedScreen);
     } else if (selectedScreen === "Complaints") {
-      
       // return
       setActiveScreen(selectedScreen);
       navigation.navigate(selectedScreen);
     }
   };
 
-  const handleSocialIconPressed = async (icon: "tw" | "ig" | "fb") => {
+  const handleSocialIconPressed = async (icon: "tw" | "ig" | "fb" | "tt") => {
     try {
       if (icon === "tw") {
         await Linking.openURL(
@@ -65,6 +65,12 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
       if (icon === "ig") {
         await Linking.openURL(
           "https://www.instagram.com/solva_africa?igsh=eGF1eW1rYWx0bWxy"
+        );
+      }
+
+      if (icon === "tt") {
+        await Linking.openURL(
+          "https://www.tiktok.com/@solva_africa?_t=ZS-8zTTXNGGpmy&_r=1"
         );
       }
     } catch (error) {
@@ -170,6 +176,13 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
             size={24}
             onPress={() => handleSocialIconPressed("ig")}
           />
+          <MaterialIcons
+            name="tiktok"
+            size={24}
+            color="black"
+            onPress={() => handleSocialIconPressed("tt")}
+          />
+          {/* <SocialIcon name="tiktok" size={24} /> */}
         </View>
         <Pressable style={styles.logoutView} onPress={handleLogout}>
           <LogoutIcon name="logout" size={20} color={"#ffffff"} />
