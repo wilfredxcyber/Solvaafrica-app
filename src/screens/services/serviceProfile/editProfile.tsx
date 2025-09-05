@@ -96,7 +96,7 @@ export default function EditProfile({ route }: Props) {
         "Failed to pick image. Please try again.",
         ToastAndroid.LONG
       );
-      // Toast.error("Failed to pick image. Please try again.");
+     
     }
   };
 

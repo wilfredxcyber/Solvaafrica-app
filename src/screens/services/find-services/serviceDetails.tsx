@@ -9,18 +9,32 @@ import {
 } from "react-native";
 import React, { useCallback, useLayoutEffect, useState } from "react";
 import {
-  StaticScreenProps,
   useFocusEffect,
   useNavigation,
+  RouteProp,
+  StaticScreenProps,
 } from "@react-navigation/native";
-import { ServiceType } from "@/src/types";
+// import { StaticScreenProps } from "@/src/types";
 import { globalStyles } from "@/src/styles/global";
 import { hscale, mscale, wscale } from "@/src/helpers/metric";
 import { colors } from "@/src/constants/theme";
 import { AUTH_API_CLIENT } from "@/src/api/apiClient";
 import ErrorModal from "@/src/components/errorModal";
 
-type Props = StaticScreenProps<{ service: ServiceType }>;
+// Define a type for your freelancer items
+type Freelancer = {
+  id: number;
+  fullName: string;
+  bio: string;
+  phoneNumber: string;
+  portfolioLink: string;
+  profilePic: string;
+  startingAmount: string;
+  whatsappLink: string;
+};
+
+// Props for this screen
+type Props = StaticScreenProps<{ service: { id: number; title: string } }>;
 
 const ServiceDeets = ({ route }: Props) => {
   const { service } = route.params;
@@ -28,10 +42,10 @@ const ServiceDeets = ({ route }: Props) => {
   const screenWidth = Dimensions.get("window").width;
 
   const [loading, setLoading] = useState(true);
-
-  const [ServiceDeets, setServiceDetails] = useState<any[]>([]);
+  const [serviceDetails, setServiceDetails] = useState<Freelancer[]>([]);
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
   useFocusEffect(
     useCallback(() => {
       const getServices = async () => {
@@ -40,11 +54,11 @@ const ServiceDeets = ({ route }: Props) => {
           const response = await AUTH_API_CLIENT.get(
             `/freelancers?category=${service.id}`
           );
-          console.log(response);
           if (response.status === 200) {
             setServiceDetails(response.data.data);
           }
         } catch (error) {
+          console.error(error);
           setErrorMessage("Something went wrong while fetching services!");
           setErrorVisible(true);
         } finally {
@@ -53,7 +67,7 @@ const ServiceDeets = ({ route }: Props) => {
       };
 
       getServices();
-    }, [])
+    }, [service.id])
   );
 
   useLayoutEffect(() => {
@@ -68,12 +82,16 @@ const ServiceDeets = ({ route }: Props) => {
         <ActivityIndicator size="large" color={colors.primary} />
       ) : (
         <FlatList
-          data={ServiceDeets}
+          data={serviceDetails}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <View style={{ marginBottom: mscale(10) }}>
               <TouchableOpacity
                 onPress={() =>
-                  navigation.navigate("App", { screen: "ServiceProfile" })
+                  navigation.navigate("App", {
+                    screen: "ReadServiceProfile",
+                    params: { userData: item },
+                  })
                 }
                 style={{
                   backgroundColor: "#EBEDEB80",
@@ -86,40 +104,52 @@ const ServiceDeets = ({ route }: Props) => {
                 }}
               >
                 <Image
-                  source={require("@/assets/images/services/Image.png")}
+                  source={{ uri: item.profilePic }}
                   style={{
-                    width: wscale(35),
-                    height: hscale(35),
+                    width: wscale(80),
+                    height: hscale(80),
+                    borderRadius: mscale(80) / 2,
                   }}
+                  resizeMode="cover"
                 />
                 <View style={{ flex: 1 }}>
                   <Text
                     style={{
-                      fontFamily: "Inter-Medium",
-                      fontSize: mscale(18),
+                      fontFamily: "Inter-Bold",
+                      fontSize: mscale(16),
                       color: colors.black,
                       flexShrink: 1,
                       flexWrap: "wrap",
                     }}
                   >
-                    {item.personDesc}
+                    {item.fullName}
+                  </Text>
+                  <Text
+                    style={{
+                      fontFamily: "Inter-Regular",
+                      fontSize: mscale(14),
+                      color: colors.black,
+                      flexShrink: 1,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {item.bio}
                   </Text>
                   <Text
                     style={{
                       color: colors.primary,
-                      fontSize: mscale(16),
+                      fontSize: mscale(13),
                       textAlign: "right",
                       fontFamily: "Inter-Bold",
                       marginTop: mscale(10),
                     }}
                   >
-                    From NGN {item.minPrice}
+                    From NGN {item.startingAmount}
                   </Text>
                 </View>
               </TouchableOpacity>
             </View>
           )}
-          keyExtractor={(item, index) => item.personDesc + index}
           contentContainerStyle={{ paddingBottom: hscale(20) }}
           ListEmptyComponent={
             <Text

@@ -7,6 +7,7 @@ export interface UserProfile {
   referralCode: string;
   userID: string;
   role: string;
+  freelancer?: any;
 }
 export interface ILoginForm {
   email: string;

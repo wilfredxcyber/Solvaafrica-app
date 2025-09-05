@@ -29,55 +29,41 @@ export default function LoginScreen() {
 
   const handleFormSubmit = async () => {
     emailRef.current?.blur();
-    console.log("The form", form);
-
     const { email, password } = form;
-
     if (!email || !password) return;
+
     setIsLoading(true);
+
     try {
-      //login
       const res = await PUB_API_CLIENT.post("/users/login", form);
 
       if (res.status === 200) {
         const { data: UserData } = res.data;
-        const userId = UserData.user.id;
         const tokens = UserData.tokens;
+        const userFromLogin = UserData.user;
 
-        // get user
-        const getUserRes = await PUB_API_CLIENT.get(`/users/${userId}`, {
-          headers: { Authorization: `Bearer ${tokens.accessToken}` },
-        });
+        const userProfile: UserProfile = {
+          fullName: userFromLogin.fullName,
+          gender: userFromLogin.gender,
+          email: userFromLogin.email,
+          address: userFromLogin.address,
+          phone: userFromLogin.phone,
+          referralCode: userFromLogin.referralCode,
+          userID: userFromLogin.id,
+          role: userFromLogin.role,
+          freelancer: userFromLogin.freelancer || undefined,
+        };
 
-        if (getUserRes.status === 200) {
-          const { data } = getUserRes.data;
+        const user: { profile: UserProfile; tokens: Tokens | null } = {
+          profile: userProfile,
+          tokens,
+        };
 
-          console.log("User", data);
+        await AsyncStorage.setItem("User", JSON.stringify(user));
+        useAuthStore.setState({ user });
 
-          // save user
-          const { fullName, gender, email, address, phone, referralCode, role } =
-            data;
-          const userProfile: UserProfile = {
-            fullName,
-            gender,
-            email,
-            address,
-            phone,
-            referralCode,
-            userID: userId,
-            role
-          };
-          const user: { profile: UserProfile; tokens: Tokens | null } = {
-            profile: userProfile,
-            tokens,
-          };
-
-          await AsyncStorage.setItem("User", JSON.stringify(user));
-          console.log("Auth User: \n", user);
-
-          useAuthStore.setState((state) => ({ ...state, user }));
-          return;
-        }
+        console.log("Auth User:", user);
+        return;
       }
     } catch (error: any) {
       console.log("Error logging in user", error);
@@ -90,7 +76,6 @@ export default function LoginScreen() {
       setErrorMessage(message);
       setErrorVisible(true);
     } finally {
-      console.log("Operation complete");
       setIsLoading(false);
     }
   };

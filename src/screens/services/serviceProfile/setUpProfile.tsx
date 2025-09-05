@@ -22,6 +22,9 @@ import ErrorModal from "@/src/components/errorModal";
 import { Picker } from "@react-native-picker/picker";
 import ToastManager, { Toast } from "toastify-react-native";
 import { launchImageLibrary, launchCamera } from "react-native-image-picker";
+import * as DocumentPicker from "expo-document-picker";
+import { useAuthStore } from "@/src/stores/authStore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SetUpProfile() {
   const [loading, setLoading] = useState(true);
@@ -65,23 +68,35 @@ export default function SetUpProfile() {
   const navigation = useNavigation();
 
   const handlePickProfileImage = async () => {
-    launchImageLibrary({ mediaType: "photo" }, (response) => {
-      if (response.didCancel) return;
-      if (response.errorCode) {
-        ToastAndroid.show("Error selecting image", ToastAndroid.SHORT);
-        console.error("Picker Error:", response.errorMessage);
-        return;
-      }
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ["image/*"],
+        copyToCacheDirectory: true,
+      });
 
-      const asset = response.assets?.[0];
-      if (asset?.uri) {
-        setProfileImageUri(asset);
+      if (!result.canceled) {
+        const { name, uri, mimeType } = result.assets[0];
+        if (!name || !uri || !mimeType) throw new Error("Invalid picked asset");
+
+        const _pickedFile: any = {
+          fileUri: uri,
+          imageUri: uri,
+          name,
+          mimeType,
+        };
+
+        setProfileImageUri(_pickedFile);
       }
-    });
+    } catch (error) {
+      console.error("File picker error:", error);
+      ToastAndroid.show(
+        "Error picking image from document directory",
+        ToastAndroid.LONG
+      );
+    }
   };
 
   const handleUpdate = async () => {
-    console.log("clicked");
 
     if (
       !name ||
@@ -91,7 +106,7 @@ export default function SetUpProfile() {
       !portfolio ||
       !phone ||
       !whatsapp ||
-      !profileImageUri?.uri
+      !profileImageUri?.fileUri
     ) {
       ToastAndroid.show(
         "Ensure all fields are filled and an image is added.",
@@ -111,15 +126,10 @@ export default function SetUpProfile() {
     formData.append("phoneNumber", phone);
     formData.append("whatsappLink", whatsapp);
 
-    const fileName = profileImageUri.uri?.split("/").pop() || "photo.jpg";
-
     formData.append("profilePic", {
-      uri: profileImageUri.uri,
-      name: profileImageUri.fileName || fileName,
-      type: Platform.select({
-        android: "image/jpeg",
-        default: profileImageUri?.type || "image",
-      }),
+      uri: profileImageUri.fileUri,
+      name: profileImageUri.name,
+      type: profileImageUri.mimeType,
     } as any);
 
     try {
@@ -135,6 +145,22 @@ export default function SetUpProfile() {
 
       if (response.status === 200 || response.status === 201) {
         ToastAndroid.show("Profile created successfully", ToastAndroid.LONG);
+
+        const AuthUser = useAuthStore.getState().user;
+        if (AuthUser) {
+          const updatedUser = {
+            ...AuthUser,
+            profile: {
+              ...AuthUser.profile,
+              role: "freelancer",
+              freelancer: AuthUser.profile.freelancer ?? response?.data.data.id,
+            },
+            tokens: AuthUser.tokens,
+          };
+          useAuthStore.setState({ user: updatedUser });
+          await AsyncStorage.setItem("User", JSON.stringify(updatedUser));
+        }
+
         navigation.navigate("App", { screen: "ServiceProfile" });
       } else {
         ToastAndroid.show("Unexpected server response", ToastAndroid.LONG);
@@ -165,7 +191,7 @@ export default function SetUpProfile() {
       >
         {profileImageUri ? (
           <Image
-            source={{ uri: profileImageUri.uri }}
+            source={{ uri: profileImageUri.fileUri }}
             style={styles.profileImage}
           />
         ) : (
@@ -203,7 +229,12 @@ export default function SetUpProfile() {
         >
           <Picker.Item label="Select a category" value={null} />
           {categories.map((cat) => (
-            <Picker.Item key={cat.id} label={cat.title} value={cat.id} style={styles.input} />
+            <Picker.Item
+              key={cat.id}
+              label={cat.title}
+              value={cat.id}
+              style={styles.input}
+            />
           ))}
         </Picker>
       </View>

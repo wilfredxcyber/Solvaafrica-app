@@ -36,6 +36,7 @@ import {
   AddReview,
   EditProfile,
   SetUpProfile,
+  ReadServiceProfile,
 } from "../screens";
 import { useUserSignedIn, useUserSignedOut } from "../hooks/userAuth";
 import TabsNavigator from "./BottomTabNavigation";
@@ -201,6 +202,19 @@ const AppStackNavigator = createNativeStackNavigator({
             headerTintColor: colors.black,
           },
         },
+        ReadServiceProfile: {
+          screen: ReadServiceProfile,
+          options: {
+            headerShown: false,
+            headerTitle: "Service Information",
+            headerShadowVisible: false,
+            headerTitleStyle: {
+              fontFamily: "Inter-Bold",
+              fontSize: 16,
+            },
+            headerTintColor: colors.black,
+          },
+        },
         ServiceSetUpProfile: {
           screen: SetUpProfile,
           options: {
@@ -217,13 +231,7 @@ const AppStackNavigator = createNativeStackNavigator({
         ServiceEditProfile: {
           screen: EditProfile,
           options: {
-            headerTitle: "Edit Profile",
-            headerShadowVisible: false,
-            headerTitleStyle: {
-              fontFamily: "Inter-Bold",
-              fontSize: 16,
-            },
-            headerTintColor: colors.black,
+            headerShown: false,
           },
         },
         Ask: {

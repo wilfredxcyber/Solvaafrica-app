@@ -9,7 +9,11 @@ import {
   ActivityIndicator,
 } from "react-native";
 import React, { useCallback, useLayoutEffect, useState } from "react";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import {
+  StaticScreenProps,
+  useFocusEffect,
+  useNavigation,
+} from "@react-navigation/native";
 import { globalStyles } from "@/src/styles/global";
 import { hscale, mscale, wscale } from "@/src/helpers/metric";
 import { colors } from "@/src/constants/theme";
@@ -21,7 +25,11 @@ import { AUTH_API_CLIENT } from "@/src/api/apiClient";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "@/src/stores/authStore";
 
-export default function ServiceProfile() {
+type Props = StaticScreenProps<{ userData: any }>;
+
+export default function ReadServiceProfile({ route }: Props) {
+  const { userData } = route.params;
+
   const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any | null>(null);
@@ -29,10 +37,8 @@ export default function ServiceProfile() {
   const [reviewLoading, setReviewLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // freelancer is always just an ID
-  const freelancerId = useAuthStore((state) => state.user?.profile?.freelancer);
+  const freelancerId = userData?.id;
 
-  // fetch full freelancer object
   const getFreelancerInfo = async () => {
     if (!freelancerId) return;
 
@@ -54,7 +60,6 @@ export default function ServiceProfile() {
     }
   };
 
-  // fetch reviews
   const getReviews = async (id: number) => {
     try {
       setReviewLoading(true);
@@ -356,7 +361,7 @@ export default function ServiceProfile() {
           </Text>
         )}
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() =>
             navigation.navigate("App", {
               screen: "Review",
@@ -380,7 +385,7 @@ export default function ServiceProfile() {
           >
             Add review
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </ScrollView>
   );

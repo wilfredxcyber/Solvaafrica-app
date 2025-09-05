@@ -316,7 +316,7 @@ const ReferTabView = () => {
         borderBottomColor: "#ccc",
       }}
     >
-      <Text style={{ fontFamily: "Inter-Medium", fontSize: 16 }}>
+      <Text style={{ fontFamily: "Inter-Bold", fontSize: 16 }}>
         {item.fullName}
       </Text>
       <Text style={{ fontFamily: "Inter-Regular", color: "#555" }}>
@@ -326,120 +326,100 @@ const ReferTabView = () => {
   );
 
   return (
-    <ScrollView>
-      <View style={styles.bannerView}>
-        <StarIcon name="star" size={20} color={colors.primary} />
-        <View style={{ flex: 1, marginLeft: wscale(12) }}>
+    <FlatList
+      data={referrals}
+      keyExtractor={(item) => item.id!}
+      renderItem={renderReferralItem}
+      ListHeaderComponent={
+        <>
+          <View style={styles.bannerView}>
+            <StarIcon name="star" size={20} color={colors.primary} />
+            <View style={{ flex: 1, marginLeft: wscale(12) }}>
+              <Text
+                style={[
+                  styles.text,
+                  {
+                    fontFamily: "Inter-Bold",
+                    fontSize: mscale(20),
+                    color: colors.black,
+                  },
+                ]}
+              >
+                How You Earn
+              </Text>
+              <View style={{ gap: 12, marginTop: hscale(10) }}>
+                <Text style={styles.text}>Subscribe to premium package</Text>
+                <Text style={styles.text}>
+                  People signup with your referral code
+                </Text>
+                <Text style={styles.text}>
+                  Referred individual pay for a material
+                </Text>
+              </View>
+            </View>
+          </View>
+
           <Text
             style={[
               styles.text,
               {
                 fontFamily: "Inter-Bold",
-                fontSize: mscale(20),
                 color: colors.black,
+                textAlign: "center",
+                marginTop: hscale(15),
               },
             ]}
           >
-            How You Earn
+            Get Free NGN 100.00
           </Text>
-          <View style={{ gap: 12, marginTop: hscale(10) }}>
-            <Text style={styles.text}>Subscribe to premium package</Text>
-            <Text style={styles.text}>
-              People signup with your referral code
-            </Text>
-            <Text style={styles.text}>
-              Referred individual pay for a material
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      <Text
-        style={[
-          styles.text,
-          {
-            fontFamily: "Inter-Bold",
-            color: colors.black,
-            textAlign: "center",
-            marginTop: hscale(15),
-          },
-        ]}
-      >
-        Get Free NGN 100.00
-      </Text>
-      <Text style={[styles.text, { textAlign: "center" }]}>
-        Share this hack with your friends
-      </Text>
-      <Text
-        style={[styles.text, { textAlign: "center", marginTop: hscale(20) }]}
-      >
-        You stand to earn NGN 100.00 when your friend inputs your referral code
-        during sign up and registers to the premium package
-      </Text>
-
-      <CopyReferalCodeView />
-
-      <View style={{ marginTop: hscale(20) }}>
-        <Text
-          style={{
-            fontSize: mscale(18),
-            fontFamily: "Inter-Bold",
-            color: colors.black,
-          }}
-        >
-          Your Referrals
-        </Text>
-
-        {referrals.length === 0 ? (
-          <>
-            <Text style={[styles.text, { textAlign: "center" }]}>
-              You currently do not have any referral. Your referrals will appear
-              here when you refer friends using your code.
-            </Text>
-            <Image
-              source={require("../../assets/images/referImg.png")}
-              style={{
-                width: wscale(220),
-                height: hscale(234),
-                alignSelf: "center",
-                marginTop: mscale(10),
-              }}
-            />
-          </>
-        ) : (
-          <FlatList
-            data={referrals}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={renderReferralItem}
-            contentContainerStyle={{ marginTop: 10 }}
-          />
-        )}
-
-        {/* <View style={styles.socialIconsView}>
-          <TouchableOpacity
-            onPress={() => handleSocialShare("wa")}
-            style={styles.socialBox}
+          <Text style={[styles.text, { textAlign: "center" }]}>
+            Share this hack with your friends
+          </Text>
+          <Text
+            style={[
+              styles.text,
+              { textAlign: "center", marginTop: hscale(20) },
+            ]}
           >
-            <SocialIcon name="whatsapp" size={20} />
-            <Text style={styles.socialText}>Whatsapp</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => handleSocialShare("fb")}
-            style={styles.socialBox}
+            You stand to earn NGN 100.00 when your friend inputs your referral
+            code during sign up and registers to the premium package
+          </Text>
+
+          <CopyReferalCodeView />
+
+          <Text
+            style={{
+              fontSize: mscale(18),
+              fontFamily: "Inter-Bold",
+              color: colors.black,
+              marginTop: hscale(20),
+            }}
           >
-            <SocialIcon name="facebook" size={24} />
-            <Text style={styles.socialText}>Facebook</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => handleSocialShare("tw")}
-            style={styles.socialBox}
-          >
-            <SocialIcon name="twitter" size={24} />
-            <Text style={styles.socialText}>Twitter</Text>
-          </TouchableOpacity>
-        </View> */}
-      </View>
-    </ScrollView>
+            Your Referrals
+          </Text>
+
+          {referrals.length === 0 && (
+            <>
+              <Text style={[styles.text, { textAlign: "center" }]}>
+                You currently do not have any referral. Your referrals will
+                appear here when you refer friends using your code.
+              </Text>
+              <Image
+                source={require("../../assets/images/referImg.png")}
+                style={{
+                  width: wscale(220),
+                  height: hscale(234),
+                  alignSelf: "center",
+                  marginTop: mscale(10),
+                }}
+              />
+            </>
+          )}
+        </>
+      }
+      contentContainerStyle={{ paddingHorizontal: wscale(10) }}
+      ListEmptyComponent={null} 
+    />
   );
 };
 

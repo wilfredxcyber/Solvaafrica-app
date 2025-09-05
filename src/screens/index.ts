@@ -40,6 +40,7 @@ import ServiceProfile from "./services/serviceProfile/serviceProfile";
 import AddReview from "./services/serviceProfile/addReview";
 import EditProfile from "./services/serviceProfile/editProfile";
 import SetUpProfile from "./services/serviceProfile/setUpProfile";
+import ReadServiceProfile from "./services/find-services/readServiceProfile";
 
 export {
   HomeScreen,
@@ -83,5 +84,6 @@ export {
   ServiceProfile,
   AddReview,
   EditProfile,
-  SetUpProfile
+  SetUpProfile,
+  ReadServiceProfile,
 };

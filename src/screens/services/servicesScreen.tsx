@@ -16,6 +16,7 @@ export default function ServicesScreen() {
   const navigation = useNavigation();
   const AuthUser = useAuthStore((state) => state.user);
   const { role } = AuthUser.profile;
+  
   return (
     <View
       style={{
