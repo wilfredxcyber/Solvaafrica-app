@@ -81,12 +81,12 @@ export default function Grants() {
         ) : data.length === 0 ? (
           <EmptyStateView />
         ) : (
-          data.map((item) => (
-            <View style={styles.card} key={item.id}>
-              <Text style={styles.title}>{item.name}</Text>
-              <Text style={styles.description}>
+          data.map((item, index) => (
+            <View style={styles.card} key={index}>
+              {/* <Text style={styles.title}>{item.name}</Text> */}
+              {/* <Text style={styles.description}>
                 {capitalizeFirstLetter(item.description)}
-              </Text>
+              </Text> */}
               <Text
                 style={styles.link}
                 onPress={() => handleOpenLink(item.link)}

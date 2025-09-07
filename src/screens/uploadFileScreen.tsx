@@ -1,4 +1,11 @@
-import { Alert, Linking, Pressable, Text, ToastAndroid, View } from "react-native";
+import {
+  Alert,
+  Linking,
+  Pressable,
+  Text,
+  ToastAndroid,
+  View,
+} from "react-native";
 import { useCameraPermissions, CameraView } from "expo-camera";
 import CameraIcon from "@expo/vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
@@ -73,7 +80,10 @@ export default function UploadFilesScreen() {
         });
       }
     } catch (error) {
-      ToastAndroid.show("Error capturing image with device camera", ToastAndroid.LONG);
+      ToastAndroid.show(
+        "Error capturing image with device camera",
+        ToastAndroid.LONG
+      );
     } finally {
       setCapturing(false);
     }
@@ -96,8 +106,12 @@ export default function UploadFilesScreen() {
         };
         if (mimeType === "application/pdf") {
           const scale = 1.0;
-          const pdfPageImage = await PdfPageImage.generate(uri, 1, scale);
-          _pickedFile.imageUri = pdfPageImage.uri;
+          try {
+            const pdfPageImage = await PdfPageImage.generate(uri, 0, scale);
+            _pickedFile.imageUri = pdfPageImage.uri;
+          } catch {
+            _pickedFile.imageUri = require("../../assets/images/pdf-image.jpg");
+          }
         }
         navigation.navigate("App", {
           screen: "UploadPreview",
@@ -105,7 +119,11 @@ export default function UploadFilesScreen() {
         });
       }
     } catch (error) {
-      ToastAndroid.show("Error picking file from document directory", ToastAndroid.LONG);
+      console.log(error, "pdf error");
+      ToastAndroid.show(
+        "Error picking file from document directory",
+        ToastAndroid.LONG
+      );
     }
   };
 
@@ -269,7 +287,7 @@ export default function UploadFilesScreen() {
                     color: "#ffffff",
                   }}
                 >
-                  Use Camera
+                  Use Camera for past question
                 </Text>
               </Pressable>
               <Text
@@ -288,12 +306,12 @@ export default function UploadFilesScreen() {
                 style={{
                   fontFamily: "Inter-Bold",
                   color: colors.primary,
-                  fontSize: mscale(20),
+                  fontSize: mscale(14),
                   textAlign: "center",
                   // marginTop: hscale(20),
                 }}
               >
-                Click to select a file from storage
+                Click to select a file from storage for project
               </Text>
 
               <View
@@ -328,7 +346,14 @@ export default function UploadFilesScreen() {
                 </Text>
               </View>
 
-              <Text style={{ fontFamily: "Inter-Regular", fontSize: mscale(12), textAlign: "center", marginTop: hscale(20) }}>
+              <Text
+                style={{
+                  fontFamily: "Inter-Regular",
+                  fontSize: mscale(12),
+                  textAlign: "center",
+                  marginTop: hscale(20),
+                }}
+              >
                 Disclaimer: Content on Solva isn’t ours and wasn’t uploaded by
                 us. For educational use only
               </Text>

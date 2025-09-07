@@ -2,7 +2,7 @@ import { StaticScreenProps } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import { Alert, View, Text, StyleSheet } from "react-native";
 import { Image } from "expo-image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Picker } from "@react-native-picker/picker";
 
 import PrimaryButton from "../components/primaryButton";
@@ -26,6 +26,14 @@ export default function UploadFilePreviewScreen({
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  useEffect(() => {
+    if (pickedFile.mimeType === "application/pdf") {
+      setSelectedType("project");
+    } else if (pickedFile.mimeType.startsWith("image/")) {
+      setSelectedType("question");
+    }
+  }, [pickedFile]);
+
   const handleFileUpload = async () => {
     if (!selectedType) {
       Toast.error("Please select a type (Project or Question) first.");
@@ -43,6 +51,9 @@ export default function UploadFilePreviewScreen({
         name,
         type: mimeType,
       } as any);
+
+      console.log(selectedType, "upload ")
+      console.log(name, fileUri, mimeType)
 
       const formUploadResponse = await AUTH_API_CLIENT.postForm(
         "/documents/upload",
@@ -72,7 +83,7 @@ export default function UploadFilePreviewScreen({
         }}
       />
 
-      <View style={styles.pickerContainer}>
+      {/* <View style={styles.pickerContainer}>
         <Picker
           enabled={!isUploading}
           selectedValue={selectedType}
@@ -80,9 +91,9 @@ export default function UploadFilePreviewScreen({
         >
           <Picker.Item label="Select type" value={null} />
           <Picker.Item label="Project" value="project" />
-          <Picker.Item label="Question" value="question" />
+          <Picker.Item label="Past Question" value="question" />
         </Picker>
-      </View>
+      </View> */}
 
       <PrimaryButton
         text="Upload file"

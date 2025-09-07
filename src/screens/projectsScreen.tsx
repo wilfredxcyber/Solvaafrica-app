@@ -79,16 +79,16 @@ export default function ProjectsScreen() {
               <View
                 style={{
                   marginBottom: hscale(16),
-                  paddingHorizontal: wscale(16),
+                  paddingHorizontal: wscale(10),
                   borderWidth: 1,
                   borderColor: "black",
                   borderRadius: mscale(8),
-                  paddingVertical: hscale(8),
+                  paddingVertical: hscale(6),
                 }}
               >
                 <Text
                   style={{
-                    fontSize: mscale(16),
+                    fontSize: mscale(12),
                     fontFamily: "Inter-SemiBold",
                     marginBottom: hscale(4),
                   }}
@@ -162,7 +162,7 @@ const ProjectItemView = ({
         alignItems: "center",
         backgroundColor: colors.inputField,
         height: hscale(60),
-        paddingVertical: hscale(8),
+        paddingVertical: hscale(3),
         borderRadius: mscale(8),
         justifyContent: "space-between",
         marginVertical: hscale(8),
@@ -181,7 +181,7 @@ const ProjectItemView = ({
             fontFamily: "Inter-Regular",
             fontSize: mscale(14),
             color: colors.black,
-            marginLeft: wscale(12),
+            // marginLeft: wscale(2),
           }}
         >
           {fileName}
