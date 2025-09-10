@@ -45,7 +45,6 @@ export default function HomeScreen() {
   const navigation = useNavigation();
   const userProfile = user.profile;
   const { width } = Dimensions.get("window");
-  // const slidesPlaceholder = ;
   const [isSubscribed, setIsSubscribed] = useState(true);
 
   const MENU_ITEMS: IMenuItems[] = [
@@ -110,7 +109,7 @@ export default function HomeScreen() {
     return;
   };
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["homeScreenSliders"],
     queryFn: getSliderImages,
   });
@@ -132,9 +131,7 @@ export default function HomeScreen() {
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          {/* <TouchableOpacity onPress={() => navigation.navigate("App", { screen: "settingsTab" })}> */}
           <AvatarView />
-          {/* </TouchableOpacity> */}
           <View style={{ marginLeft: 8 }}>
             <Text style={styles.greetUserText}>
               Hello, {userProfile.fullName.trim().split(" ")[0]}
@@ -176,7 +173,7 @@ export default function HomeScreen() {
         dotsContainerStyle={{ bottom: hscale(-20) }}
         mergeStyles
       >
-        {data?.length === 0
+        {isLoading || !data || data.length === 0
           ? new Array(3).fill(null).map((_, index) => (
               <View
                 key={`placeholder-${index}`}
@@ -192,7 +189,7 @@ export default function HomeScreen() {
                 />
               </View>
             ))
-          : (data ?? []).map((imageUri, index) => (
+          : data.map((imageUri, index) => (
               <View
                 key={`slide-${index}`}
                 style={{
@@ -213,7 +210,6 @@ export default function HomeScreen() {
             ))}
       </Carousel>
 
-      {/* menu view */}
       <View style={styles.menuView}>
         {MENU_ITEMS.map((currentItem, index) => (
           <Pressable
@@ -221,7 +217,6 @@ export default function HomeScreen() {
             style={styles.menuItemView}
             onPress={() => handleMenuItemPressed(currentItem.item)}
           >
-            {/* <View style={styles.menuItemIconView}>{currentItem.icon()}</View> */}
             <View style={styles.menuItemIconView}>
               <Image
                 style={{

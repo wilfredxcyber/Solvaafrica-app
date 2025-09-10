@@ -33,7 +33,6 @@ export default function App() {
 
   process.env.NODE_ENV === "development" && useKeepAwake();
   useEffect(() => {
-    // bootstrap app
     (async () => {
       await bootstrapApp();
 
@@ -42,6 +41,7 @@ export default function App() {
       }
     })();
   }, [isLoading]);
+  
   return (
     <GestureHandlerRootView>
       <QueryClientProvider client={queryClient}>

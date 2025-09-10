@@ -64,6 +64,7 @@ export default function SetUpProfile() {
   const [portfolio, setPortfolio] = useState("");
   const [phone, setPhone] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [uni, setUni] = useState("");
 
   const navigation = useNavigation();
 
@@ -97,7 +98,6 @@ export default function SetUpProfile() {
   };
 
   const handleUpdate = async () => {
-
     if (
       !name ||
       !selectedCategoryId ||
@@ -106,6 +106,7 @@ export default function SetUpProfile() {
       !portfolio ||
       !phone ||
       !whatsapp ||
+      !uni||
       !profileImageUri?.fileUri
     ) {
       ToastAndroid.show(
@@ -125,6 +126,7 @@ export default function SetUpProfile() {
     formData.append("portfolioLink", portfolio);
     formData.append("phoneNumber", phone);
     formData.append("whatsappLink", whatsapp);
+    formData.append("location", uni)
 
     formData.append("profilePic", {
       uri: profileImageUri.fileUri,
@@ -238,6 +240,15 @@ export default function SetUpProfile() {
           ))}
         </Picker>
       </View>
+
+      <Text style={styles.label}>University</Text>
+      <TextInput
+        placeholder="Input University"
+        value={uni}
+        onChangeText={setUni}
+        style={styles.input}
+        editable={!updating}
+      />
 
       <Text style={styles.label}>Description</Text>
       <TextInput

@@ -347,7 +347,7 @@ const ReferTabView = () => {
               >
                 How You Earn
               </Text>
-              <View style={{ gap: 12, marginTop: hscale(10) }}>
+              <View style={{ gap: 5, marginTop: hscale(5) }}>
                 <Text style={styles.text}>Subscribe to premium package</Text>
                 <Text style={styles.text}>
                   People signup with your referral code
@@ -572,7 +572,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: "Inter-regular",
-    fontSize: mscale(16),
+    fontSize: mscale(14),
     color: "#5C5F62",
   },
   bannerView: {

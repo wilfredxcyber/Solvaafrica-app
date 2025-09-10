@@ -22,6 +22,7 @@ export const getSliderImages = async () => {
 export const getUserSubscriptionStatus = async () => {
   try {
     const response = await AUTH_API_CLIENT.get("/sub/status");
+    console.log(response, "response")
     if (response.status === 200) {
       return response.data.isSubscribed;
     }
@@ -29,4 +30,5 @@ export const getUserSubscriptionStatus = async () => {
     return Promise.reject(error);
   }
 };
+
 //add notification query to add red dot
