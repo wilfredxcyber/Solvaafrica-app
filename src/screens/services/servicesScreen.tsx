@@ -82,7 +82,7 @@ export default function ServicesScreen() {
           <TouchableOpacity
             onPress={() =>
               navigation.navigate("App", {
-                screen: role != "user" ? "ServiceSetUpProfile" : "ServiceProfile",
+                screen: role === "user" ? "ServiceSetUpProfile" : "ServiceProfile",
               })
             }
             style={styles.box}

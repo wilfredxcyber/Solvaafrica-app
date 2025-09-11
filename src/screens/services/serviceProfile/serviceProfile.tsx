@@ -180,6 +180,30 @@ export default function ServiceProfile() {
           {user?.bio || "No bio available"}
         </Text>
       </View>
+    
+      <View>
+        <Text
+          style={{
+            fontSize: mscale(16),
+            fontFamily: "Inter-Medium",
+            color: colors.black,
+            marginTop: mscale(5),
+          }}
+        >
+          Location
+        </Text>
+        <Text
+          style={{
+            fontFamily: "Inter-Regular",
+            color: colors.black,
+            fontSize: mscale(14),
+            marginVertical: mscale(5),
+            lineHeight: mscale(20),
+          }}
+        >
+          {user?.location || "No location available"}
+        </Text>
+      </View>
 
       {/* Portfolio */}
       <View>

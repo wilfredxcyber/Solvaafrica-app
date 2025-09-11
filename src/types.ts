@@ -78,4 +78,5 @@ export interface FreelancerProfile {
   profilePic?: string;
   startingAmount?: string;
   whatsappLink?: string;
+  location?: string;
 }

@@ -46,6 +46,7 @@ export default function EditProfile({ route }: Props) {
   const [portfolio, setPortfolio] = useState("");
   const [phone, setPhone] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [uni, setUni] = useState("");
 
   const navigation = useNavigation();
 
@@ -77,6 +78,7 @@ export default function EditProfile({ route }: Props) {
       setWhatsapp(userData.whatsappLink || "");
       setProfileImageUri(userData.profilePic || null);
       setSelectedCategoryId(userData.categoryId?.toString() || null);
+      setUni(userData.location || "");
     }
   }, [userData]);
 
@@ -96,7 +98,6 @@ export default function EditProfile({ route }: Props) {
         "Failed to pick image. Please try again.",
         ToastAndroid.LONG
       );
-     
     }
   };
 
@@ -108,7 +109,8 @@ export default function EditProfile({ route }: Props) {
       !amount ||
       !portfolio ||
       !phone ||
-      !whatsapp
+      !whatsapp ||
+      !uni
     ) {
       // Toast.error("All fields are required.");
       ToastAndroid.show("All fields are required.", ToastAndroid.LONG);
@@ -123,6 +125,7 @@ export default function EditProfile({ route }: Props) {
     formData.append("portfolioLink", portfolio.trim());
     formData.append("phoneNumber", phone);
     formData.append("whatsappLink", whatsapp);
+    formData.append("location", uni);
 
     if (profileImageUri && profileImageUri !== userData.profilePic) {
       const fileName = profileImageUri.split("/").pop() || "profile.jpg";
@@ -155,12 +158,18 @@ export default function EditProfile({ route }: Props) {
           navigation.navigate("App", { screen: "ServiceProfile" });
         }
       } else {
-        ToastAndroid.show("Unexpected response from server.", ToastAndroid.LONG);
+        ToastAndroid.show(
+          "Unexpected response from server.",
+          ToastAndroid.LONG
+        );
         // Toast.error("Unexpected response from server.");
       }
     } catch (error: any) {
       if (error.response) {
-        ToastAndroid.show(error.response.data?.message || "Server error.", ToastAndroid.LONG);
+        ToastAndroid.show(
+          error.response.data?.message || "Server error.",
+          ToastAndroid.LONG
+        );
         // Toast.error(error.response.data?.message || "Server error.");
       } else if (error.request) {
         ToastAndroid.show("No response from server.", ToastAndroid.LONG);
@@ -214,6 +223,15 @@ export default function EditProfile({ route }: Props) {
           ))}
         </Picker>
       </View>
+
+      <Text style={styles.label}>Location</Text>
+      <TextInput
+        placeholder="Input Location"
+        value={uni}
+        onChangeText={setUni}
+        style={styles.input}
+        editable={!updating}
+      />
 
       <Text style={styles.label}>Description</Text>
       <TextInput

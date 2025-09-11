@@ -15,7 +15,7 @@ export default function Innovation() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await AUTH_API_CLIENT.get("/innovation");
+        const res = await AUTH_API_CLIENT.get("/innovations");
         const innovation = res.data?.data || [];
 
         setData([...innovation]);

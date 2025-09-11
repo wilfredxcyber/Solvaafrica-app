@@ -241,9 +241,9 @@ export default function SetUpProfile() {
         </Picker>
       </View>
 
-      <Text style={styles.label}>University</Text>
+      <Text style={styles.label}>Location</Text>
       <TextInput
-        placeholder="Input University"
+        placeholder="Input Location"
         value={uni}
         onChangeText={setUni}
         style={styles.input}

@@ -22,7 +22,7 @@ export const getSliderImages = async () => {
 export const getUserSubscriptionStatus = async () => {
   try {
     const response = await AUTH_API_CLIENT.get("/sub/status");
-    console.log(response, "response")
+    console.log(response, "premium response")
     if (response.status === 200) {
       return response.data.isSubscribed;
     }
