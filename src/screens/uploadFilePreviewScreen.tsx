@@ -26,13 +26,13 @@ export default function UploadFilePreviewScreen({
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  useEffect(() => {
-    if (pickedFile.mimeType === "application/pdf") {
-      setSelectedType("project");
-    } else if (pickedFile.mimeType.startsWith("image/")) {
-      setSelectedType("question");
-    }
-  }, [pickedFile]);
+  // useEffect(() => {
+  //   if (pickedFile.mimeType === "application/pdf") {
+  //     setSelectedType("project");
+  //   } else if (pickedFile.mimeType.startsWith("image/")) {
+  //     setSelectedType("question");
+  //   }
+  // }, [pickedFile]);
 
   const handleFileUpload = async () => {
     if (!selectedType) {
@@ -83,7 +83,7 @@ export default function UploadFilePreviewScreen({
         }}
       />
 
-      {/* <View style={styles.pickerContainer}>
+       <View style={styles.pickerContainer}>
         <Picker
           enabled={!isUploading}
           selectedValue={selectedType}
@@ -93,7 +93,7 @@ export default function UploadFilePreviewScreen({
           <Picker.Item label="Project" value="project" />
           <Picker.Item label="Past Question" value="question" />
         </Picker>
-      </View> */}
+      </View> 
 
       <PrimaryButton
         text="Upload file"

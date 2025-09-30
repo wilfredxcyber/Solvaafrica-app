@@ -32,67 +32,68 @@ export default function UploadFilesScreen() {
   const CameraRef = useRef<CameraView>(null);
   const [capturing, setCapturing] = useState(false);
 
-  const handleOpenCamera = async () => {
-    if (!permission?.granted) {
-      Alert.alert(
-        "Permission required",
-        "We need your permission to show the camera",
-        [
-          {
-            text: "Grant access",
-            onPress: async () => await requestCameraPermission(),
-          },
-        ]
-      );
-    } else if (permission.status === "denied") {
-      Alert.alert(
-        "Permission required",
-        "We need your permission to show the camera"
-      );
-      await Linking.openSettings();
-      return;
-    }
-    setLaunchCameraView(true);
-  };
+  // const handleOpenCamera = async () => {
+  //   if (!permission?.granted) {
+  //     Alert.alert(
+  //       "Permission required",
+  //       "We need your permission to show the camera",
+  //       [
+  //         {
+  //           text: "Grant access",
+  //           onPress: async () => await requestCameraPermission(),
+  //         },
+  //       ]
+  //     );
+  //   } else if (permission.status === "denied") {
+  //     Alert.alert(
+  //       "Permission required",
+  //       "We need your permission to show the camera"
+  //     );
+  //     await Linking.openSettings();
+  //     return;
+  //   }
+  //   setLaunchCameraView(true);
+  // };
 
-  const handleCapture = async () => {
-    setCapturing(true);
-    if (!cameraReady) return;
-    try {
-      const capturedResult =
-        CameraRef?.current &&
-        (await CameraRef.current.takePictureAsync({ quality: 1 }));
-      if (!capturedResult || !capturedResult.uri) return;
+  // const handleCapture = async () => {
+  //   setCapturing(true);
+  //   if (!cameraReady) return;
+  //   try {
+  //     const capturedResult =
+  //       CameraRef?.current &&
+  //       (await CameraRef.current.takePictureAsync({ quality: 1 }));
+  //     if (!capturedResult || !capturedResult.uri) return;
 
-      const { uri } = capturedResult;
-      const capturedImageName = uri.split("/").pop();
-      if (capturedImageName) {
-        navigation.navigate("App", {
-          screen: "UploadPreview",
-          params: {
-            pickedFile: {
-              name: capturedImageName,
-              fileUri: uri,
-              imageUri: uri,
-              mimeType: "image/jpeg",
-            },
-          },
-        });
-      }
-    } catch (error) {
-      ToastAndroid.show(
-        "Error capturing image with device camera",
-        ToastAndroid.LONG
-      );
-    } finally {
-      setCapturing(false);
-    }
-  };
+  //     const { uri } = capturedResult;
+  //     const capturedImageName = uri.split("/").pop();
+  //     if (capturedImageName) {
+  //       navigation.navigate("App", {
+  //         screen: "UploadPreview",
+  //         params: {
+  //           pickedFile: {
+  //             name: capturedImageName,
+  //             fileUri: uri,
+  //             imageUri: uri,
+  //             mimeType: "image/jpeg",
+  //           },
+  //         },
+  //       });
+  //     }
+  //   } catch (error) {
+  //     ToastAndroid.show(
+  //       "Error capturing image with device camera",
+  //       ToastAndroid.LONG
+  //     );
+  //   } finally {
+  //     setCapturing(false);
+  //   }
+  // };
 
   const handleUseFilePicker = async () => {
     try {
       const pickedFile = await DocumentPicker.getDocumentAsync({
-        type: ["application/pdf", "image/jpeg"],
+        // type: ["application/pdf", "image/jpeg"],
+        type: ["application/pdf"],
         copyToCacheDirectory: true,
       });
       if (!pickedFile.canceled) {
@@ -127,76 +128,76 @@ export default function UploadFilesScreen() {
     }
   };
 
-  if (launchCameraView) {
-    return (
-      <CameraView
-        onCameraReady={() => setCameraReady(true)}
-        ref={CameraRef}
-        style={{ flex: 1, justifyContent: "flex-end" }}
-      >
-        <View
-          style={{ backgroundColor: "#F3EDF7", padding: hscale(20), gap: 12 }}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Text style={{ fontFamily: "Inter-Bold", fontSize: mscale(14) }}>
-              Ensure the enviroment is well lit
-            </Text>
-            <CheckIcon name="check-circle" size={24} color={"green"} />
-          </View>
+  // if (launchCameraView) {
+  //   return (
+  //     <CameraView
+  //       onCameraReady={() => setCameraReady(true)}
+  //       ref={CameraRef}
+  //       style={{ flex: 1, justifyContent: "flex-end" }}
+  //     >
+  //       <View
+  //         style={{ backgroundColor: "#F3EDF7", padding: hscale(20), gap: 12 }}
+  //       >
+  //         <View
+  //           style={{
+  //             flexDirection: "row",
+  //             alignItems: "center",
+  //             justifyContent: "space-between",
+  //           }}
+  //         >
+  //           <Text style={{ fontFamily: "Inter-Bold", fontSize: mscale(14) }}>
+  //             Ensure the enviroment is well lit
+  //           </Text>
+  //           <CheckIcon name="check-circle" size={24} color={"green"} />
+  //         </View>
 
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Text style={{ fontFamily: "Inter-Bold", fontSize: mscale(14) }}>
-              Keep the camera steady and focused
-            </Text>
-            <CheckIcon name="check-circle" size={24} color={"green"} />
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Text style={{ fontFamily: "Inter-Bold", fontSize: mscale(14) }}>
-              Resolution should be at the highest
-            </Text>
-            <CheckIcon name="check-circle" size={24} color={"green"} />
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Text style={{ fontFamily: "Inter-Bold", fontSize: mscale(14) }}>
-              Live capture should be in jpeg or png
-            </Text>
-            <CheckIcon name="check-circle" size={24} color={"green"} />
-          </View>
+  //         <View
+  //           style={{
+  //             flexDirection: "row",
+  //             alignItems: "center",
+  //             justifyContent: "space-between",
+  //           }}
+  //         >
+  //           <Text style={{ fontFamily: "Inter-Bold", fontSize: mscale(14) }}>
+  //             Keep the camera steady and focused
+  //           </Text>
+  //           <CheckIcon name="check-circle" size={24} color={"green"} />
+  //         </View>
+  //         <View
+  //           style={{
+  //             flexDirection: "row",
+  //             alignItems: "center",
+  //             justifyContent: "space-between",
+  //           }}
+  //         >
+  //           <Text style={{ fontFamily: "Inter-Bold", fontSize: mscale(14) }}>
+  //             Resolution should be at the highest
+  //           </Text>
+  //           <CheckIcon name="check-circle" size={24} color={"green"} />
+  //         </View>
+  //         <View
+  //           style={{
+  //             flexDirection: "row",
+  //             alignItems: "center",
+  //             justifyContent: "space-between",
+  //           }}
+  //         >
+  //           <Text style={{ fontFamily: "Inter-Bold", fontSize: mscale(14) }}>
+  //             Live capture should be in jpeg or png
+  //           </Text>
+  //           <CheckIcon name="check-circle" size={24} color={"green"} />
+  //         </View>
 
-          <PrimaryButton
-            text="Capture"
-            onPress={handleCapture}
-            isLoading={capturing}
-          />
-        </View>
-        <ToastManager />
-      </CameraView>
-    );
-  }
+  //         <PrimaryButton
+  //           text="Capture"
+  //           onPress={handleCapture}
+  //           isLoading={capturing}
+  //         />
+  //       </View>
+  //       <ToastManager />
+  //     </CameraView>
+  //   );
+  // }
 
   return (
     // <ProtectPage>
@@ -252,7 +253,8 @@ export default function UploadFilesScreen() {
               marginTop: hscale(12),
             }}
           >
-            Only documents in jpeg, png, pdf formats are allowed for upload.
+            {/* Only documents in jpeg, png, pdf formats are allowed for upload. */}
+            Only documents in pdf formats are allowed for upload.
           </Text>
 
           {/* bottom sheet */}
@@ -266,7 +268,7 @@ export default function UploadFilesScreen() {
                 borderTopRightRadius: mscale(20),
               }}
             >
-              <Pressable
+              {/* <Pressable
                 onPress={handleOpenCamera}
                 style={{
                   flexDirection: "row",
@@ -289,8 +291,8 @@ export default function UploadFilesScreen() {
                 >
                   Use Camera for past question
                 </Text>
-              </Pressable>
-              <Text
+              </Pressable> */}
+              {/* <Text
                 style={{
                   textAlign: "center",
                   fontFamily: "Inter-Bold",
@@ -300,7 +302,7 @@ export default function UploadFilesScreen() {
                 }}
               >
                 OR
-              </Text>
+              </Text> */}
               <Text
                 onPress={handleUseFilePicker}
                 style={{
@@ -311,7 +313,7 @@ export default function UploadFilesScreen() {
                   // marginTop: hscale(20),
                 }}
               >
-                Click to select a file from storage for project
+                Click to select a file from storage (pdf)
               </Text>
 
               <View
