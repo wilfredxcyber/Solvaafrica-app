@@ -303,18 +303,29 @@ export default function UploadFilesScreen() {
               >
                 OR
               </Text> */}
-              <Text
-                onPress={handleUseFilePicker}
+              <Pressable
                 style={{
-                  fontFamily: "Inter-Bold",
-                  color: colors.primary,
-                  fontSize: mscale(14),
-                  textAlign: "center",
-                  // marginTop: hscale(20),
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: colors.primary,
+                  alignSelf: "center",
+                  height: hscale(56),
+                  paddingHorizontal: wscale(20),
+                  borderRadius: mscale(8),
                 }}
+                onPress={handleUseFilePicker}
               >
-                Click to select a file from storage (pdf)
-              </Text>
+                <Text
+                  style={{
+                    fontFamily: "Inter-Bold",
+                    marginLeft: wscale(12),
+                    color: "#ffffff",
+                  }}
+                >
+                  Click to select a file from storage
+                </Text>
+              </Pressable>
 
               <View
                 style={{

@@ -36,9 +36,11 @@ const ForgotPasswordSuccess = () => {
   const handlePasswordChange = async () => {
     passwordRef.current?.blur();
 
-    if (!password || password.length < 6) {
-      ToastAndroid.show("Password must be at least 6 characters.", ToastAndroid.LONG);
-      // Toast.error("Password must be at least 6 characters.");
+    if (!password || password.length < 8) {
+      ToastAndroid.show(
+        "Password must be at least 8 characters.",
+        ToastAndroid.LONG
+      );
       return;
     }
 
@@ -64,16 +66,17 @@ const ForgotPasswordSuccess = () => {
         console.log(res, "password change");
 
         Toast.success("Password reset successful");
-        setTimeout(() => {
-          navigation.navigate("App", { screen: "Login" });
-        }, 2000);
+
+        navigation.navigate("App", { screen: "Login" });
       }
     } catch (error: any) {
       setLoading(false);
+      console.log(error, "reset assword");
 
       const message = "Something went wrong!";
-      setErrorMessage(message);
-      setErrorVisible(true);
+      ToastAndroid.show(message, ToastAndroid.LONG);
+      // setErrorMessage(message);
+      // setErrorVisible(true);
     } finally {
       console.log("Operation complete");
       setLoading(false);
