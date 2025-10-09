@@ -1,10 +1,10 @@
 import { StaticScreenProps, useNavigation } from "@react-navigation/native";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
 import DownloadIcon from "@expo/vector-icons/Feather";
 import { FlashList } from "@shopify/flash-list";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Image } from "expo-image";
-
+import PDFIcon from "@expo/vector-icons/FontAwesome6";
 import { hscale, mscale, wscale } from "../helpers/metric";
 import { getImageSource } from "../helpers/getImageSource";
 import EmptyStateView from "../components/emptyStateView";
@@ -13,6 +13,10 @@ import { AUTH_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import ErrorModal from "../components/errorModal";
+import LottieView from "lottie-react-native";
+import CheckCircleIcon from "@expo/vector-icons/FontAwesome";
+import { useDownloadFile } from "../hooks/useDownloadFile";
+
 
 interface ISearchListParams {
   university: string;
@@ -30,7 +34,6 @@ export default function CoursesList({ route }: ScreenProps) {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    // fetch courses based on params
     const { university, department, faculty } = params.searchListParams;
 
     const fetchCourses = async () => {
@@ -41,6 +44,7 @@ export default function CoursesList({ route }: ScreenProps) {
         });
         const { data: courses } = res.data;
         setCoursesList(courses);
+        console.log(res.data.data, "course")
       } catch (error) {
         console.log("error fetching courses", error);
         let message = "Something went wrong!";
@@ -102,81 +106,109 @@ const CoursesListItem = ({
   university,
   previewUrl,
   courseId,
-}: CourseListItemProps) => {
-  const navigation = useNavigation();
+}: {
+  courseTitle: string;
+  courseCode: string;
+  university: string;
+  previewUrl: string;
+  courseId: string;
+}) => {
+  const [startDownload, setStartDownload] = useState(false);
+  const [fileExist, setFileExist] = useState(false);
+  const DownloadIconRef = useRef<LottieView>(null);
 
-  const handleCourseListItemPressed = () => {
-    navigation.navigate("App", {
-      screen: "CourseMaterials",
-      params: { courseId, headerTitle: `${courseTitle} Materials`, courseCode },
-    });
+  const downloadFile = useDownloadFile(startDownload, "CRS");
+
+  useEffect(() => {
+    const initiateDownload = async () => {
+      try {
+        if (!previewUrl || !courseTitle) return;
+        const { isExistingFile } = await downloadFile(
+          "Courses",
+          previewUrl,
+          `${courseCode}-${courseTitle}.pdf`
+        );
+
+        if (isExistingFile) setFileExist(true);
+      } catch (error) {
+        Alert.alert("Download Failed", "Please try again later.");
+      }
+    };
+
+    initiateDownload();
+  }, [startDownload]);
+
+  const handleInitiateDownload = () => {
+    DownloadIconRef.current?.play();
+    setStartDownload(true);
   };
+
   return (
-    <Pressable
-      onPress={handleCourseListItemPressed}
+    <View
       style={{
         flexDirection: "row",
-        paddingVertical: hscale(12),
+        alignItems: "center",
         backgroundColor: colors.greyView,
-        paddingHorizontal: wscale(12),
-        borderRadius: mscale(12),
-        marginBottom: hscale(20),
+        height: hscale(70),
+        paddingVertical: hscale(6),
+        borderRadius: mscale(10),
+        justifyContent: "space-between",
+        marginVertical: hscale(8),
+        paddingHorizontal: wscale(10),
       }}
     >
-      {/* left icon */}
-      <Image
-        source={getImageSource(previewUrl)}
-        style={styles.coursesListImage}
-        contentFit="cover"
-        transition={1000}
-      />
-
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          flex: 1,
-          marginLeft: wscale(8),
-          alignItems: "center",
-        }}
-      >
-        <View>
-          {/* course title */}
+      {/* Left side — image and text */}
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <PDFIcon name="file-pdf" size={36} color={colors.primary} />
+        <View style={{ marginLeft: wscale(10) }}>
           <Text
             style={{
               fontFamily: "Inter-Regular",
+              fontSize: mscale(15),
               color: colors.bodyText,
-              fontSize: mscale(16),
             }}
           >
             {courseTitle}
           </Text>
-          {/* course code */}
           <Text
             style={{
               fontFamily: "Inter-Bold",
-              color: colors.bodyText,
-              fontSize: mscale(16),
+              fontSize: mscale(14),
+              color: colors.primary,
             }}
           >
             {courseCode}
           </Text>
-          {/* university */}
           <Text
             style={{
-              fontFamily: "Inter-Bold",
-              color: colors.primary,
-              fontSize: mscale(14),
+              fontFamily: "Inter-Regular",
+              fontSize: mscale(13),
+              color: colors.bodyText,
             }}
           >
             {university}
           </Text>
         </View>
-
-        {/* far right icon */}
-        <DownloadIcon name="download-cloud" size={24} color={colors.primary} />
       </View>
-    </Pressable>
+
+      {/* Right side — download/check */}
+      {!fileExist ? (
+        <Pressable onPress={handleInitiateDownload}>
+          <LottieView
+            ref={DownloadIconRef}
+            style={{ width: wscale(50), height: hscale(50) }}
+            source={require("../../assets/animations/download.json")}
+          />
+        </Pressable>
+      ) : (
+        <CheckCircleIcon
+          name="check-circle"
+          size={26}
+          color={colors.primary}
+          style={{ marginRight: wscale(10) }}
+        />
+      )}
+    </View>
   );
 };
 

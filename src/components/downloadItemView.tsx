@@ -19,12 +19,12 @@ export const DownloadItemView = ({
     <Pressable style={styles.downloadItemView} onPress={onItemPress}>
       {/* left side */}
       <View style={styles.downloadItemViewLeftSide}>
-        {parentDirectory === "Courses" && (
+        {/* {parentDirectory === "Courses" && (
           <Image source={source} style={{ width: wscale(40), height: hscale(40) }} />
-        )}
-        {parentDirectory === "Projects" && (
+        )} */}
+        {/* {parentDirectory === "Projects" && ( */}
           <PDFIcon name="file-pdf" size={36} color={colors.primary} />
-        )}
+        {/* )} */}
         <Text numberOfLines={1} style={styles.text}>
           {fileCode ? fileCode + " " + fileName : fileName}
         </Text>
