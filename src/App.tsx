@@ -7,6 +7,7 @@ import { onlineManager } from "@tanstack/react-query";
 import * as SplashScreen from "expo-splash-screen";
 import { useKeepAwake } from "expo-keep-awake";
 import { useEffect } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { RootStackNavigation } from "./navigations/RootStackNavigation";
 import { bootstrapApp } from "./helpers/bootstrapApp";
@@ -43,11 +44,13 @@ export default function App() {
   }, [isLoading]);
   
   return (
-    <GestureHandlerRootView>
-      <QueryClientProvider client={queryClient}>
-        <ToastManager />
-        <RootStackNavigation />
-      </QueryClientProvider>
+     <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <QueryClientProvider client={queryClient}>
+          <ToastManager />
+          <RootStackNavigation />
+        </QueryClientProvider>
+      </SafeAreaView>
     </GestureHandlerRootView>
   );
 }
