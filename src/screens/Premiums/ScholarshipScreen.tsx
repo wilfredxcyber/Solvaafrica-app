@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Linking,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { globalStyles } from "@/src/styles/global";
@@ -59,54 +60,62 @@ export default function Scholarship() {
   return (
     // <ProtectPage>
     <View style={globalStyles.screen}>
-      <View>
-        {loading ? (
-          <View
-            style={{
-              height: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <LottieView
-              autoPlay
+      <ScrollView
+        contentContainerStyle={{
+          paddingBottom: hscale(20),
+          flexGrow: 1,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View>
+          {loading ? (
+            <View
               style={{
-                width: wscale(50),
-                height: hscale(50),
-                alignSelf: "center",
+                minHeight: "100%",
+                justifyContent: "center",
+                alignItems: "center",
               }}
-              source={require("../../../assets/animations/spin.json")}
-            />
-            <Text>Loading, Please wait!</Text>
-          </View>
-        ) : data.length === 0 ? (
-          <EmptyStateView />
-        ) : (
-          data.map((item) => (
-            <View style={styles.card} key={item.id}>
-              <Text style={styles.title}>{item.name}</Text>
-              <Text style={styles.description}>
-                {capitalizeFirstLetter(item.description)}
-              </Text>
-              <Text
-                style={styles.link}
-                onPress={() => handleOpenLink(item.link)}
-              >
-                Click link to open:{" "}
-                <Text
-                  style={{
-                    color: "blue",
-                    textDecorationLine: "underline",
-                  }}
-                >
-                  {" "}
-                  {item.link}
-                </Text>
-              </Text>
+            >
+              <LottieView
+                autoPlay
+                style={{
+                  width: wscale(50),
+                  height: hscale(50),
+                  alignSelf: "center",
+                }}
+                source={require("../../../assets/animations/spin.json")}
+              />
+              <Text>Loading, Please wait!</Text>
             </View>
-          ))
-        )}
-      </View>
+          ) : data.length === 0 ? (
+            <EmptyStateView />
+          ) : (
+            data.map((item) => (
+              <View style={styles.card} key={item.id}>
+                <Text style={styles.title}>{item.name}</Text>
+                <Text style={styles.description}>
+                  {capitalizeFirstLetter(item.description)}
+                </Text>
+                <Text
+                  style={styles.link}
+                  onPress={() => handleOpenLink(item.link)}
+                >
+                  Click link to open:{" "}
+                  <Text
+                    style={{
+                      color: "blue",
+                      textDecorationLine: "underline",
+                    }}
+                  >
+                    {" "}
+                    {item.link}
+                  </Text>
+                </Text>
+              </View>
+            ))
+          )}
+        </View>
+      </ScrollView>
 
       <ErrorModal
         visible={errorVisible}

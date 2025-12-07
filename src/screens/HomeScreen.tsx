@@ -114,7 +114,7 @@ export default function HomeScreen() {
     queryFn: getSliderImages,
   });
 
-  const { data: unreadCount, refetch } = useQuery({
+  const { data: unreadCount = 0 } = useQuery<number>({
     queryKey: ["unreadNotificationCount"],
     queryFn: fetchUnreadCount,
     staleTime: 0,

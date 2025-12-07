@@ -12,6 +12,7 @@ import {
   ToastAndroid,
 } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useQueryClient } from "@tanstack/react-query";
 import { AUTH_API_CLIENT } from "@/src/api/apiClient";
 import { mscale, hscale, wscale } from "@/src/helpers/metric";
 import { colors } from "@/src/constants/theme";
@@ -158,12 +159,17 @@ export default function NotificationsScreen() {
   const [selectedNotification, setSelectedNotification] =
     useState<NotificationItemType | null>(null);
   const [markingRead, setMarkingRead] = useState(false);
+  const queryClient = useQueryClient();
 
   const fetchNotifications = async () => {
     try {
       const response = await AUTH_API_CLIENT.get("/notification/all");
       if (response.status === 200) {
-        setNotifications(response.data.data);
+        const fetched = response.data.data;
+        setNotifications(fetched);
+        // Keep home badge in sync with the latest unread count
+        const unread = fetched.filter((n: NotificationItemType) => !n.isRead).length;
+        queryClient.setQueryData(["unreadNotificationCount"], unread);
       } else {
         // Toast.error("Failed to fetch notifications");
         ToastAndroid.show("Failed to fetch notifications", ToastAndroid.LONG);
