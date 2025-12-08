@@ -11,9 +11,9 @@ import {
   ToastAndroid,
 } from "react-native";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Carousel from "pinar";
 
 import { colors, screenHorizontalPadding } from "../constants/theme";
@@ -114,11 +114,20 @@ export default function HomeScreen() {
     queryFn: getSliderImages,
   });
 
-  const { data: unreadCount = 0 } = useQuery<number>({
+  // HomeScreen.tsx
+  const { data: unreadCount = 0, refetch } = useQuery({
     queryKey: ["unreadNotificationCount"],
     queryFn: fetchUnreadCount,
     staleTime: 0,
+    refetchOnReconnect: true,
+    refetchOnMount: true,
   });
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
 
   return (
     <View style={globalStyles.screen}>

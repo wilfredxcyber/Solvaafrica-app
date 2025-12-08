@@ -168,7 +168,9 @@ export default function NotificationsScreen() {
         const fetched = response.data.data;
         setNotifications(fetched);
         // Keep home badge in sync with the latest unread count
-        const unread = fetched.filter((n: NotificationItemType) => !n.isRead).length;
+        const unread = fetched.filter(
+          (n: NotificationItemType) => !n.isRead
+        ).length;
         queryClient.setQueryData(["unreadNotificationCount"], unread);
       } else {
         // Toast.error("Failed to fetch notifications");
@@ -188,7 +190,9 @@ export default function NotificationsScreen() {
     setMarkingRead(true);
     try {
       await AUTH_API_CLIENT.patch(endpoint);
-      // Toast.error("Notification marked as read");
+      await queryClient.invalidateQueries({
+        queryKey: ["unreadNotificationCount"],
+      });
       fetchNotifications();
     } catch (error) {
       Toast.error("Failed to mark notification as read");
@@ -202,15 +206,31 @@ export default function NotificationsScreen() {
     setMarkingRead(true);
     try {
       await AUTH_API_CLIENT.patch(endpoint);
-      // Toast.error("All notifications marked as read");
+      await queryClient.invalidateQueries({
+        queryKey: ["unreadNotificationCount"],
+      });
       fetchNotifications();
     } catch (error) {
       ToastAndroid.show("Failed to mark all as read", ToastAndroid.LONG);
-      // Toast.error("Failed to mark all as read");
     } finally {
       setMarkingRead(false);
     }
   };
+
+  // const markAllAsRead = async () => {
+  //   const endpoint = `/notification/read/all`;
+  //   setMarkingRead(true);
+  //   try {
+  //     await AUTH_API_CLIENT.patch(endpoint);
+  //     // Toast.error("All notifications marked as read");
+  //     fetchNotifications();
+  //   } catch (error) {
+  //     ToastAndroid.show("Failed to mark all as read", ToastAndroid.LONG);
+  //     // Toast.error("Failed to mark all as read");
+  //   } finally {
+  //     setMarkingRead(false);
+  //   }
+  // };
 
   useFocusEffect(
     useCallback(() => {
