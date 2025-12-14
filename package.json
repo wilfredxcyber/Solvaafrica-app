@@ -17,10 +17,10 @@
   },
   "dependencies": {
     "@config-plugins/react-native-blob-util": "^9.0.0",
-    "@config-plugins/react-native-pdf": "9.0.0",
     "@dev-plugins/react-query": "^0.1.0",
     "@expo/vector-icons": "^14.0.2",
     "@likashefqet/react-native-image-zoom": "^4.3.0",
+    "@lottiefiles/dotlottie-react": "^0.6.5",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native-community/netinfo": "11.4.1",
     "@react-navigation/bottom-tabs": "^7.2.0",

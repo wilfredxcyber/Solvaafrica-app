@@ -43,7 +43,7 @@ export default function App() {
     })();
   }, [isLoading]);
   return (
-    <GestureHandlerRootView>
+    <GestureHandlerRootView style={{flex:1}}>
       <QueryClientProvider client={queryClient}>
         <ToastManager />
         <RootStackNavigation />
