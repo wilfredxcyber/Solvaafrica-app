@@ -9,6 +9,7 @@ import {
   View,
   Linking,
   Alert,
+  Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LogoutIcon from "@expo/vector-icons/MaterialIcons";
@@ -221,6 +222,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: hscale(20),
     borderRadius: mscale(15 / 2),
+    ...Platform.select({
+      web:{
+        maxWidth: 200,
+        alignSelf: 'center',
+      }
+    })
   },
   activeScreenTextLink: { fontFamily: "Inter-Regular", fontSize: mscale(16) },
   customDrawerItem: {

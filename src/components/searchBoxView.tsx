@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput, View } from "react-native";
+import { Platform, StyleSheet, TextInput, View } from "react-native";
 import SearchIcon from "@expo/vector-icons/Feather";
 
 import { hscale, mscale, wscale } from "../helpers/metric";
@@ -31,5 +31,6 @@ const styles = StyleSheet.create({
     borderRadius: mscale(30),
     alignItems: "center",
     marginTop: hscale(40),
+    ...Platform.select({ web: { maxWidth: 300, alignSelf: 'center' }, }),
   },
 });

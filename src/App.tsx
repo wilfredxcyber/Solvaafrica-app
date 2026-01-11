@@ -7,6 +7,10 @@ import { onlineManager } from "@tanstack/react-query";
 import * as SplashScreen from "expo-splash-screen";
 import { useKeepAwake } from "expo-keep-awake";
 import { useEffect } from "react";
+import {useFonts}from "expo-font";
+import { Platform } from "react-native";
+import {Text} from "react-native";
+
 
 import { RootStackNavigation } from "./navigations/RootStackNavigation";
 import { bootstrapApp } from "./helpers/bootstrapApp";
@@ -23,13 +27,20 @@ export default function App() {
   const queryClient = new QueryClient();
   useReactQueryDevTools(queryClient);
 
-  RNScreenshotPrevent.enabled(true);
+  if (Platform.OS !== 'web') {
+    RNScreenshotPrevent.enabled(true);
+  }
 
   onlineManager.setEventListener((setOnline) => {
     return NetInfo.addEventListener((state) => {
       setOnline(!!state.isConnected);
     });
   });
+
+  const [fontsLoaded] = useFonts({
+    'Inter-Bold': require('../assets/fonts/Inter-Bold.otf'),
+  });
+   if (!fontsLoaded) return null;
 
   process.env.NODE_ENV === "development" && useKeepAwake();
   useEffect(() => {
@@ -50,4 +61,4 @@ export default function App() {
       </QueryClientProvider>
     </GestureHandlerRootView>
   );
-}
+  }

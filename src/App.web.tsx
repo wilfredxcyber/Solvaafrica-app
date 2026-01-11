@@ -5,6 +5,7 @@ import ToastManager from "toastify-react-native";
 import * as SplashScreen from "expo-splash-screen";
 
 import { RootStackNavigation } from "./navigations/RootStackNavigation";
+import WebAppContainer from "./components/webAppContainer";
 
 export default function App() {
   const queryClient = new QueryClient();
@@ -16,8 +17,12 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ToastManager />
-      <RootStackNavigation />
+      <WebAppContainer>
+        <ToastManager />
+        <RootStackNavigation />
+      </WebAppContainer>
     </QueryClientProvider>
   );
 }
+
+

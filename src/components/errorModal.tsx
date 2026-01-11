@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, View, Text, StyleSheet, Pressable, Image } from "react-native";
+import { Modal, View, Text, StyleSheet, Pressable, Image, Platform } from "react-native";
 import { colors } from "../constants/theme";
 import { hscale, mscale, wscale } from "../helpers/metric";
 
@@ -56,6 +56,12 @@ const styles = StyleSheet.create({
     borderRadius: mscale(12),
     padding: hscale(20),
     alignItems: "center",
+    ...Platform.select({
+      web:{
+        maxWidth: 400,
+        width: '90%',
+      }
+    })
   },
   title: {
     fontFamily: "Inter-Bold",

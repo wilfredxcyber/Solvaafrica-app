@@ -1,4 +1,4 @@
-import { View, StyleSheet, ActivityIndicator, Text } from "react-native";
+import { View, StyleSheet, ActivityIndicator, Text, Platform } from "react-native";
 
 import { colors } from "../constants/theme";
 import { mscale } from "../helpers/metric";
@@ -28,5 +28,12 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     zIndex: 9900,
+    ...Platform.select({
+      web:{
+        maxWidth: 800,
+        left: '50%',
+        transform: [{ translateX: '-50%'}],
+      }
+    })
   },
 });

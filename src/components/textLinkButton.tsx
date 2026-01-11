@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextStyle } from "react-native";
+import { Platform, StyleSheet, Text, TextStyle } from "react-native";
 import { useState } from "react";
 
 import { hscale, mscale } from "../helpers/metric";
@@ -11,5 +11,9 @@ export default function TextLinkButton({ text, onPress, customStyle }: { text: s
 }
 
 const styles = StyleSheet.create({
-    textBtn: { fontFamily: 'Inter-Medium', fontSize: mscale(16), color: colors.black, textAlign: 'center', paddingVertical: hscale(20), }
+    textBtn: { fontFamily: 'Inter-Medium', fontSize: mscale(16), color: colors.black, textAlign: 'center', paddingVertical: hscale(20), 
+    ...Platform.select({ web:{
+        alignSelf: 'center',
+        paddingHorizontal:40,
+    }}) }
 })

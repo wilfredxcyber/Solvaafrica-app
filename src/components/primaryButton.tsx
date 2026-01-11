@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { hscale, mscale } from "../helpers/metric";
 import { colors } from "../constants/theme";
+import { Platform } from "expo-modules-core";
 
 type TprimaryButtonProps = { text: string; onPress: () => void; isLoading?: boolean };
 
@@ -28,12 +29,14 @@ export default function PrimaryButton({ text, onPress, isLoading = false }: Tpri
 
 const styles = StyleSheet.create({
   buttonView: {
-    backgroundColor: colors.primary,
-    width: "100%",
-    borderRadius: mscale(100),
-    minHeight: hscale(60),
-    justifyContent: "center",
-    alignItems: "center",
+  backgroundColor: colors.primary,
+  width: "100%",
+  borderRadius: mscale(100),
+  minHeight: hscale(60),
+  justifyContent: "center",
+  alignItems: "center", 
+  ...Platform.select({web: {maxWidth: 300
+  , alignSelf: 'center'}, default: {}}),
   },
   buttonText: {
     textAlign: "center",
