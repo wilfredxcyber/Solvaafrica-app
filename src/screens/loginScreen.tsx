@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, Alert, Image } from "react-native";
+import { View, Text, StyleSheet, TextInput, Alert, Image, Platform, ScrollView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "@expo/vector-icons/Feather";
 import { useRef, useState } from "react";
@@ -16,6 +16,7 @@ import { colors } from "../constants/theme";
 import Logo from "../components/logo";
 import { useNavigation } from "@react-navigation/native";
 import ErrorModal from "../components/errorModal";
+import WebAppContainer from "../components/webAppContainer";
 
 export default function LoginScreen() {
   const [form, setForm] = useState<ILoginForm>({ email: "", password: "" });
@@ -97,9 +98,9 @@ export default function LoginScreen() {
 
   const navigation = useNavigation();
 
-  return (
-    <View style={globalStyles.screen}>
-      <View style={{ marginHorizontal: "auto" }}>
+  const content = (
+    <View style={[globalStyles.screen, styles.container]}>
+      <View style={styles.logoContainer}>
         <Logo />
       </View>
 
@@ -108,28 +109,18 @@ export default function LoginScreen() {
         <View>
           <Image
             source={require("../../assets/images/hello.png")}
-            style={{
-              width: wscale(200),
-              height: hscale(200),
-              marginHorizontal: "auto",
-            }}
+            style={styles.helloImage}
           />
         </View>
         <ScreenHeadingText
           text="Welcome Back"
-          customStyle={{ textAlign: "center", marginVertical: "auto" }}
+          customStyle={{ textAlign: "center" }}
         />
-        <Text
-          style={{
-            color: colors.bodyText,
-            textAlign: "center",
-            fontFamily: "Inter-Regular",
-          }}
-        >
-          It’s good to have you back. Always a good time to learn and earn
+        <Text style={styles.subtitle}>
+          It's good to have you back. Always a good time to learn and earn
         </Text>
 
-        <View style={{ marginTop: hscale(40), gap: hscale(8) }}>
+        <View style={{ marginTop: hscale(20), gap: hscale(8) }}>
           <View style={styles.inputView}>
             <Icon name="mail" size={20} color={colors.primary} />
             <TextInput
@@ -142,9 +133,6 @@ export default function LoginScreen() {
               style={styles.input}
               value={form.email}
               onChangeText={(email) => setForm((prev) => ({ ...prev, email }))}
-              // onEndEditing={(e) =>
-              //   setForm((prev) => ({ ...prev, email: e.nativeEvent.text }))
-              // }
             />
           </View>
 
@@ -174,7 +162,7 @@ export default function LoginScreen() {
           </View>
         </View>
 
-        <View style={{ marginTop: hscale(40) }}>
+        <View style={{ marginTop: hscale(20) }}>
           <PrimaryButton text="Login" onPress={handleFormSubmit} />
           <TextLinkButton
             text="Forgot password"
@@ -192,9 +180,28 @@ export default function LoginScreen() {
       />
     </View>
   );
+
+  // Wrap in WebAppContainer only on web
+  return Platform.OS === 'web' ? (
+    <WebAppContainer>{content}</WebAppContainer>
+  ) : content;
 }
 
 const styles = StyleSheet.create({
+  container: {
+    justifyContent: 'space-between',
+    ...Platform.select({
+      web: {
+        height: '100vh' as any,
+        maxHeight: '100vh' as any,
+      }
+    })
+  },
+  logoContainer: {
+    marginHorizontal: "auto",
+    marginTop: hscale(10),
+    flexShrink: 0,
+  },
   inputView: {
     flexDirection: "row",
     alignItems: "center",
@@ -211,5 +218,22 @@ const styles = StyleSheet.create({
     fontSize: mscale(14),
     paddingLeft: wscale(8),
   },
-  formView: { marginVertical: "auto" },
+  formView: { 
+    flex: 1,
+    justifyContent: 'center',
+    minHeight: 0,
+  },
+  helloImage: {
+    width: wscale(150),
+    height: hscale(150),
+    marginHorizontal: "auto",
+    marginBottom: hscale(10),
+  },
+  subtitle: {
+    color: colors.bodyText,
+    textAlign: "center",
+    fontFamily: "Inter-Regular",
+    marginTop: hscale(5),
+    marginBottom: hscale(10),
+  },
 });

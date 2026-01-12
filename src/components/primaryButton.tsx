@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   minHeight: hscale(60),
   justifyContent: "center",
   alignItems: "center", 
-  ...Platform.select({web: {maxWidth: 300
+  ...Platform.select({web: {maxWidth: 400
   , alignSelf: 'center'}, default: {}}),
   },
   buttonText: {

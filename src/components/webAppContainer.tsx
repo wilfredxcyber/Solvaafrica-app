@@ -7,7 +7,7 @@ type Props = {
 
 export default function WebAppContainer({ children }: Props) {
   if (Platform.OS !== "web") {
-    // On mobile, do NOTHING special
+    // On mobile
     return <>{children}</>;
   }
 
@@ -24,14 +24,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       web: {
         // Use number for web height (100vh equivalent)
-        height: '100vh' as any, // Type assertion for web
+        height: '100vh' as any, 
         minHeight: '100vh' as any,
-        // Center content horizontally
         alignItems: 'center',
-        // Background for the "page"
         backgroundColor: '#f5f5f5',
-        // Some padding around the app
-        padding: 20,
       },
       default: {
         // Mobile styles (empty or default)
@@ -40,7 +36,7 @@ const styles = StyleSheet.create({
     }),
   },
   contentWrapper: {
-    flex: 1,
+    flex:1,
     // Platform-specific styles for web
     ...Platform.select({
       web: {
