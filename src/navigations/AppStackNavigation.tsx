@@ -1,4 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import HomeScreen from "../screens/HomeScreen";
 
 import {
   AskScreen,
@@ -33,7 +34,8 @@ import { useUserSignedIn, useUserSignedOut } from "../hooks/userAuth";
 import TabsNavigator from "./BottomTabNavigation";
 import { colors } from "../constants/theme";
 
-const AppStackNavigator = createNativeStackNavigator({
+const AppStackNavigator = createNativeStackNavigator(
+  {
   groups: {
     SignedInUser: {
       if: useUserSignedIn,
@@ -178,6 +180,23 @@ const AppStackNavigator = createNativeStackNavigator({
     statusBarBackgroundColor: "#ffffff",
     headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
   },
-});
+}
+);
+
+const AppStack = () => {
+  return (
+    <AppStackNavigator.Navigator>
+      <AppStackNavigator.Screen name="Onboarding" component={OnboardScreen} />
+      <AppStackNavigator.Screen name="Login" component={LoginScreen} />
+      <AppStackNavigator.Screen name="CreateAccount" component={CreateAccountScreen} />
+      <AppStackNavigator.Screen name="Courses" component={CoursesScreen} />
+      <AppStackNavigator.Screen name="Ask" component={AskScreen}/>
+      
+      {/* Add other necessary screens like Dashboard, Profile, etc. */}
+    </AppStackNavigator.Navigator>
+  );
+};
+
 
 export { AppStackNavigator };
+ 

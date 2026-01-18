@@ -44,8 +44,15 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
+      "favicon": "./assets/images/favicon.png",
+      "name": "Solva",
+      "viewport": {
+        "width": "device-width",
+        "initialScale": 1,
+        "maximumScale": 1,
+        "userScalable": false
+  }
+  },
     "plugins": [
       "expo-router",
       [
@@ -81,8 +88,7 @@
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
         }
       ],
-      "@config-plugins/react-native-blob-util",
-      "@config-plugins/react-native-pdf"
+      "@config-plugins/react-native-blob-util"
     ],
     "experiments": {
       "typedRoutes": true

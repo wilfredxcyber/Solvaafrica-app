@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { hscale, mscale, wscale } from "../helpers/metric";
 import { useAuthStore } from "../stores/authStore";
 import { colors } from "../constants/theme";
+import { Platform } from "expo-modules-core";
 
 export default function AvatarView() {
   const user = useAuthStore((state) => state.user);
@@ -29,6 +30,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderRadius: mscale(30),
     justifyContent: "center",
+    ...Platform.select({
+      web: {
+        maxWidth: '100%',
+        maxHeight: 'auto',
+      }
+    })
   },
   avatarViewText: {
     fontFamily: "Inter-Bold",

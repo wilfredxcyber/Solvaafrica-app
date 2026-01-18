@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { hscale, mscale, wscale } from "../helpers/metric";
 import { colors } from "../constants/theme";
+import { Platform } from "expo-modules-core";
 
 const OtpInput = ({ onSubmit }: { onSubmit: (otp: string) => void }) => {
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -81,6 +82,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: mscale(10),
     marginVertical: mscale(20),
+    ...Platform.select({web:{justifyContent: 'center'},}),
   },
   input: {
     width: wscale(60),
@@ -90,6 +92,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: mscale(24),
     borderColor: colors.primary,
+    // ...Platform.select({ web: {width: 60, height: 60,}})
   },
   submitButton: {
     marginTop: 24,

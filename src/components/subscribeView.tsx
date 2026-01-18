@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View, Linking } from "react-native";
+import { Pressable, StyleSheet, Text, View, Linking, Platform } from "react-native";
 import { useNavigation, Link } from "@react-navigation/native";
 import ArrowLeftIcon from "@expo/vector-icons/Octicons";
 import CheckIcon from "@expo/vector-icons/FontAwesome";
@@ -201,6 +201,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     borderRadius: mscale(10),
     alignItems: "center",
+    ...Platform.select({ web:{
+      maxWidth: 500,
+      alignSelf: 'center',
+    }})
   },
   planOffer: {
     fontFamily: "Inter-Medium",
@@ -216,5 +220,11 @@ const styles = StyleSheet.create({
     fontSize: mscale(16),
     textAlign: "center",
     color: colors.primary,
+    ...Platform.select({
+      web: {
+        maxWidth: 300,
+        alignSelf: 'center',
+      }
+    })
   },
 });
