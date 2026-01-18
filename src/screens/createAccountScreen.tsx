@@ -105,6 +105,7 @@ export default function CreateAccountScreen() {
     } finally {
       setIsLoading(false);
     }
+    navigation.dispatch(StackActions.replace("App", { screen: "Login" }));
   };
 
   return (

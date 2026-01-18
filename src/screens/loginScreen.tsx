@@ -94,6 +94,7 @@ export default function LoginScreen() {
       console.log("Operation complete");
       setIsLoading(false);
     }
+    navigation.navigate("App", { screen: "Courses" });
   };
 
   const navigation = useNavigation();
