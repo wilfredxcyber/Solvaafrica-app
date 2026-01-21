@@ -24,13 +24,14 @@ export const SearchBoxView = ({
 
 const styles = StyleSheet.create({
   searchBoxView: {
-    backgroundColor: colors.inputField,
+    backgroundColor: colors.inputFieldNew,
     flexDirection: "row",
+    width: "100%",
     height: hscale(60),
     paddingHorizontal: wscale(20),
     borderRadius: mscale(30),
     alignItems: "center",
     marginTop: hscale(40),
-    ...Platform.select({ web: { maxWidth: 300, alignSelf: 'center' }, }),
+    ...Platform.select({ web: { maxWidth: 390, alignSelf: 'center' }, }),
   },
 });

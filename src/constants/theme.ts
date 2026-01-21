@@ -5,9 +5,11 @@ const screenHorizontalPadding = wscale(20);
 
 const colors = {
     primary: '#6207A0',
+    white: '#FFFFFF',
     black: '#1A171C',
     bodyText: '#342E38',
     inputField: '#F6E1EF',
+    inputFieldNew: '#F5F3FF',
     textLink: '#0882DE',
     placeholderInput: '#82738C',
     tabBarInactiveTintColor: '#9B8FA3',

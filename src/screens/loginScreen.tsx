@@ -183,7 +183,7 @@ export default function LoginScreen() {
         onClose={() => setErrorVisible(false)}
       />
     </View>
-      </ScrollView>
+    </ScrollView>
   )
 
   

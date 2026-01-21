@@ -150,7 +150,7 @@ const ProjectItemView = ({
         flex: 1,
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: colors.inputField,
+        backgroundColor: colors.inputFieldNew,
         height: hscale(60),
         paddingVertical: hscale(8),
         borderRadius: mscale(8),

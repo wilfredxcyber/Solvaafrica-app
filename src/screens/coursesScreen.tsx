@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.inputField,
+    backgroundColor: colors.inputFieldNew,
     paddingHorizontal: wscale(20),
     borderRadius: mscale(50),
     position: "relative",

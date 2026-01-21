@@ -28,18 +28,16 @@ const styles = StyleSheet.create({
     minHeight: windowHeight, // Ensure the container takes up at least the viewport height
     alignItems: "center",
     backgroundColor: "#f5f5f5",
+    justifyContent: "flex-start",
     
   },
   contentWrapper: {
-   
     width: "100%",
     maxWidth: 430, // Adjust the maximum width of the content
     backgroundColor: "#ffffff",
     borderRadius: 12,
     boxShadow: "0 2px 10px rgba(0,0,0,0.1)", // Web-specific styles
     overflow: "hidden",
-    flexGrow: 1,
-    minHeight: windowHeight - 32
-    , // Adjust for padding
+    minHeight: "100%", // Adjust for padding
   },
 });

@@ -51,8 +51,13 @@ const TabsNavigator = createBottomTabNavigator({
             }
 
             return <TabIcon name={iconName} color={color} size={20} />
+
         }
     }),
+
+    
 });
+
+
 
 export default TabsNavigator

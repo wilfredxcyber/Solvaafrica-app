@@ -11,6 +11,7 @@ import {useFonts}from "expo-font";
 import { Platform } from "react-native";
 import {Text} from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
+import TabsNavigator from "./navigations/BottomTabNavigation";
 
 import { RootStackNavigation } from "./navigations/RootStackNavigation";
 import { bootstrapApp } from "./helpers/bootstrapApp";
@@ -57,11 +58,13 @@ export default function App() {
    
   
   return (
+    
     <GestureHandlerRootView style={{flex:1}}>
       <QueryClientProvider client={queryClient}>
         <ToastManager /> 
           <RootStackNavigation />    
       </QueryClientProvider>
     </GestureHandlerRootView>
+   
   );
   }
