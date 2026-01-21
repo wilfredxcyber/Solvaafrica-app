@@ -8,6 +8,8 @@ import {
   Linking,
   Alert,
   TouchableOpacity,
+  ScrollView,
+  Platform,
 } from "react-native";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
@@ -130,6 +132,9 @@ export default function HomeScreen() {
   });
 
   return (
+    <ScrollView style={styles.scrollView}
+    showsVerticalScrollIndicator={false}
+    >
     <View style={globalStyles.screen}>
       <View
         style={{
@@ -166,7 +171,7 @@ export default function HomeScreen() {
       </View>
 
       <Carousel
-        height={hscale(150)}
+        height={width < 760 ? hscale(150) : hscale(200)}
         showsControls={false}
         autoplay
         autoplayInterval={2000}
@@ -190,7 +195,7 @@ export default function HomeScreen() {
                 <Image
                   source={require("../../assets/images/placeholder.png")}
                   style={{ width: "100%", height: "100%" }}
-                  resizeMode="cover"
+                  resizeMode="contain"
                 />
               </View>
             ))
@@ -239,10 +244,16 @@ export default function HomeScreen() {
         ))}
       </View>
     </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  
   greetUserText: {
     fontFamily: "Inter-Bold",
     fontSize: mscale(16),
@@ -255,6 +266,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "stretch",
+    ...Platform.select({
+      web: {
+        alignItems: "center",
+      }
+    }),
     justifyContent: "center",
     gap: 8,
     paddingVertical: hscale(20),

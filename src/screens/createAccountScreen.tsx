@@ -109,7 +109,6 @@ export default function CreateAccountScreen() {
   };
 
   return (
-    <WebAppContainer>
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -300,7 +299,6 @@ export default function CreateAccountScreen() {
         
         <ToastManager />
       </ScrollView>
-    </WebAppContainer>
   );
 }
 
