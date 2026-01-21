@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { hscale, mscale } from "../helpers/metric";
 import { colors } from "../constants/theme";
-import { Platform } from "expo-modules-core";
+import { Platform } from "react-native";
 
 type TprimaryButtonProps = { text: string; onPress: () => void; isLoading?: boolean };
 
@@ -35,8 +35,12 @@ const styles = StyleSheet.create({
   minHeight: hscale(60),
   justifyContent: "center",
   alignItems: "center", 
-  ...Platform.select({web: {maxWidth: 400
-  , alignSelf: 'center'}, default: {}}),
+  ...Platform.select({
+    web: {
+      cursor: 'pointer' as any,
+      outlineStyle: 'none' as any,
+    }
+  })
   },
   buttonText: {
     textAlign: "center",

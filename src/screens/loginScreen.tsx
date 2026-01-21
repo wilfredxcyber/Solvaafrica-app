@@ -99,8 +99,11 @@ export default function LoginScreen() {
 
   const navigation = useNavigation();
 
-  const content = (
-    <View style={[globalStyles.screen, styles.container]}>
+  return(
+    <ScrollView style={styles.scrollView}
+        showsVerticalScrollIndicator={false}>
+
+      <View style={[globalStyles.screen, styles.container]}>
       <View style={styles.logoContainer}>
         <Logo />
       </View>
@@ -180,15 +183,18 @@ export default function LoginScreen() {
         onClose={() => setErrorVisible(false)}
       />
     </View>
-  );
+      </ScrollView>
+  )
 
-  // Wrap in WebAppContainer only on web
-  return Platform.OS === 'web' ? (
-    <WebAppContainer>{content}</WebAppContainer>
-  ) : content;
+  
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  
   container: {
     justifyContent: 'space-between',
     ...Platform.select({
