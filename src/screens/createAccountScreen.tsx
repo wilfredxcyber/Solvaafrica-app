@@ -292,7 +292,7 @@ export default function CreateAccountScreen() {
           Already have an account?{" "}
           <TextLinkButton
             customStyle={{ color: colors.textLink }}
-            text="Login"
+            text="Log in"
             onPress={() => navigation.navigate("App", { screen: "Login" })}
           />
         </Text>

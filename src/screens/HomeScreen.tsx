@@ -24,6 +24,7 @@ import { useAuthStore } from "../stores/authStore";
 import AvatarView from "../components/avatarView";
 import { getSliderImages } from "../api/queries";
 import { globalStyles } from "../styles/global";
+//import Settings from "./settingsScreen";
 
 enum MenuItemScreensRoutes {
   "COURSES" = "Courses",
@@ -32,7 +33,7 @@ enum MenuItemScreensRoutes {
   "PREMIUM" = "Premium",
   "EARNING" = "Earning",
   "SERVICES" = "Services",
-  "ASK" = "Ask",
+  "ASK" = "Ask Kemi",
   "ESCROW_SITE" = "Transecure Escrow",
 }
 
@@ -52,34 +53,34 @@ export default function HomeScreen() {
   const MENU_ITEMS: IMenuItems[] = [
     {
       item: MenuItemScreensRoutes.COURSES,
-      icon: () => <MenuIcon name="book-outline" size={20} color={"#ffffff"} />,
+      icon: () => <MenuIcon name="book-outline" size={20} color={colors.primary}/>,
     },
     {
       item: MenuItemScreensRoutes.PROJECTS,
       icon: () => (
-        <MenuIcon name="folder-open-outline" size={20} color={"#ffffff"} />
+        <MenuIcon name="folder-open-outline" size={20} color={colors.primary} />
       ),
     },
     {
       item: MenuItemScreensRoutes.UPLOAD,
       icon: () => (
-        <MenuIcon name="cloud-upload-outline" size={20} color={"#ffffff"} />
+        <MenuIcon name="cloud-upload-outline" size={20} color={colors.primary} />
       ),
     },
     {
       item: MenuItemScreensRoutes.PREMIUM,
       icon: () => (
-        <MenuIcon name="pricetags-outline" size={20} color={"#ffffff"} />
+        <MenuIcon name="pricetags-outline" size={20} color={colors.primary} />
       ),
     },
     {
       item: MenuItemScreensRoutes.EARNING,
-      icon: () => <MenuIcon name="cash-outline" size={20} color={"#ffffff"} />,
+      icon: () => <MenuIcon name="cash-outline" size={20} color={colors.primary} />,
     },
     {
       item: MenuItemScreensRoutes.SERVICES,
       icon: () => (
-        <MenuIcon name="briefcase-outline" size={20} color={"#ffffff"} />
+        <MenuIcon name="briefcase-outline" size={20} color={colors.primary} />
       ),
     },
     {
@@ -88,14 +89,14 @@ export default function HomeScreen() {
         <MenuIcon
           name="chatbubble-ellipses-outline"
           size={20}
-          color={"#ffffff"}
+          color={colors.primary}
         />
       ),
     },
     {
       item: MenuItemScreensRoutes.ESCROW_SITE,
       icon: () => (
-        <MenuIcon name="shield-checkmark-outline" size={20} color={"#ffffff"} />
+        <MenuIcon name="shield-checkmark-outline" size={20} color={colors.primary} />
       ),
     },
   ];
@@ -146,12 +147,12 @@ export default function HomeScreen() {
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <TouchableOpacity
-          // onPress={() => navigation.navigate("Settings")}
+         // onPress={() => navigation.navigate("App", { screen: "Settings" })}
           >
             <AvatarView />
           </TouchableOpacity>
           <View style={{ marginLeft: 8 }}>
-            <Text style={styles.greetUserText}>
+            <Text style={styles.greetUserText }>
               Hello, {userProfile.fullName.trim().split(" ")[0]}
             </Text>
             <Text style={[globalStyles.bodyText, { fontSize: mscale(14) }]}>
@@ -171,7 +172,7 @@ export default function HomeScreen() {
       </View>
 
       <Carousel
-        height={width < 760 ? hscale(150) : hscale(200)}
+        height={width < 760 ? hscale(150) : hscale(250)}
         showsControls={false}
         autoplay
         autoplayInterval={2000}
@@ -258,9 +259,10 @@ const styles = StyleSheet.create({
     fontFamily: "Inter-Bold",
     fontSize: mscale(16),
     color: colors.black,
+    marginBottom: hscale(8),
   },
   menuView: {
-    backgroundColor: "#F9F1FE",
+    backgroundColor: "#F5F3FF",
     marginTop: hscale(24),
     borderRadius: mscale(20),
     flexDirection: "row",
@@ -285,7 +287,7 @@ const styles = StyleSheet.create({
     minWidth: wscale(80),
   },
   menuItemIconView: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.white,
     height: hscale(50),
     width: wscale(50),
     borderRadius: "100%",

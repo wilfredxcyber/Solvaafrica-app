@@ -12,6 +12,7 @@ export default function OnboardScreen() {
   return (
     <ScrollView
       style={styles.scrollView}
+      contentContainerStyle={{ justifyContent: "flex-start" }}
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.container}>
@@ -56,12 +57,9 @@ export default function OnboardScreen() {
 const styles = StyleSheet.create({
     scrollView: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#ffffff', 
   },
-  scrollContent: {
-    paddingHorizontal: 40,
-    paddingVertical: 40,
-  },
+  
   container: {
     flex: 1,
     backgroundColor: "#ffffff",
@@ -86,6 +84,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   onboardModal: {
+    padding: mscale(20),
     justifyContent: "center",
   },
   welcomeTitle: {
