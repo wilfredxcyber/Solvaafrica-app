@@ -94,7 +94,7 @@ export default function ProjectsScreen() {
               )}
             />
           ) : (
-            // <Text style={globalStyles.bodyText}>No projects found.</Text>
+            //<Text style={globalStyles.bodyText}>No projects found.</Text>
             <EmptyStateView/>
           )}
         </View>
