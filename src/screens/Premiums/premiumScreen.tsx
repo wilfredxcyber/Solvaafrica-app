@@ -28,6 +28,7 @@ export default function PremiumScreen() {
       route: "Innovation",
     },
     { id: "7", title: "Therapy", route: "Theraphy" },
+    { id: "8", title: "Task", route: "Task" },
   ];
 
   const navigation = useNavigation();
@@ -64,7 +65,7 @@ const styles = StyleSheet.create({
   // },
   item: {
     padding: mscale(20),
-    backgroundColor: "#f2f2f2",
+    backgroundColor: "#F5F3FF",
     borderRadius: mscale(8),
     marginBottom: mscale(12),
     display: "flex",

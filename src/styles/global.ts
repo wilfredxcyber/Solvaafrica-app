@@ -76,7 +76,7 @@ const globalStyles = StyleSheet.create({
     ...Platform.select({
       web: {
         paddingTop: 20,
-        paddingBottom: 40,
+        paddingBottom: 20,
         minHeight: '100%',
       },
     }),

@@ -4,6 +4,9 @@ import { useNavigation } from "@react-navigation/native";
 import { useCallback, useEffect, useState } from "react";
 import StarIcon from "@expo/vector-icons/AntDesign";
 import * as Clipboard from "expo-clipboard";
+import { Image } from "expo-image";
+import * as Linking from "expo-linking";
+import Icon from "@expo/vector-icons/FontAwesome";
 
 import { hscale, mscale, wscale } from "../helpers/metric";
 import { useAuthStore } from "../stores/authStore";
@@ -61,6 +64,9 @@ const EarnTabView = ({ userBalance }: { userBalance: number | null }) => {
 };
 
 const ReferTabView = () => {
+  const [referrals, setReferrals] = useState<any[]>([]);
+  const { profile } = useAuthStore((state) => state.user);
+  const userReferralCode = profile.referralCode;
   return (
     <View>
       {/* how you earn view */}
@@ -95,6 +101,7 @@ const ReferTabView = () => {
         style={[
           styles.text,
           {
+            fontSize: mscale(20),
             fontFamily: "Inter-Bold",
             color: colors.black,
             textAlign: "center",
@@ -105,11 +112,11 @@ const ReferTabView = () => {
         {" "}
         Get Free NGN 100.00
       </Text>
-      <Text style={[styles.text, { textAlign: "center" }]}>
+      <Text style={[styles.text, { textAlign: "center", fontSize: mscale(16) }]}>
         Share this hack with your friends
       </Text>
       <Text
-        style={[styles.text, { textAlign: "center", marginTop: hscale(20) }]}
+        style={[styles.text, { textAlign: "center", marginTop: hscale(20),fontSize: mscale(16)}]}
       >
         You stand to earn NGN 100.00 when your friend input your referral code
         during sign up and registers to the premium package
@@ -117,7 +124,71 @@ const ReferTabView = () => {
 
       {/* Copy referral code view */}
       <CopyReferalCodeView />
-    </View>
+      {/* Referrals section */}
+      <View style={{ marginTop: hscale(40), alignItems: "center" }}>
+      <Text
+       style={{
+      fontFamily: "Inter-Bold",
+      fontSize: mscale(20),
+      color: colors.black,
+      marginBottom: hscale(12),
+    }}
+  >
+    Your Referrals
+  </Text>
+
+  {referrals.length === 0 && (
+    <>
+      <Text
+        style={{
+          textAlign: "center",
+          fontSize: mscale(14),
+          color: "#5C5F62",
+          width: "80%",
+          lineHeight: mscale(20),
+          marginBottom: hscale(24),
+        }}
+      >
+        You currently do not have any referral. Your referrals will appear here
+        when you refer friends using your code.
+      </Text>
+
+      {/* Empty state image */}
+      <View
+        style={{
+          width: wscale(180),
+          height: hscale(140),
+          marginBottom: hscale(32),
+        }}
+      >
+        <Image
+          source={require("../../assets/images/Referral.png")}
+          style={{ width: "100%", height: "100%" }}
+          contentFit="contain"
+        />
+      </View>
+    </>
+  )}
+
+  <Text
+    style={{
+      fontFamily: "Inter-Bold",
+      fontSize: mscale(24),
+      color: colors.black,
+      marginBottom: hscale(16),
+    }}
+  >
+    Share Via
+  </Text>
+
+  {/* Social buttons */}
+  <View style={{ flexDirection: "row", gap: 16 }}>
+    <SocialButton label="WhatsApp" referralCode={userReferralCode} />
+    <SocialButton label="X" referralCode={userReferralCode} />
+    <SocialButton label="Facebook" referralCode={userReferralCode} />
+  </View>
+</View>
+</View>
   );
 };
 
@@ -207,7 +278,7 @@ const CopyReferalCodeView = () => {
         <Text
           style={[
             styles.text,
-            { fontFamily: "Inter-Bold", color: colors.black },
+            { fontFamily: "Inter-Bold", color: colors.black, fontSize: mscale(24)},
           ]}
         >
           Referral code
@@ -248,6 +319,14 @@ const EarningsBalanceView = ({
             style={styles.text}
           >{`${userBalance ? userBalance?.toFixed(2) : "---"} NGN`}</Text>
         )}
+        <Text
+          style={[
+            styles.text,
+            { fontFamily: "Inter-Regular", color: colors.black, fontSize: mscale(12)},
+          ]}
+        >
+          Minimum cashout NGN 10,000
+        </Text>
       </View>
       <Text style={styles.textButton} onPress={handleNavigateCashout}>
         Cashout
@@ -256,10 +335,31 @@ const EarningsBalanceView = ({
   );
 };
 
+const SocialButton = ({ label, referralCode }: { label: string; referralCode: string }) => {
+  const handlePress = () => {
+    const message = `Join Solva Africa with my referral code: ${referralCode}`;
+    if (label === "WhatsApp") {
+      Linking.openURL(`whatsapp://send?text=${encodeURIComponent(message)}`);
+    } else if (label === "X") {
+      Linking.openURL(`twitter://post?message=${encodeURIComponent(message)}`);
+    } else if (label === "Facebook") {
+      Linking.openURL(`fb://post?message=${encodeURIComponent(message)}`);
+    }
+  };
+
+  const iconName = label === "WhatsApp" ? "whatsapp" : label === "X" ? "twitter" : "facebook";
+
+  return (
+    <Pressable onPress={handlePress} style={styles.socialButton}>
+      <Icon name={iconName} size={24} color="#000000" />
+    </Pressable>
+  );
+};
+
 const styles = StyleSheet.create({
   tabButtonsView: {
-    backgroundColor: "#ECECEC",
-    width: "85%",
+    backgroundColor: "#F5F3FF",
+    width: "100%",
     marginHorizontal: "auto",
     flexDirection: "row",
     borderRadius: mscale(30),
@@ -276,7 +376,7 @@ const styles = StyleSheet.create({
     color: "#5C5F62",
   },
   bannerView: {
-    backgroundColor: "#ECECEC",
+    backgroundColor: "#F5F3FF",
     marginTop: hscale(20),
     borderRadius: mscale(15),
     flexDirection: "row",
@@ -286,12 +386,12 @@ const styles = StyleSheet.create({
   copyReferralCodeView: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ECECEC",
+    backgroundColor: "#F5F3FF",
     paddingVertical: hscale(12),
     paddingHorizontal: wscale(24),
     borderRadius: mscale(12),
     marginTop: hscale(20),
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: colors.black,
   },
   textButton: {
@@ -304,5 +404,16 @@ const styles = StyleSheet.create({
     lineHeight: hscale(32),
     color: "#ffffff",
     borderRadius: mscale(16),
+  },
+  socialButton: {
+    backgroundColor: colors.white,
+    paddingHorizontal: wscale(16),
+    paddingVertical: hscale(8),
+    borderRadius: mscale(8),
+  },
+  socialButtonText: {
+    color: "#000000",
+    fontFamily: "Inter-Bold",
+    fontSize: mscale(14),
   },
 });

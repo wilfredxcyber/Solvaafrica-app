@@ -14,6 +14,7 @@ import { hscale, mscale, wscale } from "@/src/helpers/metric";
 import EmptyStateView from "@/src/components/emptyStateView";
 import LottieView from "lottie-react-native";
 import ProtectPage from "@/src/components/protectPage";
+import { colors } from "@/src/constants/theme";
 
 export default function Scholarship() {
   const [loading, setLoading] = useState(true);
@@ -95,7 +96,7 @@ export default function Scholarship() {
                 Click link to open:{" "}
                 <Text
                   style={{
-                    color: "blue",
+                    color: colors.primary,
                     textDecorationLine: "underline",
                   }}
                 >
@@ -120,7 +121,7 @@ export default function Scholarship() {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#",
     padding: mscale(16),
     marginBottom: mscale(12),
     borderRadius: mscale(8),
@@ -138,6 +139,7 @@ const styles = StyleSheet.create({
   link: {
     fontSize: mscale(13),
     fontFamily: "Inter-Regular",
+    color: "#5C5F62"
   },
   emptyText: {
     textAlign: "center",

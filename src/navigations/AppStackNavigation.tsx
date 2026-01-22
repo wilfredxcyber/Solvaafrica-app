@@ -32,6 +32,7 @@ import {
 import { useUserSignedIn, useUserSignedOut } from "../hooks/userAuth";
 import TabsNavigator from "./BottomTabNavigation";
 import { colors } from "../constants/theme";
+import Task from "../screens/Premiums/Task";
 
 const AppStackNavigator = createNativeStackNavigator(
   {
@@ -113,6 +114,15 @@ const AppStackNavigator = createNativeStackNavigator(
             headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
             headerTintColor: colors.black,
           },
+        },
+        Task: {
+          screen: Task,
+          options: {
+            headerTitle: "Task",
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
+            headerTintColor: colors.black,
+          }
         },
         Upload: {
           screen: UploadFilesScreen,

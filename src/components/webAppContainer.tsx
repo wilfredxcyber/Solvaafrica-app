@@ -1,5 +1,4 @@
-import { View, StyleSheet, Platform } from "react-native";
-import { Dimensions } from "react-native";
+import { View, StyleSheet, Platform, Dimensions } from "react-native";
 import { ReactNode } from "react";
 
 type Props = {
@@ -15,7 +14,7 @@ export default function WebAppContainer({ children }: Props) {
 
   return (
     <View style={styles.webContainer}>
-      <View style={styles.contentWrapper}>{children}</View>
+      <View style={styles.mobileBoundary}>{children}</View>
     </View>
   );
 }
@@ -23,21 +22,17 @@ export default function WebAppContainer({ children }: Props) {
 const styles = StyleSheet.create({
   webContainer: {
     flex: 1,
-    paddingVertical: 16,
+    minHeight: windowHeight,
+    paddingVertical: 40,
     paddingHorizontal: 8,
-    minHeight: windowHeight, // Ensure the container takes up at least the viewport height
-    alignItems: "center",
-    backgroundColor: "#f5f5f5",
-    justifyContent: "flex-start",
-    
-  },
-  contentWrapper: {
-    width: "100%",
-    maxWidth: 430, // Adjust the maximum width of the content
     backgroundColor: "#ffffff",
-    borderRadius: 12,
-    boxShadow: "0 2px 10px rgba(0,0,0,0.1)", // Web-specific styles
-    overflow: "hidden",
-    minHeight: "100%", // Adjust for padding
+    alignItems: "center",
+  },
+
+  // NOT a "card", just a width boundary
+  mobileBoundary: {
+    width: "100%",
+    maxWidth: 435,
+    flex: 1,
   },
 });
