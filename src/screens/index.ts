@@ -15,11 +15,11 @@ import PdfViewerPage from "./pdfViewerPage";
 import OnboardScreen from "./OnboardScreen";
 import EarningScreen from "./earningScreen";
 import CoursesScreen from "./coursesScreen";
-import FilterScreen from "./FilterScreen";
+import FilterScreen from "./filterScreen";
 import LoginScreen from "./loginScreen";
 import CoursesList from "./coursesList";
 import Profile from "./Drawer/Profile";
-import HomeScreen from "./HomeScreen";
+import HomeScreen from "./homeScreen";
 import AskScreen from "./askScreen";
 import Cashout from "./cashout";
 import Grants from "./Premiums/Grants";
@@ -31,6 +31,8 @@ import Notifications from "./Notifications/Notifications";
 import ForgotPasswordOtp from "./auth/forgot-password/otpForgotPassword";
 import ForgotPassword from "./auth/forgot-password/forgotPassword";
 import ForgotPasswordSuccess from "./auth/forgot-password/forgotPasswordSuccess";
+import Task from "./Premiums/Task";
+
 
 
 export {
@@ -63,6 +65,7 @@ export {
   CertificateOnCourses,
   Innovation,
   Theraphy,
+  Task,
   Notifications,
   ForgotPasswordOtp,
   ForgotPassword,

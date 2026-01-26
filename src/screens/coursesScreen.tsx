@@ -1,61 +1,129 @@
-import { View, Text, TextInput, StyleSheet, Pressable, Dimensions, Modal } from "react-native";
+import { View, Text, TextInput, StyleSheet, Pressable, Dimensions, Modal, Alert } from "react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigation } from "@react-navigation/native";
+import { router, useLocalSearchParams } from "expo-router";
 import DropdownIcon from "@expo/vector-icons/Entypo";
 import { FlashList } from "@shopify/flash-list";
 
 import { colors, screenHorizontalPadding } from "../constants/theme";
-import { faculties, universities } from "../constants/data";
+import { universities, UniversityType } from "../constants/data";
 import { hscale, mscale, wscale } from "../helpers/metric";
 import PrimaryButton from "../components/primaryButton";
 import ProtectPage from "../components/protectPage";
 import { globalStyles } from "../styles/global";
+import { CoursesList } from "./index";
 
+const UNIVERSITY_TYPES: UniversityType[] = ["Federal", "State", "Private"];
 
 export default function CoursesScreen() {
-  const [university, setUniversity] = useState(universities[0]);
-  const [faculty, setFaculty] = useState(faculties[0].name);
-  const [department, setDepartment] = useState(faculties[0].departments[0]);
-  const [departmentList, setDepartmentList] = useState<string[]>(faculties[0].departments);
+  const params = useLocalSearchParams();
+  const [universityType, setUniversityType] = useState<UniversityType>("Federal");
+  const [university, setUniversity] = useState("");
+  const [faculty, setFaculty] = useState("");
+  const [department, setDepartment] = useState("");
 
-  const navigation = useNavigation();
+  /** ============================
+   * MEMOIZED SELECTORS
+   * ============================ */
+
+  const universitiesByType = useMemo(
+    () => universities.filter(u => u.type === universityType),
+    [universityType]
+  );
+
+  const selectedUniversity = useMemo(
+    () => universitiesByType.find(u => u.name === university),
+    [universitiesByType, university]
+  );
+
+  const facultyList = useMemo(
+    () => selectedUniversity?.faculties ?? [],
+    [selectedUniversity]
+  );
+
+  const departmentList = useMemo(() => {
+    const selectedFaculty = facultyList.find(f => f.name === faculty);
+    return selectedFaculty?.departments ?? [];
+  }, [facultyList, faculty]);
+
+  /** ============================
+   * STATE SYNC
+   * ============================ */
 
   useEffect(() => {
-    const getDepartmentList = () => {
-      const res = faculties.find((currItem) => currItem.name === faculty);
-      if (res) return res.departments;
-    };
-
-    const _departmentList = getDepartmentList();
-
-    if (_departmentList !== undefined) {
-      setDepartmentList(_departmentList);
-      setDepartment(_departmentList[0]);
+    if (universitiesByType.length) {
+      setUniversity(universitiesByType[0].name);
+    } else {
+      setUniversity("");
     }
-  }, [faculty]);
+  }, [universitiesByType]);
 
-  const facultyList = useMemo(() => faculties.map((currItem) => currItem.name), []);
+  useEffect(() => {
+    if (facultyList.length) {
+      setFaculty(facultyList[0].name);
+    } else {
+      setFaculty("");
+    }
+  }, [facultyList]);
+
+  useEffect(() => {
+    if (departmentList.length) {
+      setDepartment(departmentList[0]);
+    } else {
+      setDepartment("");
+    }
+  }, [departmentList]);
+
+  /** ============================
+   * ACTIONS
+   * ============================ */
 
   const handleSearch = () => {
-    navigation.navigate("App", {
-      screen: "CoursesList",
-      params: { searchListParams: { university, faculty, department } },
+    if (!university || !faculty || !department) {
+      Alert.alert("Missing Information", "Please select all fields before searching");
+      return;
+    }
+
+    router.push({
+      pathname: "/courses",
+      params: {
+        universityType,
+        university,
+        faculty,
+        department,
+      },
     });
   };
+
+  const universityParam = Array.isArray(params.university) ? params.university[0] : params.university;
+  const facultyParam = Array.isArray(params.faculty) ? params.faculty[0] : params.faculty;
+  const departmentParam = Array.isArray(params.department) ? params.department[0] : params.department;
+
+  if (universityParam && facultyParam && departmentParam) {
+    return <CoursesList />;
+  }
 
   return (
     <ProtectPage>
       <View style={globalStyles.screen}>
         <View style={{ gap: 12 }}>
-          {/* university */}
           <DropDownPicker
-            data={universities}
+            data={UNIVERSITY_TYPES}
+            setSelectedValue={setUniversityType as any}
+            defaultValue={universityType}
+          />
+
+          <DropDownPicker
+            data={universitiesByType.map(u => u.name)}
             setSelectedValue={setUniversity}
             defaultValue={university}
           />
-          {/* faculties */}
-          <DropDownPicker data={facultyList} setSelectedValue={setFaculty} defaultValue={faculty} />
-          {/* departments */}
+
+          <DropDownPicker
+            data={facultyList.map(f => f.name)}
+            setSelectedValue={setFaculty}
+            defaultValue={faculty}
+          />
+
           <DropDownPicker
             data={departmentList}
             setSelectedValue={setDepartment}
@@ -71,43 +139,37 @@ export default function CoursesScreen() {
   );
 }
 
+/** ============================
+ * DROPDOWN (UNCHANGED STYLING)
+ * ============================ */
+
 interface DropdownPickerProps {
   data: string[];
-  setSelectedValue: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedValue: React.Dispatch<React.SetStateAction<any>>;
   defaultValue: string;
 }
 
-const DropDownPicker = ({ data, setSelectedValue, defaultValue }: DropdownPickerProps) => {
+function DropDownPicker({ data, setSelectedValue, defaultValue }: DropdownPickerProps) {
   const [dropdownIsVisibile, setDropdownIsVisibile] = useState(false);
-  const inputRef = useRef(null);
+  const dropdownViewRef = useRef<View | null>(null);
   const [dropdownViewPos, setDropdownViewPos] = useState(0);
 
-  const handleInputBlur = () => {
-    console.log("Blurred");
-  };
-
-  const handleDropdownInputPressed = () => {
-    setDropdownIsVisibile(!dropdownIsVisibile);
-  };
-
-  const dropdownViewRef = useRef<View | null>(null);
-
-  const handleListItemPressed = (item: string) => {
-    setSelectedValue(item);
-    setDropdownIsVisibile(false);
-  };
-
   useEffect(() => {
-    // get the view vertical position from the screen
-    dropdownViewRef.current?.measureInWindow((x, y, width, height) => {
-      setDropdownViewPos(y);
-    });
+    dropdownViewRef.current?.measureInWindow((_, y) => setDropdownViewPos(y));
   }, []);
 
-  const renderItem = ({ item, index }: { item: string; index: number }) => {
-    return (
+  const handleSelect = useCallback(
+    (item: string) => {
+      setSelectedValue(item);
+      setDropdownIsVisibile(false);
+    },
+    [setSelectedValue]
+  );
+
+  const renderItem = useCallback(
+  ({ item, index }: { item: string; index: number }) => (
+    <Pressable onPress={() => handleSelect(item)}>
       <Text
-        onPress={() => handleListItemPressed(item)}
         style={[
           styles.dropDownListItem,
           { borderBottomWidth: index + 1 === data.length ? 0 : StyleSheet.hairlineWidth },
@@ -115,29 +177,15 @@ const DropDownPicker = ({ data, setSelectedValue, defaultValue }: DropdownPicker
       >
         {item}
       </Text>
-    );
-  };
-
-  const renderItemCallback = useCallback(renderItem, []);
-
-  const dropdownInputHeight = 56;
-  const dropdownViewGap = 12;
-
-  const dropdownTopMargin = dropdownViewPos + dropdownInputHeight + dropdownViewGap;
+    </Pressable>
+  ),
+  [data.length, handleSelect]
+);
 
   return (
     <View ref={dropdownViewRef}>
-      {/* backdrop */}
-      <Pressable onPress={handleDropdownInputPressed} style={styles.dropdownInputContainer}>
-        <TextInput
-          value={defaultValue}
-          onBlur={handleInputBlur}
-          ref={inputRef}
-          autoCorrect={false}
-          editable={false}
-          numberOfLines={1}
-          style={{ flex: 1, height: "100%" }}
-        />
+      <Pressable onPress={() => setDropdownIsVisibile(v => !v)} style={styles.dropdownInputContainer}>
+        <TextInput editable={false} value={defaultValue} style={{ flex: 1 }} />
         <DropdownIcon
           name={dropdownIsVisibile ? "chevron-small-up" : "chevron-small-down"}
           size={20}
@@ -145,28 +193,23 @@ const DropDownPicker = ({ data, setSelectedValue, defaultValue }: DropdownPicker
         />
       </Pressable>
 
-      {/* items list */}
       {dropdownIsVisibile && (
-        <Modal transparent={true}>
+        <Modal transparent>
           <Pressable
             onPress={() => setDropdownIsVisibile(false)}
-            style={{
-              paddingHorizontal: screenHorizontalPadding,
-              height: Dimensions.get("screen").height,
-            }}
+            style={{ paddingHorizontal: screenHorizontalPadding, height: Dimensions.get("screen").height }}
           >
             <View
               style={[
                 styles.dropDownContainer,
-                { width: "100%", height: hscale(300), marginTop: dropdownTopMargin },
+                { width: "100%", height: hscale(300), marginTop: dropdownViewPos + hscale(68) },
               ]}
             >
               <FlashList
                 data={data}
-                renderItem={renderItemCallback}
-                keyExtractor={(item, index) => index + item}
+                renderItem={renderItem}
                 estimatedItemSize={data.length}
-                showsVerticalScrollIndicator={false}
+                keyExtractor={(item, index) => index + item}
               />
             </View>
           </Pressable>
@@ -203,7 +246,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.inputFieldNew,
     paddingHorizontal: wscale(20),
     borderRadius: mscale(50),
-    position: "relative",
-    fontFamily: "Inter-Regular",
   },
 });

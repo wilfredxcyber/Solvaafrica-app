@@ -1,10 +1,13 @@
-import { Text, View } from "react-native";
+import { View, Text } from "react-native";
+import React from "react";
+import { globalStyles } from "@/src/styles/global";
+import InProgress from "@/src/components/inprogress";
 
 
 export default function AskScreen() {
-    return (
-        <View>
-            <Text>Ask screen</Text>
-        </View>
-    )
+  return (
+    <View style={globalStyles.screen}>
+      <InProgress />
+    </View>
+  );
 }

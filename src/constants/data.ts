@@ -1,153 +1,68 @@
-export const universities = [
-    "Abubakar Tafawa Balewa University (ATBU)",
-    "Ahmadu Bello University (ABU)",
-    "Bayero University (BUK)",
-    "Federal University, Birnin Kebbi (FUBK)",
-    "Federal University, Dutsin-Ma (FUDM)",
-    "Federal University, Dutse (FUD)",
-    "Federal University, Gashua (FUG)",
-    "Federal University, Gusau (FUGUS)",
-    "Federal University, Kashere (FUK)",
-    "Federal University, Lafia (FULAFIA)",
-    "Federal University, Lokoja (FUL)",
-    "Federal University, Otuoke (FUO)",
-    "Federal University, Oye Ekiti (FUOYE)",
-    "Federal University of Agriculture, Abeokuta (FUNAAB)",
-    "Federal University of Agriculture, Makurdi (FUAM)",
-    "Federal University of Health Sciences, Azare (FUHSA)",
-    "Federal University of Technology, Akure (FUTA)",
-    "Federal University of Technology, Minna (FUTMINNA)",
-    "Federal University of Technology, Owerri (FUTO)",
-    "Federal University of Petroleum Resources, Effurun (FUPRE)",
-    "Michael Okpara University of Agriculture, Umudike (MOUAU)",
-    "Modibo Adama University of Technology, Yola (MAUTECH)",
-    "National Open University of Nigeria (NOUN)",
-    "Nnamdi Azikiwe University (UNIZIK)",
-    "University of Benin (UNIBEN)",
-    "University of Ibadan (UI)",
-    "University of Ilorin (UNILORIN)",
-    "University of Jos (UNIJOS)",
-    "University of Lagos (UNILAG)",
-    "University of Nigeria, Nsukka (UNN)",
-    "Usmanu Danfodiyo University, Sokoto (UDUS)",
-];
+export type UniversityType = "Federal" | "State" | "Private";
 
-export const faculties = [
-    {
-        name: "Faculty of Arts",
-        departments: [
-            "English",
-            "History",
-            "Philosophy",
-            "Linguistics",
-            "Religious Studies",
-            "Drama and Theatre Arts",
-            "Fine Arts",
-            "French",
-            "Arabic",
-            "Russian",
-            "Chinese",
-            "Japanese",
-        ],
-    },
-    {
-        name: "Faculty of Science",
-        departments: [
-            "Mathematics",
-            "Physics",
-            "Chemistry",
-            "Biology",
-            "Zoology",
-            "Botany",
-            "Microbiology",
-            "Biochemistry",
-            "Geology",
-            "Geophysics",
-        ],
-    },
-    {
-        name: "Faculty of Social Sciences",
-        departments: [
-            "Economics",
-            "Sociology",
-            "Political Science",
-            "Psychology",
-            "Geography",
-            "Anthropology",
-            "International Relations",
-            "Development Studies",
-        ],
-    },
-    {
-        name: "Faculty of Engineering",
-        departments: [
-            "Civil Engineering",
-            "Mechanical Engineering",
-            "Electrical Engineering",
-            "Chemical Engineering",
-            "Petroleum Engineering",
-            "Computer Engineering",
-            "Industrial Engineering",
-            "Agricultural Engineering",
-            "Environmental Engineering",
-        ],
-    },
-    {
-        name: "Faculty of Agriculture",
-        departments: [
-            "Agronomy",
-            "Animal Science",
-            "Crop Science",
-            "Soil Science",
-            "Agricultural Economics",
-            "Agricultural Extension",
-            "Forestry",
-        ],
-    },
-    {
-        name: "Faculty of Law",
-        departments: ["Law"],
-    },
-    {
-        name: "Faculty of Medicine",
-        departments: ["Medicine", "Surgery", "Dentistry", "Pharmacy", "Nursing"],
-    },
-    {
-        name: "Faculty of Education",
-        departments: [
-            "Educational Foundations",
-            "Curriculum and Teaching",
-            "Educational Management",
-            "Guidance and Counseling",
-        ],
-    },
-    {
-        name: "Faculty of Management Sciences",
-        departments: [
-            "Accounting",
-            "Business Administration",
-            "Banking and Finance",
-            "Marketing",
-            "Economics",
-            "Human Resource Management",
-        ],
-    },
+export interface Faculty {
+  name: string;
+  departments: string[];
+}
+
+export interface University {
+  name: string;
+  type: UniversityType;
+  faculties: Faculty[];
+}
+
+export const universities: University[] = [
+  {
+    name: "University of Lagos",
+    type: "Federal",
+    faculties: [
+      {
+        name: "Science",
+        departments: ["Computer Science", "Mathematics", "Physics"],
+      },
+      {
+        name: "Arts",
+        departments: ["English", "History"],
+      },
+    ],
+  },
+  {
+    name: "Lagos State University",
+    type: "State",
+    faculties: [
+      {
+        name: "Management Sciences",
+        departments: ["Accounting", "Business Administration"],
+      },
+    ],
+  },
+  {
+    name: "Covenant University",
+    type: "Private",
+    faculties: [
+      {
+        name: "Engineering",
+        departments: ["Computer Engineering", "Electrical Engineering"],
+      },
+    ],
+  },
 ];
 
 
+// Banks list
 export const BANKS = [
-    "Access Bank",
-    "Fidelity Bank",
-    "First Bank of Nigeria",
-    "Guaranty Trust Bank (GTB)",
-    "United Bank for Africa (UBA)",
-    "Zenith Bank",
-    "Stanbic IBTC",
-    "Ecobank",
-    "FCMB",
-    "Polaris Bank",
-    "Providus Bank",
-    "Wema Bank",
-    "Sterling Bank",
-    "Unity Bank",
-]
+  "Access Bank",
+  "Fidelity Bank",
+  "First Bank of Nigeria",
+  "Guaranty Trust Bank (GTB)",
+  "United Bank for Africa (UBA)",
+  "Zenith Bank",
+  "Stanbic IBTC",
+  "Ecobank",
+  "FCMB",
+  "Polaris Bank",
+  "Providus Bank",
+  "Wema Bank",
+  "Sterling Bank",
+  "Unity Bank",
+];
