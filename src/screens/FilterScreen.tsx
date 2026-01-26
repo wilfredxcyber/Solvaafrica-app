@@ -195,7 +195,7 @@ const TabsSwitcher = ({
           style={[
             styles.tabItem,
             activeTab === currentTabItem
-              ? { color: colors.primary, backgroundColor: colors.inputField }
+              ? { color: colors.black, backgroundColor: "#B6ACE6" }
               : null,
           ]}
           key={currentTabItem}

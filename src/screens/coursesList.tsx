@@ -1,9 +1,9 @@
-import { StaticScreenProps, useNavigation } from "@react-navigation/native";
+import { useLocalSearchParams, router } from "expo-router";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import DownloadIcon from "@expo/vector-icons/Feather";
 import { FlashList } from "@shopify/flash-list";
 import { useEffect, useState } from "react";
-import { Image } from "expo-image";
+import PDFIcon from "@expo/vector-icons/FontAwesome6";
 
 import { hscale, mscale, wscale } from "../helpers/metric";
 import { getImageSource } from "../helpers/getImageSource";
@@ -14,16 +14,8 @@ import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import ErrorModal from "../components/errorModal";
 
-interface ISearchListParams {
-  university: string;
-  faculty: string;
-  department: string;
-}
-
-type ScreenProps = StaticScreenProps<{ searchListParams: ISearchListParams }>;
-
-export default function CoursesList({ route }: ScreenProps) {
-  const params = route.params;
+export default function CoursesList() {
+  const params = useLocalSearchParams();
   const [coursesList, setCoursesList] = useState<any[] | []>([]);
   const [loadingCourses, setLoadingCourses] = useState<boolean>(false);
   const [errorVisible, setErrorVisible] = useState(false);
@@ -31,7 +23,7 @@ export default function CoursesList({ route }: ScreenProps) {
 
   useEffect(() => {
     // fetch courses based on params
-    const { university, department, faculty } = params.searchListParams;
+    const { university, department, faculty } = params;
 
     const fetchCourses = async () => {
       setLoadingCourses(true);
@@ -103,12 +95,10 @@ const CoursesListItem = ({
   previewUrl,
   courseId,
 }: CourseListItemProps) => {
-  const navigation = useNavigation();
-
   const handleCourseListItemPressed = () => {
-    navigation.navigate("App", {
-      screen: "CourseMaterials",
-      params: { courseId, headerTitle: `${courseTitle} Materials`, courseCode },
+    router.push({
+      pathname: '/courses/materials',
+      params: { courseId, headerTitle: `${courseTitle} Materials`, courseCode }
     });
   };
   return (
@@ -117,19 +107,14 @@ const CoursesListItem = ({
       style={{
         flexDirection: "row",
         paddingVertical: hscale(12),
-        backgroundColor: colors.greyView,
-        paddingHorizontal: wscale(12),
+        backgroundColor: colors.inputFieldNew,
+        paddingHorizontal: wscale(28),
         borderRadius: mscale(12),
         marginBottom: hscale(20),
       }}
     >
       {/* left icon */}
-      <Image
-        source={getImageSource(previewUrl)}
-        style={styles.coursesListImage}
-        contentFit="cover"
-        transition={1000}
-      />
+      <PDFIcon name="file-pdf" size={40} color={colors.primary} />
 
       <View
         style={{
@@ -141,32 +126,37 @@ const CoursesListItem = ({
         }}
       >
         <View>
-          {/* course title */}
-          <Text
-            style={{
-              fontFamily: "Inter-Regular",
-              color: colors.bodyText,
-              fontSize: mscale(16),
-            }}
-          >
-            {courseTitle}
-          </Text>
+          
           {/* course code */}
           <Text
             style={{
               fontFamily: "Inter-Bold",
-              color: colors.bodyText,
+              color: "#5C5F62",
               fontSize: mscale(16),
             }}
           >
             {courseCode}
           </Text>
+
+          {/* course title */}
+          <Text
+            style={{
+              fontFamily: "Inter-Regular",
+              color: colors.primary,
+              fontSize: mscale(12),
+              marginTop: hscale(4), // Add space between course code and title
+            }}
+          >
+            {courseTitle.length > 30 ? courseTitle.substring(0, 30) + '...' : courseTitle}
+          </Text>
+
           {/* university */}
           <Text
             style={{
               fontFamily: "Inter-Bold",
-              color: colors.primary,
+              color: "#5C5F62",
               fontSize: mscale(14),
+              marginTop: hscale(4), // Add space between title and university
             }}
           >
             {university}
@@ -174,18 +164,13 @@ const CoursesListItem = ({
         </View>
 
         {/* far right icon */}
-        <DownloadIcon name="download-cloud" size={24} color={colors.primary} />
+        <DownloadIcon name="download-cloud" size={24} color="#5427D7" />
       </View>
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
-  coursesListImage: {
-    height: hscale(60),
-    width: wscale(60),
-    borderRadius: mscale(8),
-  },
   noFilesFoundText: {
     fontFamily: "Inter-Bold",
     fontSize: mscale(24),

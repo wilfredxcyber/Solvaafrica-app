@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, Text, View, Image } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { router } from "expo-router";
 import { colors, screenHorizontalPadding } from "../constants/theme";
 import TextLinkButton from "../components/textLinkButton";
 import PrimaryButton from "../components/primaryButton";
@@ -7,8 +7,6 @@ import { hscale, mscale } from "../helpers/metric";
 import { globalStyles } from "../styles/global";
 
 export default function OnboardScreen() {
-  const navigation = useNavigation();
-
   return (
     <ScrollView
       style={styles.scrollView}
@@ -38,14 +36,14 @@ export default function OnboardScreen() {
           {/* buttons */}
           <PrimaryButton
             text="Get Started"
-            onPress={() => navigation.navigate("App", { screen: "CreateAccount" })}
+            onPress={() => router.push('/(auth)/create-account')}
           />
           <View style={styles.loginContainer}>
             <Text>Already have an account? </Text>
             <TextLinkButton
               text="Log in"
               customStyle={styles.loginLinkText}
-              onPress={() => navigation.navigate("App", { screen: "Login" })}
+              onPress={() => router.push('/(auth)/login')}
             />
           </View>
         </View>
@@ -55,7 +53,7 @@ export default function OnboardScreen() {
 }
 
 const styles = StyleSheet.create({
-    scrollView: {
+  scrollView: {
     flex: 1,
     backgroundColor: '#ffffff', 
   },
@@ -80,7 +78,7 @@ const styles = StyleSheet.create({
     marginBottom: hscale(10),
   },
   onboardWelcome: {
-    marginBottom: hscale(20), // Reduced margin
+    marginBottom: hscale(20),
     alignItems: "center",
   },
   onboardModal: {

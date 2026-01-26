@@ -1,4 +1,4 @@
-import { StaticScreenProps, useNavigation } from "@react-navigation/native";
+import { useLocalSearchParams, useNavigation, router } from "expo-router";
 import { View, FlatList, Dimensions, Pressable } from "react-native";
 import { useEffect, useState } from "react";
 import { Image } from "expo-image";
@@ -11,14 +11,11 @@ import { hscale, mscale } from "../helpers/metric";
 import { AUTH_API_CLIENT } from "../api/apiClient";
 import ErrorModal from "../components/errorModal";
 
-type ScreenProps = StaticScreenProps<{
-  courseId: string;
-  headerTitle: string;
-  courseCode: string;
-}>;
-
-export default function CourseMaterials({ route }: ScreenProps) {
-  const { courseId, headerTitle, courseCode } = route.params;
+export default function CourseMaterials() {
+  const params = useLocalSearchParams();
+  const { courseId, headerTitle, courseCode } = params;
+  const headerTitleString = Array.isArray(headerTitle) ? headerTitle[0] : headerTitle;
+  const courseCodeString = Array.isArray(courseCode) ? courseCode[0] : courseCode;
   const [courses, setCourses] = useState<any[] | []>([]);
   const [fetchingCourseMaterials, setFetchingCourseMaterials] =
     useState<boolean>(false);
@@ -28,7 +25,7 @@ export default function CourseMaterials({ route }: ScreenProps) {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    navigation.setOptions({ title: `${headerTitle}` });
+    navigation.setOptions({ title: `${headerTitleString}` });
     const fetchCourseMaterials = async () => {
       setFetchingCourseMaterials(true);
       try {
@@ -62,9 +59,9 @@ export default function CourseMaterials({ route }: ScreenProps) {
             <CourseItemView
               url={item.url}
               key={item.id}
-              title={headerTitle}
+              title={headerTitleString}
               fileName={item.name}
-              courseCode={courseCode}
+              courseCode={courseCodeString}
             />
           )}
           keyExtractor={(item) => item.id}
@@ -94,16 +91,10 @@ const CourseItemView = ({
   fileName: string;
   courseCode: string;
 }) => {
-  const navigation = useNavigation();
   const handleImagePress = () => {
-    navigation.navigate("App", {
-      screen: "CourseDownloadMaterial",
-      params: {
-        url,
-        screenTitle: title,
-        originalFileName: fileName,
-        fileCode: courseCode,
-      },
+    router.push({
+      pathname: '/courses/download-material',
+      params: { url, screenTitle: title, originalFileName: fileName, fileCode: courseCode }
     });
   };
   return (
