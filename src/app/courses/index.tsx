@@ -1,3 +1,3 @@
-import { CoursesScreen } from "../../screens";
+import CoursesScreen from "../../screens/coursesScreen";
 
 export default CoursesScreen;

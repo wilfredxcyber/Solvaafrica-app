@@ -1,3 +1,3 @@
-import { CreateAccountScreen } from "../../screens";
+import  CreateAccountScreen  from "../../screens/createAccountScreen";
 
 export default CreateAccountScreen;

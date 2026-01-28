@@ -9,7 +9,15 @@ export default function RootLayout() {
   
       <QueryClientProvider client={queryClient}>
         <WebAppContainer>
-        <Stack />
+        <Stack>
+          <Stack.Screen
+            name="(tabs)"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="(auth)"
+          options={{ headerShown: false}}
+          />
+        </Stack>
         </WebAppContainer>
       </QueryClientProvider>
   );

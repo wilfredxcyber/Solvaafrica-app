@@ -1,3 +1,3 @@
-import { Innovation } from "../screens";
+import  Innovation from "../screens/Premiums/Innovation";
 
 export default Innovation;

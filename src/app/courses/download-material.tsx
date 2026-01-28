@@ -1,3 +1,3 @@
-import { DownloadCourseMaterial } from "../../screens";
+import DownloadCourseMaterial  from "../../screens/downloadCourseMaterial";
 
 export default DownloadCourseMaterial;

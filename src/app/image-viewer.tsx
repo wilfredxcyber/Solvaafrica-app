@@ -1,3 +1,3 @@
-import { ImageViewerPage } from "@/src/screens";
+import  ImageViewerPage from "@/src/screens/imageViewerPage";
 
 export default ImageViewerPage;

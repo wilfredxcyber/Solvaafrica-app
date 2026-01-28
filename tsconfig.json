@@ -13,5 +13,5 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-, "src/screens/createAccountScreen.mobile.tsx"  ]
+, "src/screens/createAccountScreen.mobile.tsx", "src/app/(tabs)/settings", "src/navigations_old/AppStackNavigation.tsx", "src/app/courses/index.tsx"  ]
 }

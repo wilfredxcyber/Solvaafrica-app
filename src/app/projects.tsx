@@ -1,3 +1,3 @@
-import { ProjectsScreen } from "../screens";
+import ProjectsScreen  from "../screens/projectsScreen";
 
 export default ProjectsScreen;

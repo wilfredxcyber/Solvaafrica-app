@@ -1,3 +1,3 @@
-import { DownloadScreen } from "../../screens";
+import  DownloadScreen  from "../../screens/downloadScreen";
 
 export default DownloadScreen;

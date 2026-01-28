@@ -1,3 +1,3 @@
-import { CourseMaterials } from "../screens";
+import  CourseMaterials  from "../screens/courseMaterials";
 
 export default CourseMaterials;
