@@ -5,6 +5,7 @@
     "slug": "Solva",
     "version": "1.0.0",
     "orientation": "portrait",
+     "jsEngine": "hermes",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
@@ -43,7 +44,7 @@
     },
     "web": {
       "bundler": "metro",
-      "output": "static",
+      "output": "single",
       "favicon": "./assets/images/favicon.png",
       "name": "Solva",
       "viewport": {

@@ -1,3 +1,4 @@
+// app/(tabs)/settings/_layout.tsx
 import { Drawer } from 'expo-router/drawer';
 import Icon from "@expo/vector-icons/AntDesign";
 import { StyleSheet } from "react-native";
@@ -10,6 +11,17 @@ export default function SettingsLayout() {
     <Drawer
       drawerContent={(props) => <CustomDrawer {...props} />}
       screenOptions={{
+        drawerPosition: 'left',
+        drawerType: 'permanent', // This makes the drawer always visible
+        drawerStyle: {
+          width: 351, // Fixed width for drawer
+          backgroundColor: "#F5F3FF",
+          borderTopRightRadius: 0,
+          overflow: "hidden",
+          borderBottomRightRadius: 0,
+        },
+        overlayColor: 'transparent', // No overlay to prevent closing
+        swipeEnabled: false, // Disable swipe to close
         drawerActiveTintColor: colors.primary,
         drawerItemStyle: {
           marginBottom: hscale(12),
@@ -17,39 +29,19 @@ export default function SettingsLayout() {
           borderColor: "#C9CFC9",
         },
         drawerActiveBackgroundColor: "transparent",
-        drawerStyle: { 
-          borderTopRightRadius: 0, 
-          overflow: "hidden", 
-          borderBottomRightRadius: 0 
+        drawerLabelStyle: {
+          fontFamily: "Inter-Regular",
+          fontSize: mscale(16)
         },
-        drawerLabelStyle: { 
-          fontFamily: "Inter-Regular", 
-          fontSize: mscale(16) 
-        },
-        drawerContentStyle: { paddingHorizontal: 0 },
-        drawerContentContainerStyle: { paddingHorizontal: 0 },
-        headerShadowVisible: false,
-        headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
+        headerShown: false, // Hide header since we have custom drawer
       }}
     >
+      {/* Only ONE screen that shows the drawer content */}
       <Drawer.Screen
-        name="profile"
+        name="index"
         options={{
-          drawerLabel: 'Profile',
-          title: 'Profile',
-          drawerIcon: ({ color }) => (
-            <Icon name="user" size={24} color={color} />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="complaints"
-        options={{
-          drawerLabel: 'Complaints',
-          title: 'Complaints',
-          drawerIcon: ({ color }) => (
-            <Icon name="exclamationcircleo" size={24} color={color} />
-          ),
+          drawerLabel: 'Settings',
+          title: 'Settings',
         }}
       />
     </Drawer>

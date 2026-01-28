@@ -1,3 +1,3 @@
-import { Notifications } from "../screens";
+import  Notifications  from "../screens/Notifications/Notifications";
 
 export default Notifications;

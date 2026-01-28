@@ -1,3 +1,3 @@
-import { Cashout } from "../screens"
+import  Cashout  from "../screens/cashout";
 
 export default Cashout;

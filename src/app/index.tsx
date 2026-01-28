@@ -1,4 +1,4 @@
-import { OnboardScreen } from "../screens";
+import  OnboardScreen  from "../screens/OnboardScreen";
 
 
 export default OnboardScreen;

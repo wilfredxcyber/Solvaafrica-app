@@ -12,11 +12,8 @@ import ProtectPage from "../components/protectPage";
 import { globalStyles } from "../styles/global";
 import { CoursesList } from "./index";
 
-const UNIVERSITY_TYPES: UniversityType[] = ["Federal", "State", "Private"];
-
 export default function CoursesScreen() {
   const params = useLocalSearchParams();
-  const [universityType, setUniversityType] = useState<UniversityType>("Federal");
   const [university, setUniversity] = useState("");
   const [faculty, setFaculty] = useState("");
   const [department, setDepartment] = useState("");
@@ -25,14 +22,15 @@ export default function CoursesScreen() {
    * MEMOIZED SELECTORS
    * ============================ */
 
-  const universitiesByType = useMemo(
-    () => universities.filter(u => u.type === universityType),
-    [universityType]
+  // Get all universities (no type filtering)
+  const allUniversities = useMemo(
+    () => universities,
+    []
   );
 
   const selectedUniversity = useMemo(
-    () => universitiesByType.find(u => u.name === university),
-    [universitiesByType, university]
+    () => allUniversities.find(u => u.name === university),
+    [allUniversities, university]
   );
 
   const facultyList = useMemo(
@@ -49,29 +47,28 @@ export default function CoursesScreen() {
    * STATE SYNC
    * ============================ */
 
+  // Initialize with first university if none selected
   useEffect(() => {
-    if (universitiesByType.length) {
-      setUniversity(universitiesByType[0].name);
-    } else {
-      setUniversity("");
+    if (allUniversities.length && !university) {
+      setUniversity(allUniversities[0].name);
     }
-  }, [universitiesByType]);
+  }, [allUniversities]);
 
   useEffect(() => {
-    if (facultyList.length) {
+    if (facultyList.length && !faculty) {
       setFaculty(facultyList[0].name);
-    } else {
+    } else if (facultyList.length === 0) {
       setFaculty("");
     }
-  }, [facultyList]);
+  }, [facultyList, university]);
 
   useEffect(() => {
-    if (departmentList.length) {
+    if (departmentList.length && !department) {
       setDepartment(departmentList[0]);
-    } else {
+    } else if (departmentList.length === 0) {
       setDepartment("");
     }
-  }, [departmentList]);
+  }, [departmentList, faculty]);
 
   /** ============================
    * ACTIONS
@@ -86,7 +83,6 @@ export default function CoursesScreen() {
     router.push({
       pathname: "/courses",
       params: {
-        universityType,
         university,
         faculty,
         department,
@@ -107,13 +103,7 @@ export default function CoursesScreen() {
       <View style={globalStyles.screen}>
         <View style={{ gap: 12 }}>
           <DropDownPicker
-            data={UNIVERSITY_TYPES}
-            setSelectedValue={setUniversityType as any}
-            defaultValue={universityType}
-          />
-
-          <DropDownPicker
-            data={universitiesByType.map(u => u.name)}
+            data={allUniversities.map(u => u.name)}
             setSelectedValue={setUniversity}
             defaultValue={university}
           />
@@ -167,20 +157,20 @@ function DropDownPicker({ data, setSelectedValue, defaultValue }: DropdownPicker
   );
 
   const renderItem = useCallback(
-  ({ item, index }: { item: string; index: number }) => (
-    <Pressable onPress={() => handleSelect(item)}>
-      <Text
-        style={[
-          styles.dropDownListItem,
-          { borderBottomWidth: index + 1 === data.length ? 0 : StyleSheet.hairlineWidth },
-        ]}
-      >
-        {item}
-      </Text>
-    </Pressable>
-  ),
-  [data.length, handleSelect]
-);
+    ({ item, index }: { item: string; index: number }) => (
+      <Pressable onPress={() => handleSelect(item)}>
+        <Text
+          style={[
+            styles.dropDownListItem,
+            { borderBottomWidth: index + 1 === data.length ? 0 : StyleSheet.hairlineWidth },
+          ]}
+        >
+          {item}
+        </Text>
+      </Pressable>
+    ),
+    [data.length, handleSelect]
+  );
 
   return (
     <View ref={dropdownViewRef}>

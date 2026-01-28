@@ -10,11 +10,13 @@ import {
   Linking,
   Alert,
   Platform,
+  Image,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LogoutIcon from "@expo/vector-icons/MaterialIcons";
 import SocialIcon from "@expo/vector-icons/FontAwesome";
 import { useState } from "react";
+import {router} from "expo-router";
 
 import { colors, screenHorizontalPadding } from "../constants/theme";
 import { hscale, mscale, wscale } from "../helpers/metric";
@@ -22,12 +24,19 @@ import { useAuthStore } from "../stores/authStore";
 import LoadingView from "./loadingView";
 import AvatarView from "./avatarView";
 import ErrorModal from "./errorModal";
+import  Profile from "../screens/Drawer/Profile";
+import  Complaints from "../screens/Drawer/Complaints";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
+import { globalStyles } from "../styles/global";
 
-type TDrawerScreens = "Profile" | "Complaints";
+type DrawerSection = "profile" | "complaints" | null;
+
+
 
 export default function CustomDrawer(props: DrawerContentComponentProps) {
   const { navigation } = props;
-  const [activeScreen, setActiveScreen] = useState<TDrawerScreens>("Profile");
+  const [openSection, setOpenSection] = useState<DrawerSection>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [errorVisible, setErrorVisible] = useState(false);
@@ -37,17 +46,11 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
 
   const { fullName } = authUser.profile;
 
-  const handleSetActiveProfile = (selectedScreen: TDrawerScreens) => {
-    if (selectedScreen === "Profile") {
-      setActiveScreen(selectedScreen);
-      navigation.navigate(selectedScreen);
-    } else if (selectedScreen === "Complaints") {
-      // screen is incomplete
-      return
-      setActiveScreen(selectedScreen);
-      navigation.navigate(selectedScreen);
-    }
-  };
+
+ const toggleSection = (section: DrawerSection) => {
+ setOpenSection(prev => (prev === section ? null : section));
+};
+
 
   const handleSocialIconPressed = async (icon: "tw" | "ig" | "fb") => {
     try {
@@ -76,6 +79,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
     }
   };
 
+  
   const handleLogout = () => {
     const logoutUser = async () => {
       useAuthStore.setState((currState) => {
@@ -107,7 +111,11 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
   return (
     <DrawerContentScrollView style={styles.drawerView}>
       <View style={styles.drawerHeaderView}>
-        <AvatarView />
+        <Image
+        source={require("../../assets/images/Person.png")} 
+        style={styles.avatar}
+        resizeMode="contain"
+      />
         <Text
           style={{
             fontFamily: "Inter-Bold",
@@ -119,42 +127,46 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         </Text>
       </View>
 
+        <Pressable
+           onPress={() => toggleSection("profile")}
+            style={styles.customDrawerItem}
+        >
+          <Text
+            style={[
+            styles.activeScreenTextLink,
+            { color: openSection === "profile" ? colors.primary : colors.bodyText },]}
+          >
+             Profile
+          </Text>
+        </Pressable>
+
+        {openSection === "profile" && (
+        <View style={{ paddingVertical: hscale(16) }}>
+        <Profile />
+      </View>
+    )}
+
       <Pressable
-        onPress={() => handleSetActiveProfile("Profile")}
-        style={styles.customDrawerItem}
+       onPress={() => toggleSection("complaints")}
+       style={styles.customDrawerItem}
       >
         <Text
           style={[
-            styles.activeScreenTextLink,
-            {
-              color:
-                activeScreen === "Profile" ? colors.primary : colors.bodyText,
-            },
-          ]}
-        >
-          Profile
-        </Text>
-      </Pressable>
-      <Pressable
-        onPress={() => handleSetActiveProfile("Complaints")}
-        style={styles.customDrawerItem}
-      >
-        <Text
-          style={[
-            styles.activeScreenTextLink,
-            {
-              color:
-                activeScreen === "Complaints"
-                  ? colors.primary
-                  : colors.bodyText,
-            },
-          ]}
-        >
+          styles.activeScreenTextLink,
+          { color: openSection === "complaints" ? colors.primary : colors.bodyText },]}
+          >
           Complaints
         </Text>
       </Pressable>
 
-      <View style={{ justifyContent: "flex-end", height: "80%" }}>
+      {openSection === "complaints" && (
+      <View style={{ paddingVertical: hscale(16) }}>
+      <Complaints />
+    </View>
+)}
+
+     {/* This footer stays at the bottom and is always visible */}
+      <View style={styles.footer}>
         <View style={styles.socialIconsView}>
           <SocialIcon
             name="twitter"
@@ -205,7 +217,7 @@ const styles = StyleSheet.create({
     borderColor: "#C9CFC9",
   },
   drawerView: {
-    backgroundColor: "#F5F6F5",
+    backgroundColor: "#F5F3FF",
     paddingHorizontal: screenHorizontalPadding,
   },
   socialIconsView: {
@@ -222,12 +234,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: hscale(20),
     borderRadius: mscale(15 / 2),
-    ...Platform.select({
-      web:{
-        maxWidth: 200,
-        alignSelf: 'center',
-      }
-    })
   },
   activeScreenTextLink: { fontFamily: "Inter-Regular", fontSize: mscale(16) },
   customDrawerItem: {
@@ -235,5 +241,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderColor: "#C9CFC9",
     justifyContent: "center",
+  },
+   avatar: {
+    width: 90,
+    height: 90,
+  },
+
+  footer: {
+    marginTop: 'auto', // This pushes footer to bottom
+    paddingTop: hscale(180),
+    paddingBottom: hscale(40),
   },
 });

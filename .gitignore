@@ -3,6 +3,9 @@
 # dependencies
 node_modules/
 
+#Navigations old
+src/navigations_old
+
 # Expo
 .expo/
 dist/

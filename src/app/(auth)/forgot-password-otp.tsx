@@ -1,3 +1,3 @@
-import { ForgotPasswordOtp } from '../../screens';
+import  ForgotPasswordOtp  from '../../screens/auth/forgot-password/otpForgotPassword';
 
 export default ForgotPasswordOtp;

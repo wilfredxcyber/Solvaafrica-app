@@ -8,7 +8,16 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
-        <Stack />
+        <Stack>
+          <Stack.Screen
+            name="(tabs)"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="(auth)"
+          options={{ headerShown: false}}
+          />
+          
+        </Stack>
       </QueryClientProvider>
     </GestureHandlerRootView>
   );

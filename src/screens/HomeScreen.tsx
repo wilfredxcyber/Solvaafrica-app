@@ -96,7 +96,7 @@ export default function HomeScreen() {
     {
       item: MenuItemScreensRoutes.TASK,
       icon: () => (
-        <MenuIcon name="shield-checkmark-outline" size={20} color={colors.primary} />
+        <MenuIcon name="list" size={20} color={colors.primary} />
       ),
     },
   ];
@@ -112,7 +112,7 @@ export default function HomeScreen() {
       router.push("/premium");
       return;
     } else if (pressedItem === MenuItemScreensRoutes.EARNING) {
-      router.push("/earnings");
+      router.push("/earning");
     } else if (pressedItem === MenuItemScreensRoutes.SERVICES) {
       router.push("/services");
       return;
@@ -145,7 +145,7 @@ export default function HomeScreen() {
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <TouchableOpacity
-         // onPress={() => navigation.navigate("App", { screen: "Settings" })}
+         onPress={() => router.push('/settings')}
           >
             <AvatarView />
           </TouchableOpacity>
@@ -161,9 +161,9 @@ export default function HomeScreen() {
 
         {/* notification icon */}
         <TouchableOpacity
-        // onPress={() =>
-        //   navigation.navigate("App", { screen: "Notifications" })
-        // }
+         onPress={() =>
+           router.push('/notifications')
+         }
         >
           <Icon name="bell" color={colors.primary} size={24} />
         </TouchableOpacity>

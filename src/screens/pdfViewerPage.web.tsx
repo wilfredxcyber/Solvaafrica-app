@@ -1,11 +1,10 @@
-import { StaticScreenProps } from "@react-navigation/native";
 import { Dimensions, StyleSheet, View } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 import { hscale } from "../helpers/metric";
 
-export default function PdfViewerPageWeb({
-  route,
-}: StaticScreenProps<{ pdfUri: string }>) {
-  const { pdfUri } = route.params;
+export default function PdfViewerPageWeb() {
+  const params = useLocalSearchParams<{ pdfUri?: string; url?: string }>();
+  const pdfUri = params.pdfUri || params.url || '';
 
   const width = Dimensions.get("window").width;
   const height = Dimensions.get("window").height;
@@ -33,5 +32,3 @@ const styles = StyleSheet.create({
     marginTop: hscale(25),
   },
 });
-
-

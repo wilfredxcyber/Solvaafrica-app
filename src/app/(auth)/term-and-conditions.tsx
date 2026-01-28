@@ -1,3 +1,3 @@
-import { TermsAndConditions } from "../../screens";
+import  TermsAndConditions from "../../screens/termsAndConditons";
 
 export default TermsAndConditions;

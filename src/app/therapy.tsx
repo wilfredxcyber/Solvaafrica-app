@@ -1,3 +1,3 @@
-import { Theraphy } from "../screens";
+import Theraphy  from "../screens/Premiums/Theraphy";
 
 export default Theraphy;
