@@ -212,7 +212,6 @@ export default function HomeScreen() {
                     width: "100%",
                     height: "100%",
                     borderRadius: mscale(10),
-
                   }}
                   resizeMode="cover"
                 />

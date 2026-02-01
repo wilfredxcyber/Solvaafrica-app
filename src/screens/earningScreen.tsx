@@ -1,5 +1,5 @@
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
+import { Alert, Pressable, StyleSheet, Text, View, ScrollView } from "react-native"; // Added ScrollView
+//import { useFocusEffect } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import { useCallback, useEffect, useState } from "react";
 import StarIcon from "@expo/vector-icons/AntDesign";
@@ -7,6 +7,7 @@ import * as Clipboard from "expo-clipboard";
 import { Image } from "expo-image";
 import * as Linking from "expo-linking";
 import Icon from "@expo/vector-icons/FontAwesome";
+import { useRouter, useFocusEffect } from "expo-router"; // Add expo-router
 
 import { hscale, mscale, wscale } from "../helpers/metric";
 import { useAuthStore } from "../stores/authStore";
@@ -49,8 +50,15 @@ export default function EarningScreen() {
       {/* tabs view */}
       <ToastManager />
       <Tabs setActiveTab={setActiveTab} activeTab={activeTab} />
-      {activeTab === "Refer" && <ReferTabView />}
-      {activeTab === "Earn" && <EarnTabView userBalance={userBalance} />}
+      
+      <ScrollView 
+        style={{ flex: 1 }}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: hscale(20) }}
+      >
+        {activeTab === "Refer" && <ReferTabView />}
+        {activeTab === "Earn" && <EarnTabView userBalance={userBalance} />}
+      </ScrollView>
     </View>
   );
 }
@@ -67,6 +75,7 @@ const ReferTabView = () => {
   const [referrals, setReferrals] = useState<any[]>([]);
   const { profile } = useAuthStore((state) => state.user);
   const userReferralCode = profile.referralCode;
+  
   return (
     <View>
       {/* how you earn view */}
@@ -85,7 +94,7 @@ const ReferTabView = () => {
           >
             How You Earn
           </Text>
-          <View style={{ gap: 12, marginTop: hscale(20) }}>
+          <View style={{ gap: 2, marginTop: hscale(0) }}>
             <Text style={styles.text}>Subscribe to premium package</Text>
             <Text style={styles.text}>
               People signup with your referral code
@@ -124,71 +133,72 @@ const ReferTabView = () => {
 
       {/* Copy referral code view */}
       <CopyReferalCodeView />
+
+      <Text
+          style={{
+            fontFamily: "Inter-Bold",
+            fontSize: mscale(20),
+            color: colors.black,
+            marginTop: hscale(24),
+          }}
+        >
+          Your Referrals
+        </Text> 
       {/* Referrals section */}
-      <View style={{ marginTop: hscale(40), alignItems: "center" }}>
-      <Text
-       style={{
-      fontFamily: "Inter-Bold",
-      fontSize: mscale(20),
-      color: colors.black,
-      marginBottom: hscale(12),
-    }}
-  >
-    Your Referrals
-  </Text>
+      <View style={{ marginTop: hscale(8), alignItems: "center" }}>
+        {referrals.length === 0 && (
+          <>
+            <Text
+              style={{
+                textAlign: "center",
+                fontSize: mscale(14),
+                color: "#5C5F62",
+                width: "80%",
+                lineHeight: mscale(20),
+                marginBottom: hscale(24),
+              }}
+            >
+              You currently do not have any referral. Your referrals will appear here
+              when you refer friends using your code.
+            </Text>
 
-  {referrals.length === 0 && (
-    <>
-      <Text
-        style={{
-          textAlign: "center",
-          fontSize: mscale(14),
-          color: "#5C5F62",
-          width: "80%",
-          lineHeight: mscale(20),
-          marginBottom: hscale(24),
-        }}
-      >
-        You currently do not have any referral. Your referrals will appear here
-        when you refer friends using your code.
-      </Text>
+            {/* Empty state image */}
+            <View
+              style={{
+                width: wscale(180),
+                height: hscale(300),
+                alignItems: "center"
+                //marginBottom: hscale(32),
+              }}
+            >
+              <Image
+                source={require("../../assets/images/Referral.png")}
+                style={{ width: 266, height: 283, }}
+                contentFit="contain"
+              />
+            </View>
+          </>
+        )}
 
-      {/* Empty state image */}
-      <View
-        style={{
-          width: wscale(180),
-          height: hscale(140),
-          marginBottom: hscale(32),
-        }}
-      >
-        <Image
-          source={require("../../assets/images/Referral.png")}
-          style={{ width: "100%", height: "100%" }}
-          contentFit="contain"
-        />
+        <Text
+          style={{
+            fontFamily: "Inter-Bold",
+            fontSize: mscale(24),
+            color: colors.black,
+            marginBottom: hscale(16),
+          }}
+        >
+          Share Via
+        </Text>
+
+        {/* Social buttons */}
+        <View style={{ flexDirection: "row", gap: 16, marginBottom: hscale(40) }}>
+          <SocialButton label="WhatsApp" referralCode={userReferralCode} />
+          <SocialButton label="X" referralCode={userReferralCode} />
+          <SocialButton label="Facebook" referralCode={userReferralCode} />
+        </View>
       </View>
-    </>
-  )}
-
-  <Text
-    style={{
-      fontFamily: "Inter-Bold",
-      fontSize: mscale(24),
-      color: colors.black,
-      marginBottom: hscale(16),
-    }}
-  >
-    Share Via
-  </Text>
-
-  {/* Social buttons */}
-  <View style={{ flexDirection: "row", gap: 16 }}>
-    <SocialButton label="WhatsApp" referralCode={userReferralCode} />
-    <SocialButton label="X" referralCode={userReferralCode} />
-    <SocialButton label="Facebook" referralCode={userReferralCode} />
-  </View>
-</View>
-</View>
+    </View>
   );
 };
 
@@ -298,12 +308,15 @@ const EarningsBalanceView = ({
 }: {
   userBalance: number | null | any;
 }) => {
-  const navigation = useNavigation();
+  const router = useRouter();
 
   const handleNavigateCashout = () => {
-    navigation.navigate("App", { screen: "Cashout", params: { userBalance } });
+    const balanceString = userBalance ? userBalance.toString() : "0";
+    router.push(`/cashout?balance=${balanceString}`);
   };
+  
   return (
+    <View>
     <View style={styles.copyReferralCodeView}>
       <View style={{ flex: 1 }}>
         <Text
@@ -332,6 +345,9 @@ const EarningsBalanceView = ({
         Cashout
       </Text>
     </View>
+
+    </View>
+   
   );
 };
 
@@ -363,6 +379,7 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     flexDirection: "row",
     borderRadius: mscale(30),
+    marginBottom: hscale(10), // Added some spacing
   },
   tabView: {
     height: hscale(48),
@@ -378,10 +395,11 @@ const styles = StyleSheet.create({
   bannerView: {
     backgroundColor: "#F5F3FF",
     marginTop: hscale(20),
-    borderRadius: mscale(15),
+    borderRadius: mscale(20),
     flexDirection: "row",
-    padding: mscale(20),
-    height: hscale(180),
+    paddingVertical: mscale(20),
+    paddingHorizontal: mscale(20),
+    height: hscale(184),
   },
   copyReferralCodeView: {
     flexDirection: "row",

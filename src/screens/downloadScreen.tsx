@@ -5,7 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { open } from "react-native-file-viewer-turbo";
 import { FlashList } from "@shopify/flash-list";
 import * as FileSystem from "expo-file-system";
-import { useCallback, useState } from "react";
+import { useCallback, useState,useEffect } from "react";
 
 import { DownloadItemView } from "../components/downloadItemView";
 import { hscale, mscale,wscale } from "../helpers/metric";
@@ -41,6 +41,26 @@ export default function DownloadScreen() {
   const handleDeleteItem = async (item: DownloadedFileRef) => {
     const downloadsInStore = await AsyncStorage.getItem("DownloadRefs");
     const downloadList: DownloadedFileRef[] = downloadsInStore && JSON.parse(downloadsInStore);
+
+
+    // In your downloads screen component
+const [downloadedFiles, setDownloadedFiles] = useState<DownloadedFileRef[]>([]);
+
+  useEffect(() => {
+  const fetchDownloads = async () => {
+    try {
+      const downloadRefsInStore = await AsyncStorage.getItem("DownloadRefs");
+      if (downloadRefsInStore) {
+        const downloads = JSON.parse(downloadRefsInStore);
+        setDownloadedFiles(downloads);
+      }
+    } catch (error) {
+      console.error("Error fetching downloads:", error);
+    }
+  };
+
+  fetchDownloads();
+}, []);
 
     // Delete actual file from device storage !important
     await FileSystem.deleteAsync(item.filePath);
@@ -88,7 +108,7 @@ export default function DownloadScreen() {
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Downloads</Text>
       </View>
-      
+      <View style ={styles.downloadsWrapper}>
       <View style={styles.downloadsContainer}>
         <FlashList
           data={downloadsList}
@@ -106,7 +126,7 @@ export default function DownloadScreen() {
               />
             );
           }}
-          contentContainerStyle={{ paddingVertical: hscale(20) }}
+          //contentContainerStyle={{ paddingVertical: hscale(20) }}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -115,6 +135,7 @@ export default function DownloadScreen() {
             />
           }
         />
+      </View>
       </View>
     </View>
   );
@@ -138,14 +159,27 @@ const styles = StyleSheet.create({
     color: colors.white,
     textAlign: 'center',
   },
-  downloadsContainer: {
+
+  downloadsWrapper:{
     flex: 1,
     backgroundColor: colors.white,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
     height: 838, // Fixed height as requested
-    paddingHorizontal: wscale(20),
-    paddingTop: hscale(20),
+    width:440,
+    paddingHorizontal: wscale(16),
+    paddingVertical: hscale(12),
+    alignItems: 'center',
+    
+
+  },
+  downloadsContainer: {
+    backgroundColor: colors.inputFieldNew,
+    borderRadius: 10,
+    height: 82, // Fixed height as requested
+    width: 390,
+    paddingVertical: hscale(20),
+    paddingHorizontal:wscale(20),
   },
  // Empty state styles
   emptyHeaderContainer: {

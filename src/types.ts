@@ -24,10 +24,12 @@ export interface SavedFile {
 export type FileDirectory = "Courses" | "Projects";
 
 export interface DownloadedFileRef {
-  fileCode?: string;
   fileName: string;
   filePath: string;
   parentDirectory: FileDirectory;
+  fileCode?: string;
+  platform?: string; // 'web' | 'ios' | 'android'
+  downloadDate?: string;
 }
 
 export interface ImageViewerProps {
@@ -40,9 +42,10 @@ export interface DownloadItemViewProps {
   source: string;
   fileCode: string;
   fileName: string;
-  parentDirectory: FileDirectory;
-  onDeletePress?: (item: string) => void;
+  parentDirectory: string;
   onItemPress: () => void;
+  onDeletePress: () => void; // Should not take any parameters
+  platform?: string; // Optional platform prop
 }
 
 export interface PickedFile {

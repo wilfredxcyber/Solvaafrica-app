@@ -1,7 +1,5 @@
 import CheckCircleIcon from "@expo/vector-icons/FontAwesome";
-import { Alert, Pressable, Text, View } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import PDFIcon from "@expo/vector-icons/FontAwesome6";
+import { Alert, Pressable, Text, View, Platform } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { FlashList } from "@shopify/flash-list";
 import LottieView from "lottie-react-native";
@@ -21,6 +19,7 @@ export default function ProjectsScreen() {
   const [projects, setProjects] = useState<any[]>([]);
   const [projectFiles, setProjectFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [downloadingFiles, setDownloadingFiles] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchInitialProjects = async () => {
@@ -36,7 +35,6 @@ export default function ProjectsScreen() {
           );
         }
       } catch (error) {
-        // console.log("Error fetching initial projects:", error);
         Toast.error("Error fetching initial projects")
       } finally {
         setLoading(false);
@@ -66,35 +64,53 @@ export default function ProjectsScreen() {
     );
   };
 
+  const addDownloadingFile = (fileName: string) => {
+    setDownloadingFiles(prev => new Set(prev).add(fileName));
+  };
+
+  const removeDownloadingFile = (fileName: string) => {
+    setDownloadingFiles(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(fileName);
+      return newSet;
+    });
+  };
+
   return (
     <ProtectPage>
       <View style={globalStyles.screen}>
         <SearchBoxView handleSearchInputTextChange={handleInputChange} />
         <View style={{ flex: 1, marginTop: hscale(12) }}>
           {loading ? (
-            <LottieView
-              autoPlay
-              style={{
-                width: wscale(50),
-                height: hscale(50),
-                alignSelf: "center",
-              }}
-              source={require("../../assets/animations/spin.json")}
-            />
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <LottieView
+                autoPlay
+                loop
+                style={{
+                  width: Platform.select({ web: 80, default: wscale(50) }),
+                  height: Platform.select({ web: 80, default: hscale(50) }),
+                }}
+                source={require("../../assets/animations/spin.json")}
+              />
+            </View>
           ) : projects?.length && projectFiles?.length ? (
             <FlashList
               showsVerticalScrollIndicator={false}
               data={projectFiles}
-              estimatedItemSize={56}
+              estimatedItemSize={70}
+              keyExtractor={(item, index) => `${item?.url || index}-${index}`}
               renderItem={({ item, index }) => (
                 <ProjectItemView
                   fileName={projects[index].project.name}
                   fileURI={item?.url}
+                  fileKey={`${item?.url || index}-${index}`}
+                  isDownloading={downloadingFiles.has(projects[index].project.name)}
+                  onDownloadStart={() => addDownloadingFile(projects[index].project.name)}
+                  onDownloadComplete={() => removeDownloadingFile(projects[index].project.name)}
                 />
               )}
             />
           ) : (
-            //<Text style={globalStyles.bodyText}>No projects found.</Text>
             <EmptyStateView/>
           )}
         </View>
@@ -103,47 +119,200 @@ export default function ProjectsScreen() {
   );
 }
 
+interface ProjectItemViewProps {
+  fileName: string;
+  fileURI: string;
+  fileKey: string;
+  isDownloading: boolean;
+  onDownloadStart: () => void;
+  onDownloadComplete: () => void;
+}
+
 const ProjectItemView = ({
   fileName,
   fileURI,
-}: {
-  fileName: string;
-  fileURI: string;
-}) => {
-  const [startDownload, setStartDownload] = useState(false);
+  fileKey,
+  isDownloading,
+  onDownloadStart,
+  onDownloadComplete,
+}: ProjectItemViewProps) => {
   const [fileExist, setFileExist] = useState(false);
-  // set file code to PRJ for project files
-  const downloadFile = useDownloadFile(startDownload, "PRJ");
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const downloadFile = useDownloadFile(true, "PRJ"); // Always true since we control when to download
   const DownloadIconRef = useRef<LottieView>(null);
+  const downloadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Clean up timeout on unmount
   useEffect(() => {
-    const initiateDownload = async () => {
-      try {
-        if (!fileURI || !fileName) return; // prevent falsy values from being passed
-        const { isExistingFile } = await downloadFile(
-          "Projects",
-          fileURI,
-          fileName
-        );
-        if (isExistingFile) {
-          setFileExist(true);
-          return;
-        }
-      } catch (error) {
-        Alert.alert(
-          "Download Failed.",
-          "Please try again later or contact support"
-        );
+    return () => {
+      if (downloadTimeoutRef.current) {
+        clearTimeout(downloadTimeoutRef.current);
       }
     };
+  }, []);
 
-    initiateDownload();
-  }, [startDownload]);
-
-  const handleInitiateDownload = () => {
-    DownloadIconRef.current && DownloadIconRef.current.play();
-    setStartDownload(true);
+  const handleDownload = async () => {
+    if (isDownloading || fileExist) return;
+    
+    console.log(`Starting download for: ${fileName}`);
+    onDownloadStart();
+    
+    try {
+      const result = await downloadFile("Projects", fileURI, fileName);
+      
+      console.log(`Download result:`, result);
+      
+      if (result.success) {
+        setFileExist(true);
+        setDownloadSuccess(true);
+        
+        // Show success state for 3 seconds
+        if (downloadTimeoutRef.current) {
+          clearTimeout(downloadTimeoutRef.current);
+        }
+        
+        downloadTimeoutRef.current = setTimeout(() => {
+          setDownloadSuccess(false);
+        }, 3000);
+        
+        Toast.success(`Downloaded: ${fileName}`);
+      } else {
+        Toast.error(`Failed to download: ${fileName}`);
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      Toast.error(`Download failed: ${fileName}`);
+    } finally {
+      onDownloadComplete();
+    }
   };
+
+  const handleMobileDownload = () => {
+    if (isDownloading || fileExist) return;
+    
+    // Play animation on mobile
+    if (DownloadIconRef.current) {
+      DownloadIconRef.current.play();
+    }
+    
+    // Start download after animation starts
+    setTimeout(() => {
+      handleDownload();
+    }, 300);
+  };
+
+  // Update the renderDownloadButton function in ProjectItemView
+const renderDownloadButton = () => {
+  if (fileExist || downloadSuccess) {
+    return (
+      <View style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: Platform.select({ web: 8, default: wscale(20) }),
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+      }}>
+        <CheckCircleIcon
+          name="check-circle"
+          size={Platform.select({ web: 18, default: 20 })}
+          color={colors.primary}
+        />
+        <Text style={{
+          fontFamily: "Inter-Regular",
+          fontSize: Platform.select({ web: 12, default: mscale(11) }),
+          color: colors.primary,
+          marginLeft: 6,
+          fontWeight: '500',
+        }}>
+          {downloadSuccess ? 'Downloaded!' : 'Downloaded'}
+        </Text>
+      </View>
+    );
+  }
+
+  if (isDownloading) {
+    return (
+      <View style={{
+        width: Platform.select({ web: 100, default: wscale(64) }),
+        height: Platform.select({ web: 36, default: hscale(64) }),
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+      }}>
+        <LottieView
+          autoPlay
+          loop
+          style={{
+            width: Platform.select({ web: 24, default: wscale(30) }),
+            height: Platform.select({ web: 24, default: hscale(30) }),
+          }}
+          source={require("../../assets/animations/spin.json")}
+        />
+      </View>
+    );
+  }
+
+  if (Platform.OS === 'web') {
+    return (
+      <Pressable
+        onPress={handleDownload}
+        disabled={isDownloading}
+        style={({ pressed }) => ({
+          opacity: pressed ? 0.8 : 1,
+          flexDirection: 'row',
+          alignItems: 'center',
+          borderWidth: 1,
+          borderColor: colors.primary,
+          backgroundColor: 'transparent',
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          borderRadius: 6,
+          minWidth: 100,
+          justifyContent: 'center',
+        })}
+      >
+        <CheckCircleIcon
+          name="download"
+          size={14}
+          color={colors.primary}
+          style={{ marginRight: 6 }}
+        />
+        <Text style={{
+          fontFamily: "Inter-Regular",
+          fontSize: 12,
+          color: colors.primary,
+          fontWeight: '500',
+        }}>
+          Download
+        </Text>
+      </Pressable>
+    );
+  }
+
+  return (
+    <Pressable
+      onPress={handleMobileDownload}
+      disabled={isDownloading}
+      style={({ pressed }) => ({
+        opacity: pressed ? 0.8 : 1,
+        width: wscale(64),
+        height: hscale(64),
+        justifyContent: 'center',
+        alignItems: 'center',
+      })}
+    >
+      <LottieView
+        ref={DownloadIconRef}
+        style={{ 
+          width: wscale(64),
+          height: hscale(64)
+        }}
+        source={require("../../assets/animations/download.json")}
+      />
+    </Pressable>
+  );
+};
+
   return (
     <View
       style={{
@@ -151,49 +320,41 @@ const ProjectItemView = ({
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: colors.inputFieldNew,
-        height: hscale(60),
-        paddingVertical: hscale(8),
-        borderRadius: mscale(8),
+        minHeight: Platform.select({ web: 70, default: hscale(60) }),
+        paddingVertical: Platform.select({ web: 12, default: hscale(8) }),
+        borderRadius: 10,
         justifyContent: "space-between",
-        marginVertical: hscale(8),
+        marginVertical: Platform.select({ web: 8, default: hscale(8) }),
+        borderWidth: 1,
+        borderColor: colors.black,
+        paddingHorizontal: Platform.select({ web: 16, default: wscale(12) }),
       }}
+      key={fileKey}
     >
       <View
         style={{
+          flex: 1,
           flexDirection: "row",
           alignItems: "center",
-          marginLeft: wscale(20),
         }}
       >
-        <PDFIcon name="file-pdf" size={32} color={colors.primary} />
         <Text
           numberOfLines={1}
+          ellipsizeMode="tail"
           style={{
             fontFamily: "Inter-Regular",
-            fontSize: mscale(14),
+            fontSize: Platform.select({ web: 14, default: mscale(14) }),
             color: colors.black,
-            marginLeft: wscale(12),
+            flex: 1,
           }}
         >
           {fileName}
         </Text>
       </View>
-      {!fileExist ? (
-        <Pressable onPress={handleInitiateDownload}>
-          <LottieView
-            ref={DownloadIconRef}
-            style={{ width: wscale(64), height: hscale(64) }}
-            source={require("../../assets/animations/download.json")}
-          />
-        </Pressable>
-      ) : (
-        <CheckCircleIcon
-          style={{ marginRight: wscale(20) }}
-          name="check-circle"
-          size={24}
-          color={colors.primary}
-        />
-      )}
+      
+      <View style={{ marginLeft: 8 }}>
+        {renderDownloadButton()}
+      </View>
     </View>
   );
 };
