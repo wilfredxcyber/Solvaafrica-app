@@ -1,8 +1,4 @@
-import {
-  StaticScreenProps,
-  useNavigation,
-  StackActions,
-} from "@react-navigation/native";
+import { useLocalSearchParams, useNavigation, router } from "expo-router";
 import { Alert, Dimensions, View } from "react-native";
 import { useEffect, useState } from "react";
 import { Image } from "expo-image";
@@ -14,26 +10,23 @@ import { globalStyles } from "../styles/global";
 import { hscale } from "../helpers/metric";
 import ErrorModal from "../components/errorModal";
 
-export default function DownloadCourseMaterial({
-  route,
-}: StaticScreenProps<{
-  url: string;
-  originalFileName: string;
-  screenTitle: string;
-  fileCode: string;
-}>) {
-  const params = route.params;
+export default function DownloadCourseMaterial() {
+  const params = useLocalSearchParams();
   const navigation = useNavigation();
   const [startDownload, setStartDownload] = useState(false);
   const [fileExist, setFileExist] = useState(false);
-  const downloadFile = useDownloadFile(startDownload, params.fileCode);
+  const fileCode = Array.isArray(params.fileCode) ? params.fileCode[0] : params.fileCode;
+  const screenTitle = Array.isArray(params.screenTitle) ? params.screenTitle[0] : params.screenTitle;
+  const url = Array.isArray(params.url) ? params.url[0] : params.url;
+  const originalFileName = Array.isArray(params.originalFileName) ? params.originalFileName[0] : params.originalFileName;
+  const downloadFile = useDownloadFile(startDownload, fileCode);
   const [isLoading, setIsLoading] = useState(false);
 
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    navigation.setOptions({ title: params.screenTitle });
+    navigation.setOptions({ title: screenTitle });
   }, []);
 
   // download file
@@ -43,8 +36,8 @@ export default function DownloadCourseMaterial({
         setIsLoading(true);
         const { isExistingFile } = await downloadFile(
           "Courses",
-          params.url,
-          params.originalFileName
+          url,
+          originalFileName
         );
         if (isExistingFile) {
           setFileExist(true);
@@ -72,11 +65,7 @@ export default function DownloadCourseMaterial({
   };
 
   const handleOpenDownloads = () => {
-    const replaceCurrentScreen = StackActions.replace("App", {
-      screen: "BottomTabs",
-      params: { screen: "DownloadTab" },
-    });
-    navigation.dispatch(replaceCurrentScreen);
+    router.replace('/(tabs)/downloads');
   };
 
   return (

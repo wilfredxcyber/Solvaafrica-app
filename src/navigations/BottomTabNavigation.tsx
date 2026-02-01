@@ -16,9 +16,9 @@ const TabsNavigator = createBottomTabNavigator({
         tabBarInactiveTintColor: colors.tabBarInactiveTintColor,
         tabBarHideOnKeyboard: true,
         tabBarStyle: {
-            elevation: 0, // Remove shadow for Android
-            shadowOpacity: 0, // Remove shadow for iOS
-            borderTopWidth: 0, // Remove border for iOS
+            elevation: 0,
+            shadowOpacity: 0,
+            borderTopWidth: 0,
             height: hscale(60)
         },
         tabBarButton: (props) => (<Pressable {...props} />),
@@ -51,13 +51,8 @@ const TabsNavigator = createBottomTabNavigator({
             }
 
             return <TabIcon name={iconName} color={color} size={20} />
-
         }
     }),
-
-    
 });
-
-
 
 export default TabsNavigator

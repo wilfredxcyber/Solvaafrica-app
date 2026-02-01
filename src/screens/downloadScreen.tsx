@@ -1,14 +1,14 @@
 import { StackActions, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Text, View, RefreshControl, Alert } from "react-native";
+import { Text, View, RefreshControl, Alert , StyleSheet} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { open } from "react-native-file-viewer-turbo";
 import { FlashList } from "@shopify/flash-list";
 import * as FileSystem from "expo-file-system";
-import { useCallback, useState } from "react";
+import { useCallback, useState,useEffect } from "react";
 
 import { DownloadItemView } from "../components/downloadItemView";
-import { hscale, mscale } from "../helpers/metric";
+import { hscale, mscale,wscale } from "../helpers/metric";
 import { globalStyles } from "../styles/global";
 import { DownloadedFileRef } from "../types";
 import { colors } from "../constants/theme";
@@ -42,6 +42,26 @@ export default function DownloadScreen() {
     const downloadsInStore = await AsyncStorage.getItem("DownloadRefs");
     const downloadList: DownloadedFileRef[] = downloadsInStore && JSON.parse(downloadsInStore);
 
+
+    // In your downloads screen component
+const [downloadedFiles, setDownloadedFiles] = useState<DownloadedFileRef[]>([]);
+
+  useEffect(() => {
+  const fetchDownloads = async () => {
+    try {
+      const downloadRefsInStore = await AsyncStorage.getItem("DownloadRefs");
+      if (downloadRefsInStore) {
+        const downloads = JSON.parse(downloadRefsInStore);
+        setDownloadedFiles(downloads);
+      }
+    } catch (error) {
+      console.error("Error fetching downloads:", error);
+    }
+  };
+
+  fetchDownloads();
+}, []);
+
     // Delete actual file from device storage !important
     await FileSystem.deleteAsync(item.filePath);
     // Remove the file reference !important
@@ -65,12 +85,31 @@ export default function DownloadScreen() {
     }
   };
 
+  // Render empty state screen
+  if (downloadsList.length === 0) {
+    return (
+      <View style={globalStyles.screen}>
+        <View style={styles.emptyHeaderContainer}>
+          <Text style={styles.emptyHeaderText}>Downloads</Text>
+        </View>
+        <View style={styles.emptyContentContainer}>
+          <Text style={styles.emptyText}>
+            Files you downloaded to this device will show here
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+
+   // Render downloads list screen
   return (
-    <View style={globalStyles.screen}>
-      <Text style={{ fontFamily: "Inter-Bold", fontSize: mscale(24), color: colors.black }}>
-        Downloads
-      </Text>
-      {downloadsList.length ? (
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>Downloads</Text>
+      </View>
+      <View style ={styles.downloadsWrapper}>
+      <View style={styles.downloadsContainer}>
         <FlashList
           data={downloadsList}
           estimatedItemSize={100}
@@ -87,7 +126,7 @@ export default function DownloadScreen() {
               />
             );
           }}
-          contentContainerStyle={{ paddingVertical: hscale(20) }}
+          //contentContainerStyle={{ paddingVertical: hscale(20) }}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -96,20 +135,73 @@ export default function DownloadScreen() {
             />
           }
         />
-      ) : (
-        <View style={{ flex: 1, justifyContent: "center" }}>
-          <Text
-            style={{
-              textAlign: "center",
-              fontFamily: "Inter-Regular",
-              fontSize: mscale(14),
-              color: colors.bodyText,
-            }}
-          >
-            Files you downloaded to this device will show here
-          </Text>
-        </View>
-      )}
+      </View>
+      </View>
     </View>
   );
 }
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.primary, // Changed to primary color
+  },
+  headerContainer: {
+    paddingTop: hscale(60),
+    paddingBottom: hscale(30),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerText: {
+    fontFamily: "Inter-Bold",
+    fontSize: mscale(24),
+    color: colors.white,
+    textAlign: 'center',
+  },
+
+  downloadsWrapper:{
+    flex: 1,
+    backgroundColor: colors.white,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    height: 838, // Fixed height as requested
+    width:440,
+    paddingHorizontal: wscale(16),
+    paddingVertical: hscale(12),
+    alignItems: 'center',
+    
+
+  },
+  downloadsContainer: {
+    backgroundColor: colors.inputFieldNew,
+    borderRadius: 10,
+    height: 82, // Fixed height as requested
+    width: 390,
+    paddingVertical: hscale(20),
+    paddingHorizontal:wscale(20),
+  },
+ // Empty state styles
+  emptyHeaderContainer: {
+    paddingTop: hscale(32),
+    paddingHorizontal: wscale(16),
+    alignItems: 'flex-start', // Text at top right
+  },
+  emptyHeaderText: {
+    fontFamily: "Inter-Bold",
+    fontSize: mscale(24),
+    color: colors.black,
+  },
+  emptyContentContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: 'center',
+    paddingHorizontal: wscale(20),
+  },
+  emptyText: {
+    textAlign: "center",
+    fontFamily: "Inter-Regular",
+    fontSize: mscale(14),
+    color: colors.bodyText,
+  },
+});

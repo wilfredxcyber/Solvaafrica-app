@@ -1,5 +1,4 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
 import {
   AskScreen,
   CourseMaterials,
@@ -28,14 +27,22 @@ import {
   ForgotPasswordOtp,
   ForgotPassword,
   ForgotPasswordSuccess,
+  JobOffers,
+  JobDetailsScreen,
+  initialServiceScrn,
+  FindServices,
+  ReadService,
+  ServiceProfile,
+  AddReview,
+  EditProfile,
+  SetUpProfile,
+  ReadServiceProfile,
 } from "../screens";
 import { useUserSignedIn, useUserSignedOut } from "../hooks/userAuth";
 import TabsNavigator from "./BottomTabNavigation";
 import { colors } from "../constants/theme";
-import Task from "../screens/Premiums/Task";
 
-const AppStackNavigator = createNativeStackNavigator(
-  {
+const AppStackNavigator = createNativeStackNavigator({
   groups: {
     SignedInUser: {
       if: useUserSignedIn,
@@ -70,10 +77,22 @@ const AppStackNavigator = createNativeStackNavigator(
             headerTintColor: colors.black,
           },
         },
+        JobOffers: {
+          screen: JobOffers,
+        },
+        JobDetails: {
+          screen: JobDetailsScreen,
+          options: {
+            headerTitle: "Job Details",
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
+            headerTintColor: colors.black,
+          },
+        },
         Grants: {
           screen: Grants,
           options: {
-            headerTitle: "Grant Information",
+            headerTitle: "Grant/Scholarship Information",
             headerShadowVisible: false,
             headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
             headerTintColor: colors.black,
@@ -115,15 +134,6 @@ const AppStackNavigator = createNativeStackNavigator(
             headerTintColor: colors.black,
           },
         },
-        Task: {
-          screen: Task,
-          options: {
-            headerTitle: "Task",
-            headerShadowVisible: false,
-            headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
-            headerTintColor: colors.black,
-          }
-        },
         Upload: {
           screen: UploadFilesScreen,
           options: {
@@ -145,8 +155,91 @@ const AppStackNavigator = createNativeStackNavigator(
           options: { headerTitle: "Earnings" },
         },
         Cashout: { screen: Cashout },
-        Services: { screen: ServicesScreen },
-        Ask: { screen: AskScreen },
+        InitialServices: {
+          screen: initialServiceScrn,
+          options: {
+            headerShown: false,
+            presentation: "modal",
+          },
+        },
+        Services: {
+          screen: ServicesScreen,
+          options: {
+            headerShown: false,
+          },
+        },
+        Categories: {
+          screen: FindServices,
+          options: {
+            headerTitle: "Categories",
+            headerShadowVisible: false,
+            headerTitleStyle: {
+              fontFamily: "Inter-Bold",
+              fontSize: 16,
+            },
+            headerTintColor: colors.black,
+          },
+        },
+        ServiceDeets: {
+          screen: ReadService,
+        },
+        ServiceProfile: {
+          screen: ServiceProfile,
+          options: {
+            headerShown: true,
+            title: "Loading...",
+          },
+        },
+        Review: {
+          screen: AddReview,
+          options: {
+            headerTitle: "Add Review",
+            headerShadowVisible: false,
+            headerTitleStyle: {
+              fontFamily: "Inter-Bold",
+              fontSize: 16,
+            },
+            headerTintColor: colors.black,
+          },
+        },
+        ReadServiceProfile: {
+          screen: ReadServiceProfile,
+          options: {
+            headerShown: false,
+            headerTitle: "Service Information",
+            headerShadowVisible: false,
+            headerTitleStyle: {
+              fontFamily: "Inter-Bold",
+              fontSize: 16,
+            },
+            headerTintColor: colors.black,
+          },
+        },
+        ServiceSetUpProfile: {
+          screen: SetUpProfile,
+          options: {
+            headerShown: false,
+            headerTitle: "Profile",
+            headerShadowVisible: false,
+            headerTitleStyle: {
+              fontFamily: "Inter-Bold",
+              fontSize: 16,
+            },
+            headerTintColor: colors.black,
+          },
+        },
+        ServiceEditProfile: {
+          screen: EditProfile,
+          options: {
+            headerShown: false,
+          },
+        },
+        Ask: {
+          screen: AskScreen,
+          options: {
+            headerShown: false,
+          },
+        },
       },
       screenOptions: {
         animation: "slide_from_right",
@@ -189,23 +282,6 @@ const AppStackNavigator = createNativeStackNavigator(
     statusBarBackgroundColor: "#ffffff",
     headerTitleStyle: { fontFamily: "Inter-Bold", fontSize: 16 },
   },
-}
-);
-
-const AppStack = () => {
-  return (
-    <AppStackNavigator.Navigator>
-      <AppStackNavigator.Screen name="Onboarding" component={OnboardScreen} />
-      <AppStackNavigator.Screen name="Login" component={LoginScreen} />
-      <AppStackNavigator.Screen name="CreateAccount" component={CreateAccountScreen} />
-      <AppStackNavigator.Screen name="Courses" component={CoursesScreen} />
-      <AppStackNavigator.Screen name="Ask" component={AskScreen}/>
-      
-      {/* Add other necessary screens like Dashboard, Profile, etc. */}
-    </AppStackNavigator.Navigator>
-  );
-};
-
+});
 
 export { AppStackNavigator };
- 

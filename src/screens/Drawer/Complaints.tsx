@@ -15,6 +15,7 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
+  Linking,
   FlatList,
   TextInput,
   StyleSheet,
@@ -27,6 +28,7 @@ import { globalStyles } from "@/src/styles/global";
 import { mscale, hscale } from "@/src/helpers/metric";
 import { colors } from "@/src/constants/theme";
 import { AUTH_API_CLIENT } from "@/src/api/apiClient";
+import { Link } from "expo-router";
 
 export default function Complaints() {
   const [complaints, setComplaints] = useState<any[]>([]);
@@ -47,14 +49,14 @@ export default function Complaints() {
 //     }
 //   };
 
-  const submitComplaint = async () => {
+/*  const submitComplaint = async () => {
     if (!newComplaint.trim()) return;
 
     setSubmitting(true);
     try {
       // Replace with your POST endpoint
       const res = await AUTH_API_CLIENT.post("/complaints", {
-        message: newComplaint.trim(),
+       message: newComplaint.trim(),
       });
 
       setComplaints((prev) => [
@@ -67,7 +69,7 @@ export default function Complaints() {
     } finally {
       setSubmitting(false);
     }
-  };
+  };*/
 
 //   useEffect(() => {
 //     fetchComplaints();
@@ -80,23 +82,21 @@ export default function Complaints() {
   );
 
   return (
-    <KeyboardAvoidingView
-      style={globalStyles.screen}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    <View
+      style={styles.viewContainer}
+      
     >
       <Text style={styles.header}>Submit a Complaint</Text>
-
-      <TextInput
-        placeholder="Type your complaint here..."
-        value={newComplaint}
-        onChangeText={setNewComplaint}
-        style={styles.input}
-        multiline
-      />
-
-      <Pressable style={styles.button} onPress={submitComplaint} disabled={submitting}>
-        <Text style={styles.buttonText}>{submitting ? "Submitting..." : "Submit"}</Text>
-      </Pressable>
+      <Text style={styles.complaintText}>
+        If you have any complaints, please send an email to{"                    "}
+      <Text
+        style={styles.emailLink}
+       onPress={() => Linking.openURL("mailto:solvaapp@gmail.com")}
+  >
+    solvaapp@gmail.com
+  </Text>
+  . We’ll respond as soon as possible.
+</Text>
 
       {/* <Text style={styles.subHeader}>Your Complaints</Text> */}
 
@@ -113,7 +113,7 @@ export default function Complaints() {
           contentContainerStyle={{ paddingBottom: hscale(24) }}
         />
       )} */}
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -123,32 +123,23 @@ const styles = StyleSheet.create({
     fontFamily: "Inter-Bold",
     marginBottom: hscale(8),
   },
+
+  viewContainer:{
+    width: 314,
+    height:160,
+    backgroundColor: colors.inputField,
+    paddingVertical: mscale(20
+      
+    ),
+    paddingHorizontal: mscale(8),
+    borderRadius: 16,
+  },
+
   subHeader: {
     fontSize: mscale(16),
     fontFamily: "Inter-SemiBold",
     marginTop: hscale(20),
     marginBottom: hscale(10),
-  },
-  input: {
-    backgroundColor: colors.inputField,
-    padding: mscale(12),
-    borderRadius: mscale(8),
-    fontSize: mscale(14),
-    fontFamily: "Inter-Regular",
-    minHeight: hscale(80),
-    textAlignVertical: "top",
-  },
-  button: {
-    backgroundColor: colors.primary,
-    paddingVertical: hscale(10),
-    borderRadius: mscale(8),
-    marginTop: hscale(12),
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: mscale(14),
-    fontFamily: "Inter-Medium",
   },
   complaintItem: {
     backgroundColor: colors.inputField,
@@ -160,6 +151,13 @@ const styles = StyleSheet.create({
     fontSize: mscale(14),
     fontFamily: "Inter-Regular",
   },
+
+  emailLink: {
+  color: colors.primary,
+  textDecorationLine: "underline",
+  fontFamily: "Inter-Medium",
+},
+
   empty: {
     fontSize: mscale(14),
     fontFamily: "Inter-Regular",

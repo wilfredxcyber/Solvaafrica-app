@@ -31,7 +31,9 @@ export const DownloadItemView = ({
       </View>
       {/* right side */}
       {onDeletePress && (
-        <DeleteIcon name="delete" size={20} color={"red"} onPress={() => onDeletePress(source)} />
+        <Pressable onPress={onDeletePress}>
+          <DeleteIcon name="delete" size={20} color={"red"} />
+        </Pressable>
       )}
     </Pressable>
   );
@@ -47,7 +49,7 @@ const styles = StyleSheet.create({
   downloadItemViewLeftSide: { flexDirection: "row", alignItems: "center" },
   text: {
     fontFamily: "Inter-Medium",
-    fontSize: mscale(16),
+    fontSize: mscale(12),
     marginLeft: 12,
   },
 });

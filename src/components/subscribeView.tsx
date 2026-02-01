@@ -25,10 +25,12 @@ export default function SubscribeView() {
   const planOffers: PlanOfferProps = {
     basic: ["Past questions", "Project Materials"],
     premium: [
-      "Past questions",
-      "Project Materials",
-      "Grant Informations",
-      "Scholarship Informations",
+      "Upload PQ/Project (earn money)",
+      "Grant/Scholarship Information",
+      "Get Certified on short courses",
+      "Innovation/Angel investors news",
+      "Therapy",
+      "Task (earn money completing a task)",
     ],
   };
 
@@ -81,27 +83,6 @@ export default function SubscribeView() {
       <Text style={styles.subscribe}>Subscribe to unlock all features</Text>
 
       <View style={{ gap: 20, marginTop: hscale(40) }}>
-        <SubButton
-          handleOnPress={() => handleSubButtonPress("Basic")}
-          subPlan="Basic"
-          subPrice="999"
-          isActive={activePlan === "Basic" ? true : false}
-        />
-        {activePlan === "Basic" && (
-          <View style={{ marginLeft: wscale(20), gap: hscale(8) }}>
-            {planOffers.basic.map((offer) => (
-              <View
-                key={offer}
-                style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
-              >
-                <CheckIcon name="check" size={20} color={"#ffffff"} />
-                <Text key={offer} style={styles.planOffer}>
-                  {offer}
-                </Text>
-              </View>
-            ))}
-          </View>
-        )}
         <SubButton
           handleOnPress={() => handleSubButtonPress("Premium")}
           subPlan="Premium"
@@ -190,8 +171,8 @@ const styles = StyleSheet.create({
     fontFamily: "Inter-Bold",
     color: "#ffffff",
     textAlign: "center",
-    fontSize: mscale(20),
-    width: "80%",
+    fontSize: mscale(24),
+    width: 361,
     marginHorizontal: "auto",
   },
   subButton: {
@@ -201,10 +182,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     borderRadius: mscale(10),
     alignItems: "center",
-    ...Platform.select({ web:{
-      maxWidth: 500,
-      alignSelf: 'center',
-    }})
   },
   planOffer: {
     fontFamily: "Inter-Medium",
@@ -220,11 +197,5 @@ const styles = StyleSheet.create({
     fontSize: mscale(16),
     textAlign: "center",
     color: colors.primary,
-    ...Platform.select({
-      web: {
-        maxWidth: 300,
-        alignSelf: 'center',
-      }
-    })
   },
 });

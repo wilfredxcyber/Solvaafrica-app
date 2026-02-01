@@ -8,12 +8,15 @@ import {
   View,
   Modal,
 } from "react-native";
-import { StaticScreenProps } from "@react-navigation/native";
+// Remove React Navigation imports
+// import { StaticScreenProps } from "@react-navigation/native";
+// Add Expo Router imports
+import { useLocalSearchParams, useRouter } from "expo-router";
 import IconRight from "@expo/vector-icons/FontAwesome";
 import BankIcon from "@expo/vector-icons/FontAwesome";
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { hscale, mscale, wscale } from "../helpers/metric";
 import PrimaryButton from "../components/primaryButton";
@@ -32,13 +35,15 @@ interface BankDetailForm {
 
 type FormFields = "accountName" | "accountNumber" | "bankName" | "amount";
 
-export default function Cashout({
-  route,
-}: StaticScreenProps<{ userBalance: number | null }>) {
+export default function Cashout() {
+  // Use Expo Router hooks
+  const params = useLocalSearchParams();
+  const router = useRouter();
+  
   const [showModal, setShowModal] = useState(false);
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const userBalance = route.params.userBalance;
+  const [userBalance, setUserBalance] = useState<number | null>(null);
   const [bankDetailsForm, setBankDetailsForm] = useState<BankDetailForm>({
     accountName: "",
     accountNumber: "",
@@ -46,6 +51,15 @@ export default function Cashout({
     amount: "",
   });
   const [submittingForm, setSubmittingForm] = useState(false);
+
+  // Parse userBalance from URL params
+  useEffect(() => {
+    if (params.balance) {
+      const balanceValue = parseFloat(params.balance as string);
+      setUserBalance(isNaN(balanceValue) ? null : balanceValue);
+    }
+  }, [params.balance]);
+
   const handleSetForm = (value: string, formField: FormFields | undefined) => {
     if (formField === "accountName") {
       setBankDetailsForm((prev) => {
@@ -114,7 +128,6 @@ export default function Cashout({
       }
     } catch (error: any) {
       console.log("Submitting cashout requests", error);
-      //   Alert.alert("Error!", "Something went wrong try again later.");
       let message = "Error, Something went wrong, try again later!";
       setErrorMessage(message);
       setErrorVisible(true);
@@ -184,6 +197,14 @@ const SuccessModal = ({
   showModal: boolean;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+  const router = useRouter();
+  
+  const handleOkPress = () => {
+    setShowModal(false);
+    // Navigate back to earnings screen
+    router.back();
+  };
+
   return (
     <Modal
       animationType="slide"
@@ -224,7 +245,7 @@ const SuccessModal = ({
             </Text>
           </View>
 
-          <PrimaryButton text="Ok" onPress={() => setShowModal(false)} />
+          <PrimaryButton text="Ok" onPress={handleOkPress} />
         </View>
       </View>
     </Modal>

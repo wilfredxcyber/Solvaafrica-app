@@ -12,7 +12,8 @@ import {
   Platform,
 } from "react-native";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
-import { useNavigation } from "@react-navigation/native";
+//import { useNavigation } from "@react-navigation/native";
+import { router, Router } from "expo-router";
 import MenuIcon from "@expo/vector-icons/Ionicons";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -34,7 +35,7 @@ enum MenuItemScreensRoutes {
   "EARNING" = "Earning",
   "SERVICES" = "Services",
   "ASK" = "Ask Kemi",
-  "ESCROW_SITE" = "Transecure Escrow",
+  "TASK" = "Task",
 }
 
 interface IMenuItems {
@@ -44,7 +45,6 @@ interface IMenuItems {
 
 export default function HomeScreen() {
   const user = useAuthStore((state) => state.user);
-  const navigation = useNavigation();
   const userProfile = user.profile;
   const { width } = Dimensions.get("window");
   // const slidesPlaceholder = ;
@@ -94,35 +94,33 @@ export default function HomeScreen() {
       ),
     },
     {
-      item: MenuItemScreensRoutes.ESCROW_SITE,
+      item: MenuItemScreensRoutes.TASK,
       icon: () => (
-        <MenuIcon name="shield-checkmark-outline" size={20} color={colors.primary} />
+        <MenuIcon name="list" size={20} color={colors.primary} />
       ),
     },
   ];
 
   const handleMenuItemPressed = (pressedItem: MenuItemScreensRoutes) => {
     if (pressedItem === MenuItemScreensRoutes.COURSES) {
-      navigation.navigate("App", { screen: "Courses" });
+      router.push("/courses");
     } else if (pressedItem === MenuItemScreensRoutes.PROJECTS) {
-      navigation.navigate("App", { screen: "Projects" });
+      router.push("/projects");
     } else if (pressedItem === MenuItemScreensRoutes.UPLOAD) {
-      navigation.navigate("App", { screen: "Upload" });
+      router.push("/upload");
     } else if (pressedItem === MenuItemScreensRoutes.PREMIUM) {
-      navigation.navigate("App", { screen: "Premium" });
+      router.push("/premium");
       return;
     } else if (pressedItem === MenuItemScreensRoutes.EARNING) {
-      navigation.navigate("App", { screen: "Earning" });
+      router.push("/earning");
     } else if (pressedItem === MenuItemScreensRoutes.SERVICES) {
-      navigation.navigate("App", { screen: "Services" });
+      router.push("/services");
       return;
     } else if (pressedItem === MenuItemScreensRoutes.ASK) {
-      // navigation.navigate("App", { screen: "Ask" });
+      router.push("/ask")
       return;
-    } else if (pressedItem === MenuItemScreensRoutes.ESCROW_SITE) {
-      Linking.openURL("https://www.solvaafrica.com/").catch((error) => {
-        Alert.alert("URL Error!", error?.message ?? "Could not open link");
-      });
+    } else if (pressedItem === MenuItemScreensRoutes.TASK) {
+     router.push("/task")
     }
     return;
   };
@@ -147,7 +145,7 @@ export default function HomeScreen() {
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <TouchableOpacity
-         // onPress={() => navigation.navigate("App", { screen: "Settings" })}
+         onPress={() => router.push('/settings')}
           >
             <AvatarView />
           </TouchableOpacity>
@@ -163,9 +161,9 @@ export default function HomeScreen() {
 
         {/* notification icon */}
         <TouchableOpacity
-        // onPress={() =>
-        //   navigation.navigate("App", { screen: "Notifications" })
-        // }
+         onPress={() =>
+           router.push('/notifications')
+         }
         >
           <Icon name="bell" color={colors.primary} size={24} />
         </TouchableOpacity>
@@ -189,14 +187,14 @@ export default function HomeScreen() {
               <View
                 key={`placeholder-${index}`}
                 style={{
-                  width: width - screenHorizontalPadding * 2,
+                  width: width - screenHorizontalPadding * 0.5,
                   height: "100%",
                 }}
               >
                 <Image
                   source={require("../../assets/images/placeholder.png")}
                   style={{ width: "100%", height: "100%" }}
-                  resizeMode="contain"
+                  resizeMode="cover"
                 />
               </View>
             ))
@@ -204,7 +202,7 @@ export default function HomeScreen() {
               <View
                 key={`slide-${index}`}
                 style={{
-                  width: width - screenHorizontalPadding * 2,
+                  width: width - screenHorizontalPadding * 0.5,
                   height: "100%",
                 }}
               >

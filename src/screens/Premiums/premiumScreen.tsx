@@ -5,43 +5,68 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
-import { globalStyles } from "../../styles/global";
 import Icon from "@expo/vector-icons/Feather";
+import { useRouter, Href } from "expo-router";
+
+import { globalStyles } from "../../styles/global";
 import { mscale } from "../../helpers/metric";
-import { useNavigation } from "@react-navigation/native";
 import ProtectPage from "@/src/components/protectPage";
 
+type PremiumItem = {
+  id: string;
+  title: string;
+  route: AppRoute;
+};
+
+type AppRoute =
+  | "/grants"
+  | "/scholarship"
+  | "/upload"
+  | "/courses-certificate"
+  | "/innovation"
+  | "/theraphy"
+  | "/task";
+
 export default function PremiumScreen() {
-  const data = [
-    { id: "1", title: "Grant Information", route: "Grants" },
-    { id: "2", title: "Scholarship Information", route: "Scholarship" },
-    { id: "3", title: "Past Question", route: "Courses" },
-    { id: "4", title: "Project Material", route: "Projects" },
+  const router = useRouter();
+
+  const data: PremiumItem[] = [ 
     {
-      id: "5",
+      id: "1",
+      title: "Upload Past Question/Project(earn money)",
+      route: "/upload",
+    },
+    {
+      id: "2",
+      title: "Scholarship/Grant Information",
+      route: "/scholarship",
+    },
+    {
+      id: "3",
       title: "Get certificate on short courses",
-      route: "CourseCertificate",
+      route: "/courses-certificate",
     },
     {
-      id: "6",
+      id: "4",
       title: "Innovation / Angel investors news",
-      route: "Innovation",
+      route: "/innovation",
     },
-    { id: "7", title: "Therapy", route: "Theraphy" },
-    { id: "8", title: "Task", route: "Task" },
+    { id: "5", title: "Therapy", route: "/theraphy" },
+    { id: "6", title: "Task", route: "/task" },
   ];
 
-  const navigation = useNavigation();
 
-  const handleItemPress = (item: any) => {
-    
-    navigation.navigate("App", { screen: item.route });
-  };
+const handleItemPress = (item: PremiumItem) => {
+  router.push(item.route as Href);
+};
 
-  const renderItem = ({ item }: { item: any }) => (
-    <TouchableOpacity style={styles.item} onPress={() => handleItemPress(item)}>
+  const renderItem = ({ item }: { item: PremiumItem }) => (
+    <TouchableOpacity
+      style={styles.item}
+      onPress={() => handleItemPress(item)}
+      activeOpacity={0.7}
+    >
       <Text style={styles.itemText}>{item.title}</Text>
-      <Icon name="chevron-right" size={20} />
     </TouchableOpacity>
   );
 
@@ -52,7 +77,6 @@ export default function PremiumScreen() {
           data={data}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
-          // contentContainerStyle={styles.listContainer}
         />
       </View>
     </ProtectPage>
@@ -60,17 +84,13 @@ export default function PremiumScreen() {
 }
 
 const styles = StyleSheet.create({
-  // listContainer: {
-  //   padding: 16,
-  // },
   item: {
     padding: mscale(20),
     backgroundColor: "#F5F3FF",
     borderRadius: mscale(8),
     marginBottom: mscale(12),
-    display: "flex",
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     alignItems: "center",
   },
   itemText: {
