@@ -1,3 +1,3 @@
-import  CourseMaterials  from "../screens/courseMaterials";
+import  CertificateOnCourses  from "../screens/Premiums/certificateOnCourses";
 
-export default CourseMaterials;
+export default CertificateOnCourses;

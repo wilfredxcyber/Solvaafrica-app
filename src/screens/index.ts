@@ -32,7 +32,7 @@ import ForgotPasswordOtp from "./auth/forgot-password/otpForgotPassword";
 import ForgotPassword from "./auth/forgot-password/forgotPassword";
 import ForgotPasswordSuccess from "./auth/forgot-password/forgotPasswordSuccess";
 import Task from "./Premiums/Task";
-import EmptyScreen from "./EmptyScreen";
+
 
 
 
@@ -67,7 +67,6 @@ export {
   Innovation,
   Theraphy,
   Task,
-  EmptyScreen,
   Notifications,
   ForgotPasswordOtp,
   ForgotPassword,

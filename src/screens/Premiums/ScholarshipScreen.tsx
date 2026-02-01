@@ -3,6 +3,7 @@ import {
   Text,
   StyleSheet,
   Linking,
+  ScrollView,
   ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useState } from "react";
@@ -59,55 +60,49 @@ export default function Scholarship() {
 
   return (
     // <ProtectPage>
-    <View style={globalStyles.screen}>
-      <View>
-        {loading ? (
-          <View
-            style={{
-              height: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <LottieView
-              autoPlay
-              style={{
-                width: wscale(50),
-                height: hscale(50),
-                alignSelf: "center",
-              }}
-              source={require("../../../assets/animations/spin.json")}
-            />
-            <Text>Loading, Please wait!</Text>
-          </View>
-        ) : data.length === 0 ? (
-          <EmptyStateView />
-        ) : (
-          data.map((item) => (
-            <View style={styles.card} key={item.id}>
-              <Text style={styles.title}>{item.name}</Text>
-              <Text style={styles.description}>
-                {capitalizeFirstLetter(item.description)}
-              </Text>
+    <View style={globalStyles.screen}
+    >
+     <ScrollView 
+     showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ 
+        flexGrow: 1, 
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: mscale(20),
+      }}
+    >
+      {loading ? (
+        <View style={{ justifyContent: "center", alignItems: "center" }}>
+          {/* Loading content */}
+        </View>
+      ) : data.length === 0 ? (
+        <EmptyStateView />
+      ) : (
+        data.map((item) => (
+          <View style={styles.card} key={item.id}>
+            <Text style={styles.title}>{item.name}</Text>
+            <Text style={styles.description}>
+              {capitalizeFirstLetter(item.description)}
+            </Text>
+            <Text
+              style={styles.link}
+              onPress={() => handleOpenLink(item.link)}
+            >
+              Click link to open:{" "}
               <Text
-                style={styles.link}
-                onPress={() => handleOpenLink(item.link)}
+                style={{
+                  color: colors.primary,
+                  textDecorationLine: "underline",
+                }}
               >
-                Click link to open:{" "}
-                <Text
-                  style={{
-                    color: colors.primary,
-                    textDecorationLine: "underline",
-                  }}
-                >
-                  {" "}
-                  {item.link}
-                </Text>
+                {" "}
+                {item.link}
               </Text>
-            </View>
-          ))
-        )}
-      </View>
+            </Text>
+          </View>
+        ))
+      )}
+    </ScrollView>
 
       <ErrorModal
         visible={errorVisible}
@@ -120,24 +115,33 @@ export default function Scholarship() {
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#",
-    padding: mscale(16),
-    marginBottom: mscale(12),
-    borderRadius: mscale(8),
-  },
+ card: {
+  backgroundColor: colors.inputFieldNew,
+  marginBottom: mscale(15),
+  borderRadius: mscale(8),
+  width: "90%",
+  maxWidth: 416,
+  minHeight: 80,
+  paddingVertical: 12,
+  paddingHorizontal: 12,
+  alignItems: "center",
+},
+
   title: {
-    fontSize: mscale(18),
+    fontSize: mscale(16),
     fontFamily: "Inter-Bold",
-    marginBottom: mscale(4),
+   // marginBottom: mscale(12),
+
+    
+    
   },
   description: {
-    fontSize: mscale(14),
+    fontSize: mscale(16),
     fontFamily: "Inter-Regular",
-    marginBottom: mscale(6),
+   marginBottom: mscale(12),
   },
   link: {
-    fontSize: mscale(13),
+    fontSize: mscale(16),
     fontFamily: "Inter-Regular",
     color: "#5C5F62"
   },
