@@ -15,8 +15,8 @@ import {
 } from "react-native";
 import { colors } from "@/src/constants/theme";
 import { mscale, hscale, wscale } from "@/src/helpers/metric";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { API_BASE_URL, AUTH_API_CLIENT } from "@/src/api/apiClient";
+import { useFocusEffect, useRouter } from "expo-router";
+import { API_BASE_URL, AUTH_API_CLIENT } from "../../../api/apiClient";
 import { ServiceType } from "@/src/types";
 import ErrorModal from "@/src/components/errorModal";
 import { Picker } from "@react-native-picker/picker";
@@ -66,7 +66,7 @@ export default function SetUpProfile() {
   const [whatsapp, setWhatsapp] = useState("");
   const [uni, setUni] = useState("");
 
-  const navigation = useNavigation();
+  const router = useRouter();
 
   const handlePickProfileImage = async () => {
     try {
@@ -163,7 +163,8 @@ export default function SetUpProfile() {
           await AsyncStorage.setItem("User", JSON.stringify(updatedUser));
         }
 
-        navigation.navigate("App", { screen: "ServiceProfile" });
+        // Navigate to ServiceProfile using Expo Router
+        router.push("/(services)/services-profile/service-profile");
       } else {
         ToastAndroid.show("Unexpected server response", ToastAndroid.LONG);
       }
@@ -326,7 +327,6 @@ export default function SetUpProfile() {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: wscale(10),
-
     backgroundColor: "#fff",
   },
   imagePicker: {
@@ -345,19 +345,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#ddd",
     justifyContent: "center",
     alignItems: "center",
+  
   },
   placeholderText: {
     color: "#555",
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: mscale(8),
-    padding: mscale(12),
-    marginBottom: hscale(16),
-    fontFamily: "Inter-Regular",
-    fontSize: mscale(14),
-  },
+  borderWidth: 1,
+  borderColor: "#000", // black border
+  borderRadius: mscale(8),
+  padding: mscale(12),
+  marginBottom: hscale(16),
+  fontFamily: "Inter-Regular",
+  fontSize: mscale(14),
+  backgroundColor: colors.inputFieldNew, // background added
+  color: "#5C5F62",
+},
+
   updateButton: {
     backgroundColor: colors.primary,
     padding: mscale(14),
@@ -371,12 +375,12 @@ const styles = StyleSheet.create({
     fontSize: mscale(16),
   },
   pickerContainer: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: mscale(8),
-    marginBottom: hscale(16),
-    backgroundColor: "#fff",
-  },
+  borderWidth: 1,
+  borderColor: "#000", // black border
+  borderRadius: mscale(8),
+  marginBottom: hscale(16),
+  backgroundColor: colors.inputFieldNew, // background added
+},
   label: {
     fontSize: mscale(13),
     fontFamily: "Inter-Medium",

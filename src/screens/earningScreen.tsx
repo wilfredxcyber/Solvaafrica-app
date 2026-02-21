@@ -1,13 +1,11 @@
-import { Alert, Pressable, StyleSheet, Text, View, ScrollView } from "react-native"; // Added ScrollView
-//import { useFocusEffect } from "@react-navigation/native";
-import { useNavigation } from "@react-navigation/native";
+import { Alert, Pressable, StyleSheet, Text, View, ScrollView, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
 import { useCallback, useEffect, useState } from "react";
 import StarIcon from "@expo/vector-icons/AntDesign";
 import * as Clipboard from "expo-clipboard";
 import { Image } from "expo-image";
 import * as Linking from "expo-linking";
 import Icon from "@expo/vector-icons/FontAwesome";
-import { useRouter, useFocusEffect } from "expo-router"; // Add expo-router
+import { useRouter, useFocusEffect } from "expo-router";
 
 import { hscale, mscale, wscale } from "../helpers/metric";
 import { useAuthStore } from "../stores/authStore";
@@ -15,6 +13,8 @@ import { AUTH_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import ToastManager, { Toast } from "toastify-react-native";
+import { Job } from "../types";
+import ErrorModal from "../components/errorModal";
 
 type Tab = "Refer" | "Earn";
 
@@ -37,7 +37,6 @@ export default function EarningScreen() {
           console.log("User balance fetched:", response.data);
         } catch (error) {
           Toast.error("Error fetching user balance");
-          // console.log('Error fetching user balance', error)
         }
       };
 
@@ -47,7 +46,6 @@ export default function EarningScreen() {
 
   return (
     <View style={globalStyles.screen}>
-      {/* tabs view */}
       <ToastManager />
       <Tabs setActiveTab={setActiveTab} activeTab={activeTab} />
       
@@ -64,20 +62,243 @@ export default function EarningScreen() {
 }
 
 const EarnTabView = ({ userBalance }: { userBalance: number | null }) => {
+  const router = useRouter();
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getJobs = async () => {
+      try {
+        setLoading(true);
+        const response = await AUTH_API_CLIENT.get("/jobs");
+        if (response.status === 200) {
+          setJobs(response.data.data);
+        }
+      } catch (error) {
+        console.error("Job fetch error:", error);
+        setErrorMessage("Something went wrong while fetching jobs!");
+        setErrorVisible(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getJobs();
+  }, []);
+
   return (
     <View>
       <EarningsBalanceView userBalance={userBalance} />
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginTop: hscale(20),
+        }}
+      >
+        <Text
+          style={{
+            fontSize: mscale(24),
+            fontFamily: "Inter-Bold",
+            color: colors.black,
+          }}
+        >
+          Job Offers
+        </Text>
+        <TouchableOpacity
+          onPress={() => router.push("/job-offers")}
+        >
+          <Text
+            style={{
+              fontSize: mscale(15),
+              fontFamily: "Inter-Medium",
+              color: colors.primary,
+            }}
+          >
+            View all
+          </Text>
+        </TouchableOpacity>
+      </View>
+      {loading ? (
+        <ActivityIndicator size="large" color={colors.primary} />
+      ) : (
+        <FlatList
+          data={Array.isArray(jobs) ? jobs.slice(0, 3) : []}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() =>
+                router.push({
+                  pathname: "/job-details",
+                  params: { job: JSON.stringify(item) },
+                })
+              }
+            >
+              <View
+                style={{
+                  padding: mscale(16),
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  gap: mscale(10),
+                  borderBottomWidth: 0.5,
+                  borderBottomColor: "#5C5F62",
+                }}
+              >
+                <View>
+                  <Text
+                    style={{
+                      fontFamily: "Inter-Bold",
+                      color: colors.black,
+                      fontSize: mscale(20),
+                    }}
+                  >
+                    {item.title}
+                  </Text>
+                  <Text
+                    style={{
+                      fontFamily: "Inter-Medium",
+                      color: colors.primary,
+                      fontSize: mscale(15),
+                      textTransform: "capitalize",
+                    }}
+                  >
+                    {item.status[0] || "N/A"}
+                  </Text>
+                </View>
+                <View>
+                  <Text
+                    style={{
+                      fontFamily: "Inter-Medium",
+                      color: "#5C5F62",
+                      marginBottom: hscale(4),
+                      fontSize: mscale(13),
+                      textAlign: "right",
+                    }}
+                  >
+                    Job posting date:
+                  </Text>
+                  <Text
+                    style={{
+                      fontFamily: "Inter-Medium",
+                      color: colors.black,
+                      textAlign: "right",
+                      fontSize: mscale(15),
+                    }}
+                  >
+                    {new Date(item.createdAt).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={{ paddingBottom: hscale(20) }}
+          ListEmptyComponent={
+            <Text
+              style={{
+                textAlign: "center",
+                marginTop: hscale(20),
+                fontFamily: "Inter-Regular",
+                color: colors.black,
+              }}
+            >
+              No job offers available at the moment.
+            </Text>
+          }
+          scrollEnabled={false}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          style={{ marginTop: hscale(10) }}
+        />
+      )}
+
+      <ErrorModal
+        visible={errorVisible}
+        message={errorMessage}
+        onClose={() => setErrorVisible(false)}
+      />
     </View>
   );
 };
 
 const ReferTabView = () => {
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [referrals, setReferrals] = useState<any[]>([]);
+  const AuthUser = useAuthStore((state) => state.user);
+  const { userID } = AuthUser.profile;
   const { profile } = useAuthStore((state) => state.user);
   const userReferralCode = profile.referralCode;
+
+  const APP_NAME = "Solva";
+  const DEEP_LINK_BASE = "https://www.solvaafrica.com";
   
+  const getReferralLink = () => {
+    return `${DEEP_LINK_BASE}/signup?ref=${AuthUser.referralCode}`;
+  };
+
+  const handleSocialShare = async (platform: "wa" | "fb" | "tw") => {
+    const referralLink = getReferralLink();
+    const message = `🎉 Join ${APP_NAME} and start earning! Use my referral code: ${AuthUser.referralCode}\n\nSign up here: ${referralLink}`;
+
+    let url = "";
+
+    switch (platform) {
+      case "wa":
+        url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        break;
+
+      case "fb":
+        url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+          referralLink
+        )}&quote=${encodeURIComponent(message)}`;
+        break;
+
+      case "tw":
+        url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+          message
+        )}`;
+        break;
+    }
+
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Toast.error("Unable to open share link. Try copying manually.");
+      }
+    } catch (error) {
+      console.error("Social share error:", error);
+      Toast.error("Could not open social sharing.");
+    }
+  };
+
+  useEffect(() => {
+    const getReferrals = async () => {
+      try {
+        const response = await AUTH_API_CLIENT.get(
+          `/users/referrals/${userID}`
+        );
+        if (response.status === 200) {
+          setReferrals(response.data.data.referralUsers);
+        }
+      } catch (error) {
+        Toast.error("Error fetching user referrals");
+      }
+    };
+
+    getReferrals();
+  }, []);
+
   return (
-    <View>
+    <View style={{ paddingHorizontal: wscale(10) }}>
       {/* how you earn view */}
       <View style={styles.bannerView}>
         <StarIcon name="star" size={20} color={colors.primary} />
@@ -118,14 +339,13 @@ const ReferTabView = () => {
           },
         ]}
       >
-        {" "}
         Get Free NGN 100.00
       </Text>
       <Text style={[styles.text, { textAlign: "center", fontSize: mscale(16) }]}>
         Share this hack with your friends
       </Text>
       <Text
-        style={[styles.text, { textAlign: "center", marginTop: hscale(20),fontSize: mscale(16)}]}
+        style={[styles.text, { textAlign: "center", marginTop: hscale(20), fontSize: mscale(16) }]}
       >
         You stand to earn NGN 100.00 when your friend input your referral code
         during sign up and registers to the premium package
@@ -134,69 +354,93 @@ const ReferTabView = () => {
       {/* Copy referral code view */}
       <CopyReferalCodeView />
 
+      {/* Your Referrals section */}
       <Text
-          style={{
-            fontFamily: "Inter-Bold",
-            fontSize: mscale(20),
-            color: colors.black,
-            marginTop: hscale(24),
-          }}
-        >
-          Your Referrals
-        </Text> 
-      {/* Referrals section */}
-      <View style={{ marginTop: hscale(8), alignItems: "center" }}>
-        {referrals.length === 0 && (
-          <>
-            <Text
-              style={{
-                textAlign: "center",
-                fontSize: mscale(14),
-                color: "#5C5F62",
-                width: "80%",
-                lineHeight: mscale(20),
-                marginBottom: hscale(24),
-              }}
-            >
-              You currently do not have any referral. Your referrals will appear here
-              when you refer friends using your code.
-            </Text>
+        style={{
+          fontFamily: "Inter-Bold",
+          fontSize: mscale(20),
+          color: colors.black,
+          marginTop: hscale(24),
+        }}
+      >
+        Your Referrals
+      </Text>
 
-            {/* Empty state image */}
+      {referrals.length > 0 ? (
+        <FlatList
+          data={referrals}
+          keyExtractor={(item) => item.id!}
+          renderItem={({ item }) => (
             <View
               style={{
-                width: wscale(180),
-                height: hscale(300),
-                alignItems: "center"
-                //marginBottom: hscale(32),
+                paddingVertical: 10,
+                borderBottomWidth: 1,
+                borderBottomColor: "#ccc",
               }}
             >
-              <Image
-                source={require("../../assets/images/Referral.png")}
-                style={{ width: 266, height: 283, }}
-                contentFit="contain"
-              />
+              <Text style={{ fontFamily: "Inter-Bold", fontSize: 16 }}>
+                {item.fullName}
+              </Text>
+              <Text style={{ fontFamily: "Inter-Regular", color: "#555" }}>
+                {item.email}
+              </Text>
             </View>
-          </>
-        )}
+          )}
+          scrollEnabled={false}
+        />
+      ) : (
+        <>
+          <Text
+            style={{
+              textAlign: "center",
+              fontSize: mscale(14),
+              color: "#5C5F62",
+              width: "80%",
+              lineHeight: mscale(20),
+              marginTop: hscale(8),
+              alignSelf: "center",
+            }}
+          >
+            You currently do not have any referral. Your referrals will appear here
+            when you refer friends using your code.
+          </Text>
 
-        <Text
-          style={{
-            fontFamily: "Inter-Bold",
-            fontSize: mscale(24),
-            color: colors.black,
-            marginBottom: hscale(16),
-          }}
-        >
-          Share Via
-        </Text>
+          {/* Empty state image */}
+          <View
+            style={{
+              width: "100%",
+              height: hscale(300),
+              alignItems: "center",
+              marginTop: hscale(16),
+            }}
+          >
+            <Image
+              source={require("../../assets/images/Referral.png")}
+              style={{ width: 266, height: 283 }}
+              contentFit="contain"
+            />
+          </View>
+        </>
+      )}
 
-        {/* Social buttons */}
-        <View style={{ flexDirection: "row", gap: 16, marginBottom: hscale(40) }}>
-          <SocialButton label="WhatsApp" referralCode={userReferralCode} />
-          <SocialButton label="X" referralCode={userReferralCode} />
-          <SocialButton label="Facebook" referralCode={userReferralCode} />
-        </View>
+      <Text
+        style={{
+          fontFamily: "Inter-Bold",
+          fontSize: mscale(24),
+          color: colors.black,
+          marginTop: hscale(40),
+          marginBottom: hscale(16),
+          textAlign: "center",
+        }}
+      >
+        Share Via
+      </Text>
+
+      {/* Social buttons */}
+      <View style={{ flexDirection: "row", gap: 16, marginBottom: hscale(40), justifyContent: "center" }}>
+        <SocialButton label="WhatsApp" referralCode={userReferralCode} onPress={() => handleSocialShare("wa")} />
+        <SocialButton label="X" referralCode={userReferralCode} onPress={() => handleSocialShare("tw")} />
+        <SocialButton label="Facebook" referralCode={userReferralCode} onPress={() => handleSocialShare("fb")} />
       </View>
     </View>
   );
@@ -274,7 +518,6 @@ const CopyReferalCodeView = () => {
   const handleCopyCode = async () => {
     await Clipboard.setStringAsync(userReferralCode);
     setCopiedCode(true);
-    // Alert.alert('Copied!', 'Your referral code has been copied to clipboard.')
   };
 
   useEffect(() => {
@@ -282,18 +525,19 @@ const CopyReferalCodeView = () => {
       setCopiedCode(false);
     }, 3000);
   }, [copiedCode]);
+  
   return (
     <View style={styles.copyReferralCodeView}>
       <View style={{ flex: 1 }}>
         <Text
           style={[
             styles.text,
-            { fontFamily: "Inter-Bold", color: colors.black, fontSize: mscale(24)},
+            { fontFamily: "Inter-Bold", color: colors.black, fontSize: mscale(24) },
           ]}
         >
           Referral code
         </Text>
-        <Text>{userReferralCode}</Text>
+        <Text style={{ fontSize: mscale(18), fontFamily: "Inter-Medium" }}>{userReferralCode}</Text>
       </View>
       <Text style={styles.textButton} onPress={handleCopyCode}>
         {copiedCode ? "Copied" : "Copy"}
@@ -302,7 +546,6 @@ const CopyReferalCodeView = () => {
   );
 };
 
-// View to display the earned balance
 const EarningsBalanceView = ({
   userBalance,
 }: {
@@ -317,56 +560,51 @@ const EarningsBalanceView = ({
   
   return (
     <View>
-    <View style={styles.copyReferralCodeView}>
-      <View style={{ flex: 1 }}>
-        <Text
-          style={[
-            styles.text,
-            { fontFamily: "Inter-Bold", color: colors.black },
-          ]}
-        >
-          Earnings
-        </Text>
-        {userBalance !== undefined && (
+      <View style={styles.copyReferralCodeView}>
+        <View style={{ flex: 1 }}>
           <Text
-            style={styles.text}
-          >{`${userBalance ? userBalance?.toFixed(2) : "---"} NGN`}</Text>
-        )}
-        <Text
-          style={[
-            styles.text,
-            { fontFamily: "Inter-Regular", color: colors.black, fontSize: mscale(12)},
-          ]}
-        >
-          Minimum cashout NGN 10,000
+            style={[
+              styles.text,
+              { fontFamily: "Inter-Bold", color: colors.black, fontSize: mscale(24) },
+            ]}
+          >
+            Earnings
+          </Text>
+          {userBalance !== undefined && (
+            <Text
+              style={[styles.text, { fontSize: mscale(18), fontFamily: "Inter-Medium" }]}
+            >{`${userBalance ? userBalance?.toFixed(2) : "---"} NGN`}</Text>
+          )}
+          <Text
+            style={[
+              styles.text,
+              { fontFamily: "Inter-Regular", color: colors.black, fontSize: mscale(12) },
+            ]}
+          >
+            Minimum cashout NGN 10,000
+          </Text>
+        </View>
+        <Text style={styles.textButton} onPress={handleNavigateCashout}>
+          Cashout
         </Text>
       </View>
-      <Text style={styles.textButton} onPress={handleNavigateCashout}>
-        Cashout
-      </Text>
     </View>
-
-    </View>
-   
   );
 };
 
-const SocialButton = ({ label, referralCode }: { label: string; referralCode: string }) => {
-  const handlePress = () => {
-    const message = `Join Solva Africa with my referral code: ${referralCode}`;
-    if (label === "WhatsApp") {
-      Linking.openURL(`whatsapp://send?text=${encodeURIComponent(message)}`);
-    } else if (label === "X") {
-      Linking.openURL(`twitter://post?message=${encodeURIComponent(message)}`);
-    } else if (label === "Facebook") {
-      Linking.openURL(`fb://post?message=${encodeURIComponent(message)}`);
-    }
-  };
-
+const SocialButton = ({ 
+  label, 
+  referralCode, 
+  onPress 
+}: { 
+  label: string; 
+  referralCode: string;
+  onPress: () => void;
+}) => {
   const iconName = label === "WhatsApp" ? "whatsapp" : label === "X" ? "twitter" : "facebook";
 
   return (
-    <Pressable onPress={handlePress} style={styles.socialButton}>
+    <Pressable onPress={onPress} style={styles.socialButton}>
       <Icon name={iconName} size={24} color="#000000" />
     </Pressable>
   );
@@ -379,7 +617,7 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     flexDirection: "row",
     borderRadius: mscale(30),
-    marginBottom: hscale(10), // Added some spacing
+    marginBottom: hscale(10),
   },
   tabView: {
     height: hscale(48),

@@ -8,30 +8,30 @@ import {
 } from "react-native";
 import { hscale, mscale, wscale } from "@/src/helpers/metric";
 import { colors } from "@/src/constants/theme";
-import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import { useAuthStore } from "@/src/stores/authStore";
-import EditProfile from "./serviceProfile/setUpProfile";
 
 export default function ServicesScreen() {
-  const navigation = useNavigation();
+  const router = useRouter();
   const AuthUser = useAuthStore((state) => state.user);
   const { role } = AuthUser.profile;
-  
+
+  const handleNav = () => {
+    router.push("/(services)/find-service");
+  };
+
   return (
-    <View
-      style={{
-        flex: 1,
-        position: "relative",
-      }}
-    >
+    <View style={{ flex: 1, position: "relative" }}>
       <ImageBackground
-        style={{
-          height: "100%",
-          width: "100%",
-        }}
+        style={{ height: "100%", width: "100%" }}
         resizeMode="cover"
         source={require("@/assets/images/services/serviceBg.png")}
       >
+        {/* ✅ Explore button positioned like UI */}
+        <TouchableOpacity style={styles.ctaButton} onPress={handleNav} activeOpacity={0.9}>
+          <Text style={styles.ctaText}>Explore our services</Text>
+        </TouchableOpacity>
+
         <View
           style={{
             backgroundColor: colors.primary,
@@ -42,78 +42,82 @@ export default function ServicesScreen() {
             bottom: 0,
             left: 0,
             right: 0,
-            flexDirection: "row",
-            // alignItems: "center",
-            justifyContent: "center",
-            gap: mscale(20),
+            alignItems: "center",
+            paddingTop: mscale(10),
+            paddingBottom: mscale(18),
           }}
         >
-          <TouchableOpacity
-            onPress={() => navigation.navigate("App", { screen: "Categories" })}
-            style={styles.box}
+          {/* cards row stays the same */}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              gap: mscale(20),
+            }}
           >
-            <Image
-              source={require("@/assets/images/services/search.png")}
-              style={{
-                width: wscale(60),
-                height: hscale(60),
-              }}
-            />
-            <Text
-              style={{
-                fontFamily: "Inter-Bold",
-                color: "black",
-                fontSize: mscale(22),
-              }}
+            <TouchableOpacity
+              onPress={() => router.push("/(services)/find-service")}
+              style={styles.box}
             >
-              Find a service
-            </Text>
-            <Text
-              style={{
-                color: "#5C5F62",
-                fontSize: mscale(15),
-                fontFamily: "Inter-Regular",
-                textAlign: "center",
-              }}
+              <Image
+                source={require("@/assets/images/services/search.png")}
+                style={{ width: wscale(60), height: hscale(60) }}
+              />
+              <Text
+                style={{
+                  fontFamily: "Inter-Bold",
+                  color: "black",
+                  fontSize: mscale(22),
+                }}
+              >
+                Find a service
+              </Text>
+              <Text
+                style={{
+                  color: "#5C5F62",
+                  fontSize: mscale(15),
+                  fontFamily: "Inter-Regular",
+                  textAlign: "center",
+                }}
+              >
+                I'm looking for talented people to work with
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => router.push("/(services)/services-profile/setup-profile")}
+              style={styles.box}
             >
-              I’m looking for talented people to work with
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate("App", {
-                screen: role === "user" ? "ServiceSetUpProfile" : "ServiceProfile",
-              })
-            }
-            style={styles.box}
-          >
-            <Image
-              source={require("@/assets/images/services/serviceImg.png")}
-              style={{
-                width: wscale(60),
-                height: hscale(60),
-              }}
-            />
-            <Text
-              style={{
-                fontFamily: "Inter-Bold",
-                color: "black",
-                fontSize: mscale(22),
-              }}
-            >
-              Sell a service
-            </Text>
-            <Text
-              style={{
-                color: "#5C5F62",
-                fontSize: mscale(15),
-                fontFamily: "Inter-Regular",
-                textAlign: "center",
-              }}
-            >
-              I’d like to offer my services
-            </Text>
-          </TouchableOpacity>
+              <Image
+                source={require("@/assets/images/services/serviceImg.png")}
+                style={{ width: wscale(60), height: hscale(60) }}
+              />
+              <Text
+                style={{
+                  fontFamily: "Inter-Bold",
+                  color: "black",
+                  fontSize: mscale(22),
+                }}
+              >
+                Sell a service
+              </Text>
+              <Text
+                style={{
+                  color: "#5C5C5C",
+                  fontSize: mscale(15),
+                  fontFamily: "Inter-Regular",
+                  textAlign: "center",
+                }}
+              >
+                I'd like to offer my services
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* ✅ Bottom text styled like UI */}
+          <Text style={styles.title}>
+            Find & connect with service{"\n"}providers around you!
+          </Text>
         </View>
       </ImageBackground>
     </View>
@@ -133,5 +137,34 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     gap: mscale(1.5),
+  },
+
+  // ✅ NEW: absolute position like screenshot
+  ctaButton: {
+    position: "absolute",
+    alignSelf: "center",
+    bottom: hscale(220) + mscale(35), // sits right above purple section
+    width: wscale(250),
+    height: hscale(52),
+    borderRadius: mscale(100),
+    backgroundColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  ctaText: {
+    color: "#fff",
+    fontSize: mscale(16),
+    fontFamily: "Inter-SemiBold",
+  },
+
+  // ✅ NEW: smaller + matching UI
+  title: {
+    marginTop: mscale(14),
+    fontFamily: "Inter-Bold",
+    fontSize: mscale(18),
+    textAlign: "center",
+    color: colors.white,
+    lineHeight: mscale(22),
   },
 });

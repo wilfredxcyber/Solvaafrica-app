@@ -8,13 +8,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import React, { useCallback, useLayoutEffect, useState } from "react";
-import {
-  useFocusEffect,
-  useNavigation,
-  RouteProp,
-  StaticScreenProps,
-} from "@react-navigation/native";
-// import { StaticScreenProps } from "@/src/types";
+import { useFocusEffect, useRouter, useLocalSearchParams } from "expo-router";
 import { globalStyles } from "@/src/styles/global";
 import { hscale, mscale, wscale } from "@/src/helpers/metric";
 import { colors } from "@/src/constants/theme";
@@ -33,12 +27,21 @@ type Freelancer = {
   whatsappLink: string;
 };
 
-// Props for this screen
-type Props = StaticScreenProps<{ service: { id: number; title: string } }>;
+// Define service type
+type Service = {
+  id: number;
+  title: string;
+};
 
-const ServiceDeets = ({ route }: Props) => {
-  const { service } = route.params;
-  const navigation = useNavigation();
+const ServiceDeets = () => {
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  
+  // Parse service from params
+  const service: Service = params.service 
+    ? JSON.parse(params.service as string)
+    : null;
+
   const screenWidth = Dimensions.get("window").width;
 
   const [loading, setLoading] = useState(true);
@@ -48,6 +51,8 @@ const ServiceDeets = ({ route }: Props) => {
 
   useFocusEffect(
     useCallback(() => {
+      if (!service?.id) return;
+
       const getServices = async () => {
         try {
           setLoading(true);
@@ -67,17 +72,57 @@ const ServiceDeets = ({ route }: Props) => {
       };
 
       getServices();
-    }, [service.id])
+    }, [service?.id])
   );
 
+  // In Expo Router, you typically set the title in the layout file
+  // or use a custom header. You can also use the `useLayoutEffect` 
+  // with router.setOptions if you're using a Stack layout
   useLayoutEffect(() => {
-    navigation.setOptions({
-      title: service.title,
+    if (service?.title) {
+      // If you're using Expo Router with Stack layout, you can set options like this:
+      // router.setOptions({ title: service.title });
+      // Alternatively, set the title in your _layout.tsx file
+    }
+  }, [service?.title]);
+
+  const handleFreelancerPress = (freelancer: Freelancer) => {
+    router.push({
+      pathname: "/(services)/find-service/read-service",
+      params: { userData: JSON.stringify(freelancer) }
     });
-  }, [navigation, service.title]);
+  };
+
+  // Show loading if service is not available yet
+  if (!service) {
+    return (
+      <View style={[globalStyles.screen, { justifyContent: "center", alignItems: "center" }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={{ marginTop: mscale(10), fontFamily: "Inter-Regular" }}>
+          Loading service data...
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={globalStyles.screen}>
+      {/* Service Title Header */}
+      <View style={{
+        paddingHorizontal: mscale(16),
+        paddingVertical: mscale(12),
+        marginBottom: mscale(10),
+      }}>
+        <Text style={{
+          fontSize: mscale(20),
+          fontFamily: "Inter-Bold",
+          color: colors.black,
+          textAlign: "center",
+        }}>
+          {service.title}
+        </Text>
+      </View>
+
       {loading ? (
         <ActivityIndicator size="large" color={colors.primary} />
       ) : (
@@ -87,12 +132,7 @@ const ServiceDeets = ({ route }: Props) => {
           renderItem={({ item }) => (
             <View style={{ marginBottom: mscale(10) }}>
               <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate("App", {
-                    screen: "ReadServiceProfile",
-                    params: { userData: item },
-                  })
-                }
+                onPress={() => handleFreelancerPress(item)}
                 style={{
                   backgroundColor: "#EBEDEB80",
                   borderRadius: mscale(18),
@@ -150,7 +190,7 @@ const ServiceDeets = ({ route }: Props) => {
               </TouchableOpacity>
             </View>
           )}
-          contentContainerStyle={{ paddingBottom: hscale(20) }}
+          contentContainerStyle={{ paddingBottom: hscale(20), paddingHorizontal: mscale(16) }}
           ListEmptyComponent={
             <Text
               style={{

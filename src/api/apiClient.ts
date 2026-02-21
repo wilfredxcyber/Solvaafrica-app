@@ -13,7 +13,7 @@ import { ENV_CONFIG } from "../env.config";
       : ENV_CONFIG.dev.BASE_API_URL;
 */
 
-const API_BASE_URL =
+ export const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL ??
   ENV_CONFIG.prod.BASE_API_URL;
 

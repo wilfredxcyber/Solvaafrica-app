@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import React, { useCallback, useLayoutEffect, useState } from "react";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useRouter, useLocalSearchParams } from "expo-router";
 import { globalStyles } from "@/src/styles/global";
 import { hscale, mscale, wscale } from "@/src/helpers/metric";
 import { colors } from "@/src/constants/theme";
@@ -22,18 +22,30 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "@/src/stores/authStore";
 
 export default function ServiceProfile() {
-  const navigation = useNavigation();
+  const router = useRouter();
+  const params = useLocalSearchParams();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any | null>(null);
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewLoading, setReviewLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Get userData from params if passed
+  const userDataFromParams = params.userData ? JSON.parse(params.userData as string) : null;
+
   // freelancer is always just an ID
   const freelancerId = useAuthStore((state) => state.user?.profile?.freelancer);
 
   // fetch full freelancer object
   const getFreelancerInfo = async () => {
+    // If we have userData from params, use it directly
+    if (userDataFromParams) {
+      setUser(userDataFromParams);
+      getReviews(userDataFromParams.id);
+      setLoading(false);
+      return;
+    }
+
     if (!freelancerId) return;
 
     try {
@@ -73,29 +85,29 @@ export default function ServiceProfile() {
   useFocusEffect(
     useCallback(() => {
       getFreelancerInfo();
-    }, [freelancerId])
+    }, [freelancerId, userDataFromParams])
   );
 
-  // set header title and edit button
+  // set header title and edit button using Expo Router options
   useLayoutEffect(() => {
     if (!user) return;
-    navigation.setOptions({
-      title: user.fullName,
-      headerRight: () => (
-        <Ionicons
-          name="create-outline"
-          size={24}
-          color="black"
-          onPress={() =>
-            navigation.navigate("App", {
-              screen: "ServiceEditProfile",
-              params: { userData: user },
-            })
-          }
-        />
-      ),
-    });
-  }, [navigation, user]);
+    
+    // In Expo Router, you typically set options in the layout component
+    // or use a custom header. If you need to customize the header dynamically,
+    // you might need to restructure your app or use a different approach.
+    
+    // For now, we'll remove the navigation.setOptions and handle navigation differently
+  }, [user]);
+
+  const handleEditPress = () => {
+    if (user) {
+      // Navigate to ServiceEditProfile with user data
+      router.push({
+        pathname: "/(services)/services-profile/edit-profile",
+        params: { userData: JSON.stringify(user) }
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -380,13 +392,14 @@ export default function ServiceProfile() {
           </Text>
         )}
 
+        {/* Add review button - commented out as in original */}
         {/* <TouchableOpacity
-          onPress={() =>
-            navigation.navigate("App", {
-              screen: "Review",
-              params: { userData: user },
-            })
-          }
+          onPress={() => {
+            router.push({
+              pathname: "/review",
+              params: { userData: JSON.stringify(user) }
+            });
+          }}
           style={{
             flexDirection: "row",
             alignItems: "center",
@@ -406,6 +419,29 @@ export default function ServiceProfile() {
           </Text>
         </TouchableOpacity> */}
       </View>
+
+      {/* Edit Profile Button - Add a visible button since we can't easily modify header in Expo Router */}
+      <TouchableOpacity
+        onPress={handleEditPress}
+        style={{
+          backgroundColor: colors.primary,
+          padding: mscale(14),
+          borderRadius: mscale(8),
+          alignItems: "center",
+          marginBottom: mscale(20),
+          marginTop: mscale(10),
+        }}
+      >
+        <Text
+          style={{
+            color: "#fff",
+            fontFamily: "Inter-Bold",
+            fontSize: mscale(16),
+          }}
+        >
+          Edit Profile
+        </Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }

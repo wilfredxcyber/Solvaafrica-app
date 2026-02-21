@@ -1,3 +1,3 @@
-import FilterScreen  from "../../screens/filterScreen";
+import FilterScreen  from "../../screens/FilterScreen";
 
 export default FilterScreen;

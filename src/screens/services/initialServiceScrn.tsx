@@ -7,14 +7,16 @@ import {
   StyleSheet,
 } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import { mscale, hscale } from "@/src/helpers/metric";
 import { colors } from "@/src/constants/theme";
 
 export default function InitialServiceScreen() {
-  const navigation = useNavigation();
+  const router = useRouter();
+  
   const handleNav = () => {
-    navigation.navigate("App", { screen: "Services" });
+    // Navigate to Services screen
+  //  router.push("/(services)/find-service");
   };
 
   return (

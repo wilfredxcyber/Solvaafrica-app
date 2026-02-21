@@ -52,7 +52,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
 };
 
 
-  const handleSocialIconPressed = async (icon: "tw" | "ig" | "fb") => {
+  const handleSocialIconPressed = async (icon: "tw" | "ig" | "fb" | "tt") => {
     try {
       if (icon === "tw") {
         await Linking.openURL(
@@ -69,6 +69,12 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
       if (icon === "ig") {
         await Linking.openURL(
           "https://www.instagram.com/solva_africa?igsh=eGF1eW1rYWx0bWxy"
+        );
+      }
+
+      if (icon === "tt") {
+        await Linking.openURL(
+          "https://www.tiktok.com/@solva_africa?_t=ZS-8zTTXNGGpmy&_r=1"
         );
       }
     } catch (error) {

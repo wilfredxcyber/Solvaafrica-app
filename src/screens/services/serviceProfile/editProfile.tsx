@@ -13,21 +13,21 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { colors } from "@/src/constants/theme";
 import { mscale, hscale, wscale } from "@/src/helpers/metric";
-import {
-  CommonActions,
-  StaticScreenProps,
-  useNavigation,
-} from "@react-navigation/native";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { AUTH_API_CLIENT } from "@/src/api/apiClient";
 import { FreelancerProfile, ServiceType } from "@/src/types";
 import ErrorModal from "@/src/components/errorModal";
 import { Picker } from "@react-native-picker/picker";
 import ToastManager, { Toast } from "toastify-react-native";
 
-type Props = StaticScreenProps<{ userData: FreelancerProfile }>;
-
-export default function EditProfile({ route }: Props) {
-  const { userData } = route.params;
+export default function EditProfile() {
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  
+  // Parse userData from params
+  const userData: FreelancerProfile = params.userData 
+    ? JSON.parse(params.userData as string)
+    : null;
 
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -47,8 +47,6 @@ export default function EditProfile({ route }: Props) {
   const [phone, setPhone] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [uni, setUni] = useState("");
-
-  const navigation = useNavigation();
 
   useEffect(() => {
     const getServices = async () => {
@@ -112,7 +110,6 @@ export default function EditProfile({ route }: Props) {
       !whatsapp ||
       !uni
     ) {
-      // Toast.error("All fields are required.");
       ToastAndroid.show("All fields are required.", ToastAndroid.LONG);
       return;
     }
@@ -127,7 +124,7 @@ export default function EditProfile({ route }: Props) {
     formData.append("whatsappLink", whatsapp);
     formData.append("location", uni);
 
-    if (profileImageUri && profileImageUri !== userData.profilePic) {
+    if (profileImageUri && profileImageUri !== userData?.profilePic) {
       const fileName = profileImageUri.split("/").pop() || "profile.jpg";
       const fileType = fileName.split(".").pop();
       const mimeType = fileType === "png" ? "image/png" : "image/jpeg";
@@ -152,17 +149,18 @@ export default function EditProfile({ route }: Props) {
       if (response.status === 200) {
         Toast.success("Profile updated successfully!");
 
-        if (navigation.canGoBack()) {
-          navigation.goBack();
+        // Use router.back() to go back, or push to serviceProfile
+        if (router.canGoBack()) {
+          router.back();
         } else {
-          navigation.navigate("App", { screen: "ServiceProfile" });
+          // If can't go back, navigate to ServiceProfile
+          router.push("/(services)/services-profile/service-profile");
         }
       } else {
         ToastAndroid.show(
           "Unexpected response from server.",
           ToastAndroid.LONG
         );
-        // Toast.error("Unexpected response from server.");
       }
     } catch (error: any) {
       if (error.response) {
@@ -170,18 +168,27 @@ export default function EditProfile({ route }: Props) {
           error.response.data?.message || "Server error.",
           ToastAndroid.LONG
         );
-        // Toast.error(error.response.data?.message || "Server error.");
       } else if (error.request) {
         ToastAndroid.show("No response from server.", ToastAndroid.LONG);
-        // Toast.error("No response from server.");
       } else {
         ToastAndroid.show("An unexpected error occurred.", ToastAndroid.LONG);
-        // Toast.error("An unexpected error occurred.");
       }
     } finally {
       setUpdating(false);
     }
   };
+
+  // Show loading if userData is not available yet
+  if (!userData) {
+    return (
+      <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={{ marginTop: mscale(10), fontFamily: "Inter-Regular" }}>
+          Loading profile data...
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -305,6 +312,7 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: wscale(10),
     backgroundColor: "#fff",
+    minHeight: "100%",
   },
   title: {
     fontFamily: "Inter-Medium",

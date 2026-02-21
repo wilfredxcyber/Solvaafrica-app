@@ -1,3 +1,3 @@
-import  Task  from "../screens/Premiums/Task";
+import ExploreTaskScreen from "../screens/Premiums/Task";
 
-export default Task;
+export default ExploreTaskScreen;
