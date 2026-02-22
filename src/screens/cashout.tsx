@@ -7,6 +7,7 @@ import {
   TextInput,
   View,
   Modal,
+  Platform,
 } from "react-native";
 // Remove React Navigation imports
 // import { StaticScreenProps } from "@react-navigation/native";
@@ -54,9 +55,17 @@ export default function Cashout() {
 
   // Parse userBalance from URL params
   useEffect(() => {
+    console.log('Platform:', Platform.OS);
+    console.log('URL params:', params);
     if (params.balance) {
+      console.log('Raw balance param:', params.balance);
+      console.log('Type of balance param:', typeof params.balance);
       const balanceValue = parseFloat(params.balance as string);
+      console.log('Parsed balance value:', balanceValue);
+      console.log('Is NaN?', isNaN(balanceValue));
       setUserBalance(isNaN(balanceValue) ? null : balanceValue);
+    } else {
+      console.log('No balance param found');
     }
   }, [params.balance]);
 
@@ -87,26 +96,83 @@ export default function Cashout() {
   };
 
   const handleSubmitForm = async () => {
+    console.log('=== SUBMIT FORM STARTED ===');
+    console.log('Platform:', Platform.OS);
+    console.log('Submit button clicked!');
+    
     const { accountName, accountNumber, amount, bankName } = bankDetailsForm;
+    
+    console.log('Form data:', { 
+      accountName, 
+      accountNumber, 
+      amount, 
+      bankName,
+      accountNameLength: accountName.length,
+      accountNumberLength: accountNumber.length,
+      amountLength: amount.length,
+      bankNameLength: bankName.length
+    });
+    console.log('User balance state:', userBalance);
+    console.log('Type of userBalance:', typeof userBalance);
+    
+    // Fixed validation - removed duplicate accountName check
     if (
-      !accountName.trim() ||
       !accountName.trim() ||
       !amount.trim() ||
       !accountNumber.trim() ||
       !bankName.trim()
-    )
-      return;
-
-    if (accountNumber.length > 10 || accountNumber.length < 10) {
-      Alert.alert("Error!", "Account number is invalid.");
+    ) {
+      console.log('Validation failed: Missing fields');
+      console.log('accountName.trim():', accountName.trim().length > 0);
+      console.log('amount.trim():', amount.trim().length > 0);
+      console.log('accountNumber.trim():', accountNumber.trim().length > 0);
+      console.log('bankName.trim():', bankName.trim().length > 0);
+      Alert.alert("Error!", "Please fill all fields");
       return;
     }
 
-    if (
-      Number(amount.trim()) > (userBalance ? userBalance : 0) ||
-      Number(amount) === 0
-    ) {
-      Alert.alert("Error!", "Balance too low for withdraw amount");
+    if (accountNumber.length !== 10) {
+      console.log('Validation failed: Account number length invalid', accountNumber.length);
+      Alert.alert("Error!", "Account number must be 10 digits.");
+      return;
+    }
+
+    const amountNum = Number(amount.trim());
+    console.log('Amount as number:', amountNum);
+    console.log('Is amount a valid number?', !isNaN(amountNum));
+    if (isNaN(amountNum)) {
+      console.log('Validation failed: Amount is not a number');
+      Alert.alert("Error!", "Please enter a valid amount");
+      return;
+    }
+
+    if (amountNum <= 0) {
+      console.log('Validation failed: Amount is zero or negative');
+      Alert.alert("Error!", "Amount must be greater than zero");
+      return;
+    }
+
+    // Check if userBalance is null or undefined
+    console.log('Checking userBalance:', userBalance);
+    console.log('userBalance === null:', userBalance === null);
+    console.log('userBalance === undefined:', userBalance === undefined);
+    console.log('typeof userBalance:', typeof userBalance);
+    
+    if (userBalance === null || userBalance === undefined) {
+      console.log('Validation failed: User balance not available');
+      Alert.alert("Error!", "Unable to retrieve your balance. Please try again.");
+      return;
+    }
+
+    // Check if amount is greater than balance
+    console.log('Comparing amountNum > userBalance:', amountNum, '>', userBalance, '=', amountNum > userBalance);
+    if (amountNum > userBalance) {
+      console.log('Validation failed: Insufficient balance', { 
+        amountNum, 
+        userBalance,
+        difference: amountNum - userBalance
+      });
+      Alert.alert("Error!", `Balance too low for withdrawal amount. Your balance is NGN ${userBalance.toFixed(2)}`);
       return;
     }
 
@@ -114,26 +180,56 @@ export default function Cashout() {
       accountName: accountName.trim(),
       accountNumber: accountNumber.trim(),
       bankName: bankName.trim(),
-      amount: Number(amount.trim()),
+      amount: amountNum,
     };
+    
+    console.log('Sending request:', requestForm);
+    
     try {
       setSubmittingForm(true);
+      console.log('Making API call to /cashouts/create');
       const response = await AUTH_API_CLIENT.post(
         "/cashouts/create",
         requestForm
       );
 
+      console.log('Response status:', response.status);
+      console.log('Response data:', response.data);
+      console.log('Response headers:', response.headers);
+
       if (response.status === 200) {
+        console.log('Success! Showing modal');
         setShowModal(true);
+      } else {
+        console.log('Unexpected status code:', response.status);
       }
     } catch (error: any) {
-      console.log("Submitting cashout requests", error);
+      console.log('=== ERROR DETAILS ===');
+      console.log('Error submitting cashout request:', error);
+      console.log('Error name:', error.name);
+      console.log('Error message:', error.message);
+      console.log('Error stack:', error.stack);
+      console.log('Error response status:', error.response?.status);
+      console.log('Error response data:', error.response?.data);
+      console.log('Error response headers:', error.response?.headers);
+      
       let message = "Error, Something went wrong, try again later!";
+      
+      if (error.response?.data?.message) {
+        message = error.response.data.message;
+      } else if (error.message) {
+        message = error.message;
+      }
+      
+      console.log('Setting error message:', message);
       setErrorMessage(message);
       setErrorVisible(true);
     } finally {
+      console.log('Setting submittingForm to false');
       setSubmittingForm(false);
     }
+    
+    console.log('=== SUBMIT FORM ENDED ===');
   };
 
   return (
@@ -156,12 +252,18 @@ export default function Cashout() {
           {/* account name */}
           <InputView
             placeholder="Enter Account name"
-            setForm={(value) => handleSetForm(value, "accountName")}
+            setForm={(value) => {
+              console.log('Account name changed:', value);
+              handleSetForm(value, "accountName");
+            }}
           />
           {/* account number */}
           <InputView
             placeholder="Account number"
-            setForm={(value) => handleSetForm(value, "accountNumber")}
+            setForm={(value) => {
+              console.log('Account number changed:', value);
+              handleSetForm(value, "accountNumber");
+            }}
             keyboardType="numeric"
           />
           {/* select bank */}
@@ -169,7 +271,10 @@ export default function Cashout() {
           {/* enter amount */}
           <InputView
             placeholder="Enter amount"
-            setForm={(value) => handleSetForm(value, "amount")}
+            setForm={(value) => {
+              console.log('Amount changed:', value);
+              handleSetForm(value, "amount");
+            }}
             keyboardType="numeric"
           />
         </View>
@@ -200,6 +305,7 @@ const SuccessModal = ({
   const router = useRouter();
   
   const handleOkPress = () => {
+    console.log('Success modal OK pressed');
     setShowModal(false);
     // Navigate back to earnings screen
     router.back();
@@ -209,7 +315,11 @@ const SuccessModal = ({
     <Modal
       animationType="slide"
       visible={showModal}
-      onRequestClose={() => setShowModal(false)}
+      onRequestClose={() => {
+        console.log('Success modal closed');
+        setShowModal(false);
+      }}
+      transparent={true}
     >
       <View style={styles.successModalView}>
         <View style={styles.modal}>
@@ -232,7 +342,7 @@ const SuccessModal = ({
               { fontSize: mscale(14), textAlign: "center" },
             ]}
           >
-            Your application for witdrawal has been submitted, wait for 1-2
+            Your application for withdrawal has been submitted, wait for 1-2
             business working days to receive funds in your account.
           </Text>
           <View style={{ flexDirection: "row", marginVertical: hscale(20) }}>
@@ -241,7 +351,7 @@ const SuccessModal = ({
               style={{ height: hscale(40), aspectRatio: 1 }}
             />
             <Text style={{ width: "85%" }}>
-              Delay not yet recieved? Send complaints to support.
+              Delay not yet received? Send complaints to support.
             </Text>
           </View>
 
@@ -277,7 +387,10 @@ const InputView = ({
         placeholder={placeholder}
         style={styles.textInput}
         cursorColor={colors.primary}
-        onChangeText={(text) => setForm && setForm(text)}
+        onChangeText={(text) => {
+          console.log(`${placeholder} changed:`, text);
+          setForm && setForm(text);
+        }}
         keyboardType={keyboardType ? keyboardType : "default"}
       />
 
@@ -295,6 +408,7 @@ const SelectBankInputView = ({
   const [showDropDown, setShowDropDown] = useState(false);
 
   const handleSetSelectedBank = (bank: string) => {
+    console.log('Bank selected:', bank);
     setSelectedBank(bank);
     handleSetForm(bank, "bankName");
     setShowDropDown(false);
@@ -302,7 +416,10 @@ const SelectBankInputView = ({
 
   return (
     <View style={{ position: "relative" }}>
-      <Pressable onPress={() => setShowDropDown(true)}>
+      <Pressable onPress={() => {
+        console.log('Bank dropdown pressed');
+        setShowDropDown(true);
+      }}>
         <InputView
           editable={false}
           value={selectedBank}
@@ -347,6 +464,9 @@ const EarningsBalanceView = ({
 }: {
   userBalance: number | null | any;
 }) => {
+  console.log('EarningsBalanceView rendered with balance:', userBalance);
+  console.log('Type of userBalance in view:', typeof userBalance);
+  
   return (
     <View style={styles.copyReferralCodeView}>
       <View style={{ flex: 1 }}>
@@ -358,7 +478,7 @@ const EarningsBalanceView = ({
         >
           Earnings
         </Text>
-        {userBalance != null && (
+        {userBalance != null ? (
           <Text
             style={[
               styles.text,
@@ -368,7 +488,20 @@ const EarningsBalanceView = ({
               },
             ]}
           >
-            {`NGN ${userBalance?.toFixed(2)}`}
+            {`NGN ${userBalance.toFixed(2)}`}
+          </Text>
+        ) : (
+          <Text
+            style={[
+              styles.text,
+              {
+                fontFamily: "Inter-Regular",
+                fontSize: mscale(14),
+                color: colors.greyView,
+              },
+            ]}
+          >
+            Loading balance...
           </Text>
         )}
       </View>
@@ -391,7 +524,7 @@ const styles = StyleSheet.create({
   copyReferralCodeView: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ECECEC",
+    backgroundColor: colors.inputFieldNew,
     paddingVertical: hscale(12),
     paddingHorizontal: wscale(24),
     borderRadius: mscale(12),

@@ -114,7 +114,7 @@ export default function HomeScreen() {
     } else if (pressedItem === MenuItemScreensRoutes.EARNING) {
       router.push("/earning");
     } else if (pressedItem === MenuItemScreensRoutes.SERVICES) {
-      router.push("/services");
+      router.push("/(services)/services");
       return;
     } else if (pressedItem === MenuItemScreensRoutes.ASK) {
       router.push("/ask")

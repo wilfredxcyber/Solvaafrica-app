@@ -9,11 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import React, { useCallback, useLayoutEffect, useState } from "react";
-import {
-  StaticScreenProps,
-  useFocusEffect,
-  useNavigation,
-} from "@react-navigation/native";
+import { useFocusEffect, useRouter, useLocalSearchParams } from "expo-router";
 import { globalStyles } from "@/src/styles/global";
 import { hscale, mscale, wscale } from "@/src/helpers/metric";
 import { colors } from "@/src/constants/theme";
@@ -23,14 +19,16 @@ import Carousel from "pinar";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AUTH_API_CLIENT } from "@/src/api/apiClient";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuthStore } from "@/src/stores/authStore";
 
-type Props = StaticScreenProps<{ userData: any }>;
+export default function ReadServiceProfile() {
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  
+  // Parse userData from params
+  const userData = params.userData 
+    ? JSON.parse(params.userData as string)
+    : null;
 
-export default function ReadServiceProfile({ route }: Props) {
-  const { userData } = route.params;
-
-  const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any | null>(null);
   const [reviews, setReviews] = useState<any[]>([]);
@@ -81,26 +79,41 @@ export default function ReadServiceProfile({ route }: Props) {
     }, [freelancerId])
   );
 
-  // set header title and edit button
+  // In Expo Router, header customization is typically done in layout files
   useLayoutEffect(() => {
-    if (!user) return;
-    navigation.setOptions({
-      title: user.fullName,
-      headerRight: () => (
-        <Ionicons
-          name="create-outline"
-          size={24}
-          color="black"
-          onPress={() =>
-            navigation.navigate("App", {
-              screen: "ServiceEditProfile",
-              params: { userData: user },
-            })
-          }
-        />
-      ),
-    });
-  }, [navigation, user]);
+    // If you're using a Stack layout, you can set options here
+    // For now, we'll handle header differently
+  }, [user]);
+
+  const handleAddReviewPress = () => {
+    if (user) {
+      router.push({
+        pathname: "/(services)/services-profile/add-review",
+        params: { userData: JSON.stringify(user) }
+      });
+    }
+  };
+
+  const handleEditProfilePress = () => {
+    if (user) {
+      router.push({
+        pathname: "/(services)/services-profile/edit-profile",
+        params: { userData: JSON.stringify(user) }
+      });
+    }
+  };
+
+  // Show loading if userData is not available yet
+  if (!userData) {
+    return (
+      <View style={[globalStyles.screen, { justifyContent: "center", alignItems: "center" }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={{ marginTop: mscale(10), fontFamily: "Inter-Regular" }}>
+          Loading profile data...
+        </Text>
+      </View>
+    );
+  }
 
   if (loading) {
     return (
@@ -136,6 +149,29 @@ export default function ReadServiceProfile({ route }: Props) {
 
   return (
     <ScrollView style={globalStyles.screen}>
+      {/* Custom Header with User Name */}
+      <View style={{
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        paddingHorizontal: mscale(16),
+        paddingVertical: mscale(12),
+        backgroundColor: colors.primary,
+      }}>
+        <Text style={{
+          fontSize: mscale(20),
+          fontFamily: "Inter-Bold",
+          color: "#fff",
+        }}>
+          {user.fullName || "Profile"}
+        </Text>
+        
+        {/* Edit Profile Button - Only show if user is viewing their own profile */}
+        <TouchableOpacity onPress={handleEditProfilePress}>
+          <Ionicons name="create-outline" size={24} color="#fff" />
+        </TouchableOpacity>
+      </View>
+
       {/* Profile Picture */}
       <View
         style={{
@@ -146,6 +182,7 @@ export default function ReadServiceProfile({ route }: Props) {
           alignItems: "center",
           justifyContent: "center",
           marginHorizontal: "auto",
+          marginTop: mscale(20),
         }}
       >
         <Image
@@ -162,7 +199,7 @@ export default function ReadServiceProfile({ route }: Props) {
       </View>
 
       {/* About */}
-      <View>
+      <View style={{ paddingHorizontal: mscale(16), marginTop: mscale(20) }}>
         <Text
           style={{
             fontSize: mscale(16),
@@ -187,7 +224,7 @@ export default function ReadServiceProfile({ route }: Props) {
       </View>
 
       {/* Portfolio */}
-      <View>
+      <View style={{ paddingHorizontal: mscale(16), marginTop: mscale(20) }}>
         <Text
           style={{
             fontSize: mscale(16),
@@ -231,13 +268,14 @@ export default function ReadServiceProfile({ route }: Props) {
           fontFamily: "Inter-Medium",
           fontSize: mscale(16),
           marginVertical: mscale(10),
+          paddingHorizontal: mscale(16),
         }}
       >
         From: NGN {user?.startingAmount || "N/A"}
       </Text>
 
       {/* Contact Info */}
-      <View>
+      <View style={{ paddingHorizontal: mscale(16), marginTop: mscale(20) }}>
         <Text
           style={{
             fontSize: mscale(16),
@@ -281,7 +319,7 @@ export default function ReadServiceProfile({ route }: Props) {
       </View>
 
       {/* Reviews */}
-      <View>
+      <View style={{ paddingHorizontal: mscale(16), marginTop: mscale(20), marginBottom: mscale(40) }}>
         <Text
           style={{
             fontSize: mscale(16),
@@ -361,29 +399,30 @@ export default function ReadServiceProfile({ route }: Props) {
           </Text>
         )}
 
+        {/* Add Review Button */}
         <TouchableOpacity
-          onPress={() =>
-            navigation.navigate("App", {
-              screen: "Review",
-              params: { userData: user },
-            })
-          }
+          onPress={handleAddReviewPress}
           style={{
             flexDirection: "row",
             alignItems: "center",
             gap: mscale(10),
             marginBottom: mscale(20),
+            backgroundColor: colors.primary,
+            padding: mscale(12),
+            borderRadius: mscale(8),
+            justifyContent: "center",
+            marginTop: mscale(20),
           }}
         >
-          <Entypo name="plus" size={20} color={colors.primary} />
+          <Entypo name="plus" size={20} color="#fff" />
           <Text
             style={{
               fontFamily: "Inter-Regular",
               fontSize: mscale(16),
-              color: colors.primary,
+              color: "#fff",
             }}
           >
-            Add review
+            Add Review
           </Text>
         </TouchableOpacity>
       </View>

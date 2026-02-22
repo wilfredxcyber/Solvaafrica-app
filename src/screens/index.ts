@@ -6,7 +6,7 @@ import UploadFilesScreen from "./uploadFileScreen";
 import ImageViewerPage from "./imageViewerPage";
 import CourseMaterials from "./courseMaterials";
 import SettingsScreen from "./settingsScreen";
-import ServicesScreen from "./servicesScreen";
+import ServicesScreen from "./servicesScreen.tsx";
 import ProjectsScreen from "./projectsScreen";
 import DownloadScreen from "./downloadScreen";
 import Complaints from "./Drawer/Complaints";

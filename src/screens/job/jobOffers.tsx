@@ -11,14 +11,14 @@ import React, { useCallback, useEffect, useState } from "react";
 import { globalStyles } from "@/src/styles/global";
 import { hscale, mscale } from "@/src/helpers/metric";
 import { colors } from "@/src/constants/theme";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useRouter } from "expo-router";
 
 import { AUTH_API_CLIENT } from "@/src/api/apiClient";
 import ErrorModal from "@/src/components/errorModal";
 import { Job } from "@/src/types";
 
 export default function JobOffers() {
-  const navigation = useNavigation();
+  const router = useRouter();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -55,6 +55,13 @@ export default function JobOffers() {
     }, [])
   );
 
+  const handleJobPress = (job: Job) => {
+  // Temporary bypass
+  router.push(`/job-details` as any);
+    // Alternative: If you have a route with dynamic segment
+    // router.push(`/(app)/job-details/${job.id}`);
+  };
+
   return (
     <View style={globalStyles.screen}>
       <Image
@@ -73,12 +80,7 @@ export default function JobOffers() {
           data={jobs}
           renderItem={({ item }) => (
             <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("App", {
-                  screen: "JobDetails",
-                  params: { job: item },
-                })
-              }
+              onPress={() => handleJobPress(item)}
             >
               <View
                 style={{

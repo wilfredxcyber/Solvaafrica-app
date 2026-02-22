@@ -54,3 +54,30 @@ export interface PickedFile {
   fileUri: string;
   imageUri: string;
 }
+
+export interface Job {
+  id: number;
+  title: string;
+  status: string[];
+  description: string;
+  createdAt: string;
+}
+
+export interface ServiceType {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export interface FreelancerProfile {
+  id: number;
+  bio?: string;
+  categoryId?: number;
+  fullName?: string;
+  phoneNumber?: string;
+  portfolioLink?: string;
+  profilePic?: string;
+  startingAmount?: string;
+  whatsappLink?: string;
+  location?: string;
+}
