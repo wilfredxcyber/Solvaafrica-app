@@ -27,5 +27,5 @@ export default function EmptyStateView() {
 }
 
 const styles = StyleSheet.create({
-  text: { fontFamily: "Inter-Bold", fontSize: mscale(20), textAlign: "center" },
+  text: { fontFamily: "Inter-Bold", fontSize: mscale(28), textAlign: "center", marginTop: mscale(20) },
 });
