@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import { hscale, mscale, wscale } from "@/src/helpers/metric";
 import { colors } from "@/src/constants/theme";
@@ -14,11 +15,23 @@ import { useAuthStore } from "@/src/stores/authStore";
 export default function ServicesScreen() {
   const router = useRouter();
   const AuthUser = useAuthStore((state) => state.user);
-  const { role } = AuthUser.profile;
+
+  // ✅ SAFE: AuthUser can be null on first load / refresh (especially on web)
+  const role = AuthUser?.profile?.role;
 
   const handleNav = () => {
     router.push("/(services)/find-service");
   };
+
+  // ✅ Optional: prevent crashes + show something while user loads
+  // If you don't want any loader, you can remove this block.
+  if (!AuthUser) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, position: "relative" }}>
@@ -28,7 +41,11 @@ export default function ServicesScreen() {
         source={require("@/assets/images/services/serviceBg.png")}
       >
         {/* ✅ Explore button positioned like UI */}
-        <TouchableOpacity style={styles.ctaButton} onPress={handleNav} activeOpacity={0.9}>
+        <TouchableOpacity
+          style={styles.ctaButton}
+          onPress={handleNav}
+          activeOpacity={0.9}
+        >
           <Text style={styles.ctaText}>Explore our services</Text>
         </TouchableOpacity>
 
@@ -85,7 +102,9 @@ export default function ServicesScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => router.push("/(services)/services-profile/setup-profile")}
+              onPress={() =>
+                router.push("/(services)/services-profile/setup-profile")
+              }
               style={styles.box}
             >
               <Image

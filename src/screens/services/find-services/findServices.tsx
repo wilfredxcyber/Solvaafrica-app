@@ -80,9 +80,11 @@ export default function FindServices() {
   );
 
   return (
-    <View style={globalStyles.screen}>
+    <View style={[globalStyles.screen, styles.screen]}>
       {loading ? (
-        <ActivityIndicator size="large" color={colors.primary} />
+        <View style={styles.loaderWrap}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
       ) : (
         <FlatList
           data={services}
@@ -92,26 +94,36 @@ export default function FindServices() {
           ListHeaderComponent={
             <View style={styles.header}>
               <TouchableOpacity
-                onPress={() => router.back()}
+                onPress={() => {
+               if (router.canGoBack()) {
+               router.back();
+              } else {
+              router.replace("/(services)/services"); // change to your home route
+              }
+}}
                 hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                 style={styles.backBtn}
+                activeOpacity={0.8}
               >
                 <Feather name="arrow-left" size={mscale(22)} color="black" />
               </TouchableOpacity>
 
               <Text style={styles.headerTitle}>Categories</Text>
+
+              {/* Spacer to keep the title centered like the screenshot */}
+              <View style={styles.headerRightSpacer} />
             </View>
           }
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => handleServicePress(item)}
-              activeOpacity={0.85}
+              activeOpacity={0.9}
               style={styles.row}
             >
               <View style={styles.iconCol}>
                 <MaterialCommunityIcons
                   name={getIconName(item.title)}
-                  size={mscale(28)}
+                  size={mscale(30)}
                   color={colors.primary}
                 />
               </View>
@@ -123,7 +135,9 @@ export default function FindServices() {
             </TouchableOpacity>
           )}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>No services available at the moment.</Text>
+            <Text style={styles.emptyText}>
+              No services available at the moment.
+            </Text>
           }
         />
       )}
@@ -138,52 +152,68 @@ export default function FindServices() {
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    backgroundColor: "white",
+  },
+
+  loaderWrap: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
   listContent: {
-    paddingBottom: hscale(30),
-    paddingTop: hscale(10),
+    paddingBottom: hscale(34),
+    paddingTop: hscale(8),
+    paddingHorizontal: wscale(22), // matches screenshot left/right spacing
   },
 
   header: {
     flexDirection: "row",
     alignItems: "center",
-    gap: mscale(10),
     marginBottom: hscale(18),
     paddingTop: hscale(6),
   },
 
   backBtn: {
-    width: wscale(34),
-    height: wscale(34),
-    alignItems: "center",
+    width: wscale(36),
+    height: wscale(36),
+    alignItems: "flex-start",
     justifyContent: "center",
   },
 
   headerTitle: {
+    flex: 1,
+    //textAlign: "center", // centered like screenshot
     fontFamily: "Inter-Bold",
     fontSize: mscale(32),
     color: "black",
   },
 
+  headerRightSpacer: {
+    width: wscale(36), // same as back button width for perfect centering
+  },
+
   row: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: hscale(26),
+    marginBottom: hscale(28), // more breathing room like screenshot
   },
 
   iconCol: {
-    width: wscale(42),
-    alignItems: "center",
-    marginTop: hscale(6),
+    width: wscale(52),
+    alignItems: "flex-start",
+    paddingTop: hscale(4), // aligns icon with title baseline like screenshot
   },
 
   textCol: {
     flex: 1,
-    paddingRight: wscale(10),
+    paddingRight: wscale(6),
   },
 
   title: {
     fontFamily: "Inter-Bold",
-    fontSize: mscale(18),
+    fontSize: mscale(18.5),
     color: colors.primary,
     marginBottom: hscale(6),
   },
@@ -192,7 +222,7 @@ const styles = StyleSheet.create({
     fontFamily: "Inter-Regular",
     fontSize: mscale(14.5),
     color: "black",
-    lineHeight: mscale(18),
+    lineHeight: mscale(20),
   },
 
   emptyText: {
