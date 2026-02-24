@@ -1,5 +1,5 @@
 import { Pressable, Text, View,} from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import WarnIcon from "@expo/vector-icons/FontAwesome5";
 import * as DocumentPicker from "expo-document-picker";
 import LeftIcon from "@expo/vector-icons/Ionicons";
@@ -11,30 +11,38 @@ import ProtectPage from "../components/protectPage";
 import { PickedFile } from "../types";
 import ToastManager, { Toast } from "toastify-react-native";
 
+const isPdfFile = (name: string, mimeType?: string | null) =>
+  mimeType === "application/pdf" || name.toLowerCase().endsWith(".pdf");
+
 export default function UploadFilesScreen() {
-  const navigation = useNavigation();
+  const router = useRouter();
 
   const handleUseFilePicker = async () => {
     try {
       const pickedFile = await DocumentPicker.getDocumentAsync({
-        type: ["application/pdf", "image/jpeg"],
+        type: "application/pdf",
         copyToCacheDirectory: true,
       });
 
       if (!pickedFile.canceled) {
         const { name, uri, mimeType } = pickedFile.assets[0];
-        if (!name || !uri || !mimeType) return;
+        if (!name || !uri) return;
+
+        if (!isPdfFile(name, mimeType)) {
+          Toast.error("Only PDF files are allowed for upload");
+          return;
+        }
 
         const _pickedFile: PickedFile = {
           fileUri: uri,
           imageUri: uri,
           name,
-          mimeType,
+          mimeType: "application/pdf",
         };
 
-        navigation.navigate("App", {
-          screen: "UploadPreview",
-          params: { pickedFile: _pickedFile },
+        router.push({
+          pathname: "/upload-preview",
+          params: { pickedFile: JSON.stringify(_pickedFile) },
         });
       }
     } catch {
@@ -47,7 +55,13 @@ export default function UploadFilesScreen() {
       <View style={{ backgroundColor: colors.primary, flex: 1 }}>
         {/* Back button */}
         <Pressable
-          onPress={() => navigation.goBack()}
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/(tabs)");
+            }
+          }}
           style={{
             width: wscale(48),
             height: hscale(48),
@@ -99,7 +113,7 @@ export default function UploadFilesScreen() {
               marginTop: hscale(12),
             }}
           >
-            Only documents in jpeg, png, pdf formats are allowed for upload.
+            Only PDF documents are allowed for upload.
           </Text>
 
           {/* Bottom sheet */}
@@ -135,7 +149,7 @@ export default function UploadFilesScreen() {
                     fontSize: mscale(16),
                   }}
                 >
-                  Click a file for storage
+                  Click to select a file from storage
                 </Text>
               </Pressable>
 

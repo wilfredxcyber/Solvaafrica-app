@@ -1,15 +1,14 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-  Alert,
   Modal,
   Pressable,
   StyleSheet,
   Text,
   View,
+  Alert,
 } from "react-native";
 import { useMemo, useState } from "react";
 import axios from "axios";
-import Pdf from "react-native-pdf";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { AUTH_API_CLIENT } from "../api/apiClient";
@@ -30,7 +29,7 @@ const uploadTypeOptions: { label: string; value: UploadType }[] = [
   { label: "Past Question", value: "question" },
 ];
 
-export default function UploadFilePreviewScreen() {
+export default function UploadFilePreviewScreenWeb() {
   const params = useLocalSearchParams<{ pickedFile?: string | string[] }>();
   const router = useRouter();
   const [isUploading, setIsUploading] = useState(false);
@@ -38,7 +37,6 @@ export default function UploadFilePreviewScreen() {
   const [errorMessage, setErrorMessage] = useState("");
   const [pickerVisible, setPickerVisible] = useState(false);
   const [selectedType, setSelectedType] = useState<UploadType | null>(null);
-  const [pdfLoading, setPdfLoading] = useState(true);
 
   const rawPickedFile = Array.isArray(params.pickedFile)
     ? params.pickedFile[0]
@@ -79,11 +77,10 @@ export default function UploadFilePreviewScreen() {
     try {
       const formData = new FormData();
       formData.append("dropdown", selectedType);
-      formData.append("documents", {
-        uri: pickedFile.fileUri,
-        name: pickedFile.name,
-        type: pickedFile.mimeType || "application/pdf",
-      } as any);
+
+      const fileResponse = await fetch(pickedFile.fileUri);
+      const fileBlob = await fileResponse.blob();
+      formData.append("documents", fileBlob, pickedFile.name);
 
       const formUploadResponse = await AUTH_API_CLIENT.post(
         "/documents/upload",
@@ -129,22 +126,11 @@ export default function UploadFilePreviewScreen() {
 
       <View style={styles.previewWrap}>
         {pickedFile ? (
-          <>
-            <Pdf
-              source={{ uri: pickedFile.fileUri, cache: true }}
-              style={styles.pdf}
-              onLoadComplete={() => setPdfLoading(false)}
-              onError={(error) => {
-                console.log("Error viewing pdf", error);
-                setPdfLoading(false);
-              }}
-            />
-            {pdfLoading ? (
-              <View style={styles.pdfOverlay}>
-                <Text style={styles.pdfOverlayText}>Loading PDF preview...</Text>
-              </View>
-            ) : null}
-          </>
+          <iframe
+            src={pickedFile.fileUri}
+            style={styles.iframe as any}
+            title="PDF Preview"
+          />
         ) : (
           <View style={styles.emptyPreview}>
             <Text style={styles.emptyTitle}>No file selected</Text>
@@ -222,6 +208,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#F3F3F3",
     paddingTop: hscale(32),
     paddingBottom: hscale(24),
+    maxWidth: 480,
+    marginHorizontal: "auto",
+    width: "100%",
   },
   backButton: {
     width: 40,
@@ -234,29 +223,20 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: "hidden",
     backgroundColor: "#ffffff",
-    minHeight: hscale(420),
+    minHeight: 460,
   },
-  pdf: {
-    flex: 1,
+  iframe: {
     width: "100%",
-    minHeight: hscale(420),
-  },
-  pdfOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.75)",
-  },
-  pdfOverlayText: {
-    fontFamily: "Inter-Medium",
-    color: colors.bodyText,
+    height: "100%",
+    //border: "none",
+    backgroundColor: "#ffffff",
   },
   emptyPreview: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 24,
-    minHeight: hscale(420),
+    minHeight: 460,
   },
   emptyTitle: {
     fontFamily: "Inter-Bold",
@@ -337,3 +317,4 @@ const styles = StyleSheet.create({
     fontSize: mscale(15),
   },
 });
+
