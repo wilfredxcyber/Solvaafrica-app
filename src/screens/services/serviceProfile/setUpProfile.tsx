@@ -227,6 +227,7 @@ export default function SetUpProfile() {
       <View style={styles.pickerContainer}>
         <Picker
           enabled={!updating}
+          style={styles.picker}
           selectedValue={selectedCategoryId}
           onValueChange={(itemValue) => setSelectedCategoryId(itemValue)}
         >
@@ -236,7 +237,6 @@ export default function SetUpProfile() {
               key={cat.id}
               label={cat.title}
               value={cat.id}
-              style={styles.input}
             />
           ))}
         </Picker>
@@ -375,12 +375,36 @@ const styles = StyleSheet.create({
     fontSize: mscale(16),
   },
   pickerContainer: {
-  borderWidth: 1,
-  borderColor: "#000", // black border
-  borderRadius: mscale(8),
-  marginBottom: hscale(16),
-  backgroundColor: colors.inputFieldNew, // background added
-},
+    borderWidth: 1,
+    borderColor: "#000",
+    borderRadius: mscale(8),
+    marginBottom: hscale(16),
+    backgroundColor: colors.inputFieldNew,
+    minHeight: hscale(48),
+    justifyContent: "center",
+    overflow: "hidden",
+    paddingRight: wscale(12), // to prevent text from touching the edge
+  },
+  picker: {
+    color: "#5C5F62",
+    fontFamily: "Inter-Regular",
+    fontSize: mscale(14),
+    backgroundColor: colors.inputFieldNew,
+    ...Platform.select({
+      android: {
+        height: hscale(48),
+      },
+      ios: {
+        height: hscale(48),
+      },
+      web: {
+        height: hscale(48),
+        paddingHorizontal: mscale(12),
+        borderWidth: 0,
+        outlineWidth: 0 as any,
+      } as any,
+    }),
+  },
   label: {
     fontSize: mscale(13),
     fontFamily: "Inter-Medium",
