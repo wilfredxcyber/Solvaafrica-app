@@ -88,7 +88,7 @@ export default function Complaints() {
     >
       <Text style={styles.header}>Submit a Complaint</Text>
       <Text style={styles.complaintText}>
-        If you have any complaints, please send an email to{"                    "}
+        If you have any complaints, please send an email to{" "}
       <Text
         style={styles.emailLink}
        onPress={() => Linking.openURL("mailto:solvaapp@gmail.com")}
