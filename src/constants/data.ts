@@ -1,1871 +1,222 @@
-export type UniversityType = "Federal" | "State" | "Private";
+export const universities = [
+  // "Abubakar Tafawa Balewa University (ATBU)",
+  // "Ahmadu Bello University (ABU)",
+  // "Bayero University (BUK)",
+  // "Federal University, Birnin Kebbi (FUBK)",
+  // "Federal University, Dutsin-Ma (FUDM)",
+  // "Federal University, Dutse (FUD)",
+  // "Federal University, Gashua (FUG)",
+  // "Federal University, Gusau (FUGUS)",
+  // "Federal University, Kashere (FUK)",
+  // "Federal University, Lafia (FULAFIA)",
+  // "Federal University, Lokoja (FUL)",
+  // "Federal University, Otuoke (FUO)",
+  // "Federal University, Oye Ekiti (FUOYE)",
+  // "Federal University of Agriculture, Abeokuta (FUNAAB)",
+  // "Federal University of Agriculture, Makurdi (FUAM)",
+  // "Federal University of Health Sciences, Azare (FUHSA)",
+  // "Federal University of Technology, Akure (FUTA)",
+  // "Federal University of Technology, Minna (FUTMINNA)",
+  // "Federal University of Technology, Owerri (FUTO)",
+  // "Federal University of Petroleum Resources, Effurun (FUPRE)",
+  // "Michael Okpara University of Agriculture, Umudike (MOUAU)",
+  // "Modibo Adama University of Technology, Yola (MAUTECH)",
+  // "National Open University of Nigeria (NOUN)",
+  // "Nnamdi Azikiwe University (UNIZIK)",
+  "University of Benin (UNIBEN)",
+  // "University of Ibadan (UI)",
+  // "University of Ilorin (UNILORIN)",
+  // "University of Jos (UNIJOS)",
+  // "University of Lagos (UNILAG)",
+  // "University of Nigeria, Nsukka (UNN)",
+  // "Usmanu Danfodiyo University, Sokoto (UDUS)",
+];
 
-export interface Faculty {
-  name: string;
-  departments: string[];
-}
+export const faculties = [
+  {
+    name: "Faculty of Agriculture",
+    departments: [
+      "Agricultural Economics and Extension",
+      "Animal Science",
+      "Crop Science",
+      "Fisheries",
+      "Forestry and Wildlife",
+      "Soil Science",
+    ],
+  },
+  {
+    name: "Faculty of Arts",
+    departments: [
+      "English and Literature",
+      "Fine and Applied Arts",
+      "Foreign Languages",
+      "History and International Studies",
+      "Linguistics Studies",
+      "Mass Communication",
+      "Philosophy",
+      "Religions",
+      "Theatre Arts",
+    ],
+  },
+  {
+    name: "Faculty of Basic Medical Sciences",
+    departments: [
+      "Anatomy",
+      "Medical Biochemistry",
+      "Medical Laboratory Science",
+      "Nursing Science",
+      "Physiology",
+      "Physiotherapy",
+      "Radiography and Radiation Science",
+    ],
+  },
+  {
+    name: "Faculty of Dentistry",
+    departments: [
+      "Child Dental Health",
+      "Oral and Maxillofacial Surgery",
+      "Preventive Dentistry",
+      "Restorative Dentistry",
+    ],
+  },
+  {
+    name: "Faculty of Education",
+    departments: [
+      "Curriculum and Instructional Technology",
+      "Educational Foundations",
+      "Educational Management",
+      "Educational Psychology and Curriculum Studies",
+      "Health, Safety, and Environmental Education",
+      "Human Kinetics and Sports Science",
+      "Vocational and Technical Education",
+    ],
+  },
+  {
+    name: "Faculty of Engineering",
+    departments: [
+      "Chemical Engineering",
+      "Civil Engineering",
+      "Electrical and Electronics Engineering",
+      "Mechanical Engineering",
+      "Petroleum Engineering",
+      "Production Engineering",
+      "Agricultural Engineering",
+      "Marine Engineering",
+    ],
+  },
+  {
+    name: "Faculty of Environmental Sciences",
+    departments: [
+      "Architecture",
+      "Estate Management",
+      "Geography and Regional Planning",
+      "Quantity Surveying",
+      "Surveying and Geoinformatics",
+      "Urban and Regional Planning",
+    ],
+  },
+  {
+    name: "Faculty of Law",
+    departments: [
+      "Commercial and Industrial Law",
+      "Jurisprudence and International Law",
+      "Public Law",
+    ],
+  },
+  {
+    name: "Faculty of Life Sciences",
+    departments: [
+      "Animal and Environmental Biology",
+      "Biochemistry",
+      "Microbiology",
+      "Optometry",
+      "Plant Biology and Biotechnology",
+      "Environmental Management and Toxicology",
+      "Science Laboratory Technology",
+    ],
+  },
+  {
+    name: "Faculty of Management Sciences",
+    departments: [
+      "Accounting",
+      "Actuarial Science",
+      "Banking and Finance",
+      "Business Administration",
+      "Entrepreneurship",
+      "Finance",
+      "Human Resource Management",
+      "Insurance",
+      "Marketing",
+    ],
+  },
+  {
+    name: "Faculty of Pharmacy",
+    departments: [
+      "Clinical Pharmacy",
+      "Pharmaceutical Chemistry",
+      "Pharmaceutical Microbiology",
+      "Pharmacognosy",
+      "Pharmacology",
+      "Social and Administrative Pharmacy",
+    ],
+  },
+  {
+    name: "Faculty of Physical Sciences",
+    departments: [
+      "Chemistry",
+      "Computer Science",
+      "Geology",
+      "Mathematics",
+      "Physics",
+      "Statistics",
+    ],
+  },
+  {
+    name: "Faculty of Social Sciences",
+    departments: [
+      "Economics",
+      "Geography and Disaster Risk Management",
+      "Library and Information Science",
+      "Peace Studies and Conflict Resolution",
+      "Political Science",
+      "Public Administration",
+      "Sociology and Anthropology",
+      "Social Work",
+    ],
+  },
+  {
+    name: "Faculty of Veterinary Medicine",
+    departments: [
+      "Animal Health and Production",
+      "Veterinary Anatomy",
+      "Veterinary Medicine",
+      "Veterinary Microbiology and Parasitology",
+      "Veterinary Pathology",
+      "Veterinary Physiology and Pharmacology",
+      "Veterinary Public Health and Preventive Medicine",
+    ],
+  },
+  {
+    name: "Faculty of Science Laboratory Technology",
+    departments: [
+      "Analytical Chemistry",
+      "Biochemistry",
+      "Environmental Science",
+      "Industrial Chemistry",
+    ],
+  },
+  {
+    name: "Faculty of Nursing Sciences",
+    departments: [
+      "Public Health Nursing",
+      "Mental Health Nursing",
+      "Medical-Surgical Nursing",
+      "Maternal and Child Health Nursing",
+    ],
+  },
+];
 
-export interface University {
-  name: string;
-  type: UniversityType;
-  faculties: Faculty[];
-}
-
-export const universities: University[] = [
-  // Federal Universities
-  {
-    name: "University of Ibadan (UI)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "University of Lagos (UNILAG)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "University of Nigeria, Nsukka (UNN)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Ahmadu Bello University, Zaria (ABU)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Obafemi Awolowo University (OAU)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "University of Benin (UNIBEN)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "University of Ilorin (UNILORIN)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "University of Port Harcourt (UNIPORT)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "University of Calabar (UNICAL)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "University of Jos (UNIJOS)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "University of Maiduguri (UNIMAID)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "University of Uyo (UNIUYO)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Bayer University Kano (BUK)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Usmanu Danfodiyo University, Sokoto (UDUSOK)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "University of Abuja (UNIABUJA)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Federal University of Technology, Akure (FUTA)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Federal University of Technology, Owerri (FUTO)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Federal University of Technology, Minna (FUTMINNA)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Federal University of Agriculture, Abeokuta (FUNAAB)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Michael Okpara University of Agriculture, Umudike (MOUAU)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Federal University of Petroleum Resources, Effurun (FUPRE)",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Nigerian Defence Academy (NDA), Kaduna",
-    type: "Federal",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Geology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering", "Petroleum Engineering", "Mechatronics Engineering", "Agricultural Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Medicine & Surgery (MBBS)", "Nursing Science", "Pharmacy", "Medical Laboratory Science", "Physiotherapy", "Anatomy", "Physiology", "Public Health"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations", "Criminology & Security Studies"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Fine & Applied Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Agronomy", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry", "Food Science & Technology"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling", "Library & Information Science"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-
-  // State Universities
-  {
-    name: "Lagos State University (LASU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Delta State University (DELSU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Ambrose Alli University (AAU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Ekiti State University (EKSU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Osun State University (UNIOSUN)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Olabisi Onabanjo University (OOU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Rivers State University (RSU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Abia State University (ABSU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Benue State University (BSU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Imo State University (IMSU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Kaduna State University (KASU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Ebonyi State University (EBSU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Enugu State University of Science and Technology (ESUT)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Kwara State University (KWASU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Nasarawa State University, Keffi (NSUK)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Plateau State University (PLASU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Taraba State University (TSU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Adamawa State University (ADSU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments:[ "Education & Biology", "Education & Chemistry", "Education & Mathematics", "EducationalManagement", "Guidance & Counselling"]
-      }, 
-      {
-        name: "Law",
-        departments:["Law (LLB)"]
-      },
-    ]
-  },
-  {
-    name: "Akwa Ibom State University (AKSU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Bauchi State University, Gadau (BASUG)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Cross River University of Technology (CRUTECH)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-  {
-    name: "Gombe State University (GSU)",
-    type: "State",
-    faculties: [
-      {
-        name: "Science",
-        departments: ["Computer Science", "Mathematics", "Statistics", "Physics", "Chemistry", "Biochemistry", "Microbiology", "Biology", "Environmental Science"]
-      },
-      {
-        name: "Engineering / Technology",
-        departments: ["Civil Engineering", "Mechanical Engineering", "Electrical/Electronics Engineering", "Computer Engineering", "Chemical Engineering"]
-      },
-      {
-        name: "Medical & Health Sciences",
-        departments: ["Nursing Science", "Medical Laboratory Science", "Public Health", "Physiology", "Anatomy"]
-      },
-      {
-        name: "Social Sciences",
-        departments: ["Economics", "Political Science", "Sociology", "Psychology", "Geography", "International Relations"]
-      },
-      {
-        name: "Arts / Humanities",
-        departments: ["English & Literary Studies", "History & International Studies", "Linguistics", "Philosophy", "Theatre Arts", "Religious Studies"]
-      },
-      {
-        name: "Management Sciences",
-        departments: ["Accounting", "Business Administration", "Banking & Finance", "Marketing", "Public Administration", "Entrepreneurship"]
-      },
-      {
-        name: "Agriculture",
-        departments: ["Agriculture", "Animal Science", "Crop Science", "Soil Science", "Fisheries & Aquaculture", "Forestry"]
-      },
-      {
-        name: "Education",
-        departments: ["Education & Biology", "Education & Chemistry", "Education & Mathematics", "Educational Management", "Guidance & Counselling"]
-      },
-      {
-        name: "Law",
-        departments: ["Law (LLB)"]
-      }
-    ]
-  },
-]
-// Bank List
-export const BANKS =[
+export const BANKS = [
   "Access Bank",
   "Fidelity Bank",
   "First Bank of Nigeria",

@@ -1,11 +1,11 @@
-import { View, Text, TextInput, StyleSheet, Pressable, Dimensions, Modal, Alert } from "react-native";
+import { View, Text, StyleSheet, Pressable, Dimensions, Modal, Alert } from "react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import DropdownIcon from "@expo/vector-icons/Entypo";
 import { FlashList } from "@shopify/flash-list";
 
 import { colors, screenHorizontalPadding } from "../constants/theme";
-import { universities, UniversityType } from "../constants/data";
+import { universities, faculties } from "../constants/data";
 import { hscale, mscale, wscale } from "../helpers/metric";
 import PrimaryButton from "../components/primaryButton";
 import ProtectPage from "../components/protectPage";
@@ -22,21 +22,10 @@ export default function CoursesScreen() {
    * MEMOIZED SELECTORS
    * ============================ */
 
-  // Get all universities (no type filtering)
-  const allUniversities = useMemo(
-    () => universities,
-    []
-  );
+  const allUniversities = useMemo(() => universities, []);
 
-  const selectedUniversity = useMemo(
-    () => allUniversities.find(u => u.name === university),
-    [allUniversities, university]
-  );
-
-  const facultyList = useMemo(
-    () => selectedUniversity?.faculties ?? [],
-    [selectedUniversity]
-  );
+  // New data.ts exports faculties separately (not nested under a university)
+  const facultyList = useMemo(() => faculties, []);
 
   const departmentList = useMemo(() => {
     const selectedFaculty = facultyList.find(f => f.name === faculty);
@@ -50,25 +39,31 @@ export default function CoursesScreen() {
   // Initialize with first university if none selected
   useEffect(() => {
     if (allUniversities.length && !university) {
-      setUniversity(allUniversities[0].name);
+      setUniversity(allUniversities[0]);
     }
   }, [allUniversities]);
 
   useEffect(() => {
-    if (facultyList.length && !faculty) {
+    // Keep faculty aligned with selected university.
+    const facultyExists = facultyList.some((f) => f.name === faculty);
+
+    if (facultyList.length && !facultyExists) {
       setFaculty(facultyList[0].name);
     } else if (facultyList.length === 0) {
       setFaculty("");
     }
-  }, [facultyList, university]);
+  }, [facultyList, faculty]);
 
   useEffect(() => {
-    if (departmentList.length && !department) {
+    // Keep department aligned with selected faculty.
+    const departmentExists = departmentList.includes(department);
+
+    if (departmentList.length && !departmentExists) {
       setDepartment(departmentList[0]);
     } else if (departmentList.length === 0) {
       setDepartment("");
     }
-  }, [departmentList, faculty]);
+  }, [departmentList, department]);
 
   /** ============================
    * ACTIONS
@@ -103,7 +98,7 @@ export default function CoursesScreen() {
       <View style={globalStyles.screen}>
         <View style={{ gap: 12 }}>
           <DropDownPicker
-            data={allUniversities.map(u => u.name)}
+            data={allUniversities}
             setSelectedValue={setUniversity}
             defaultValue={university}
           />
@@ -175,7 +170,9 @@ function DropDownPicker({ data, setSelectedValue, defaultValue }: DropdownPicker
   return (
     <View ref={dropdownViewRef}>
       <Pressable onPress={() => setDropdownIsVisibile(v => !v)} style={styles.dropdownInputContainer}>
-        <TextInput editable={false} value={defaultValue} style={{ flex: 1 }} />
+        <Text numberOfLines={1} style={styles.dropdownValueText}>
+          {defaultValue}
+        </Text>
         <DropdownIcon
           name={dropdownIsVisibile ? "chevron-small-up" : "chevron-small-down"}
           size={20}
@@ -236,5 +233,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.inputFieldNew,
     paddingHorizontal: wscale(20),
     borderRadius: mscale(50),
+  },
+  dropdownValueText: {
+    flex: 1,
+    fontFamily: "Inter-Regular",
+    fontSize: mscale(14),
+    color: colors.black,
   },
 });
