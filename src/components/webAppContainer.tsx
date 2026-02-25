@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   webContainer: {
     flex: 1,
     minHeight: windowHeight,
-    paddingVertical: 40,
+   paddingVertical: 4,
     paddingHorizontal: 8,
     backgroundColor: "#ffffff",
     alignItems: "center",

@@ -105,14 +105,20 @@ export default function DownloadScreen() {
           showsVerticalScrollIndicator={false}
           renderItem={({ item, index }) => {
             return (
-              <DownloadItemView
-                fileCode={item.fileCode?.trim() + "(" + (index + 1) + ")"}
-                source={item.filePath}
-                fileName={item.fileName}
-                parentDirectory={item.parentDirectory}
-                onDeletePress={() => handleDeleteItem(item)}
-                onItemPress={() => handleOpenItem(item)}
-              />
+              <View style={styles.downloadItemCard}>
+                <DownloadItemView
+                  fileCode={
+                    item.fileCode?.trim()
+                      ? `${item.fileCode.trim()}(${index + 1})`
+                      : undefined
+                  }
+                  source={item.filePath}
+                  fileName={item.fileName}
+                  parentDirectory={item.parentDirectory}
+                  onDeletePress={() => handleDeleteItem(item)}
+                  onItemPress={() => handleOpenItem(item)}
+                />
+              </View>
             );
           }}
           contentContainerStyle={{ paddingVertical: hscale(4), paddingBottom: hscale(24) }}
@@ -162,12 +168,17 @@ const styles = StyleSheet.create({
 
   },
   downloadsContainer: {
-    backgroundColor: colors.inputFieldNew,
-    borderRadius: 10,
     flex: 1,
     width: "100%",
-    paddingVertical: hscale(20),
-    paddingHorizontal:wscale(20),
+    paddingVertical: hscale(8),
+    paddingHorizontal:wscale(4),
+  },
+  downloadItemCard: {
+    backgroundColor: colors.inputFieldNew,
+    borderRadius: 10,
+    paddingVertical: hscale(14),
+    paddingHorizontal: wscale(16),
+    marginBottom: hscale(12),
   },
  // Empty state styles
   emptyHeaderContainer: {

@@ -1,7 +1,6 @@
 import CheckCircleIcon from "@expo/vector-icons/FontAwesome";
-import { Alert, Pressable, Text, View, Platform } from "react-native";
+import { Alert, Pressable, Text, View, Platform, ScrollView } from "react-native";
 import { useEffect, useRef, useState } from "react";
-import { FlashList } from "@shopify/flash-list";
 import LottieView from "lottie-react-native";
 
 import { SearchBoxView } from "../components/searchBoxView";
@@ -15,9 +14,20 @@ import EmptyStateView from "../components/emptyStateView";
 import { Toast } from "toastify-react-native";
 
 export default function ProjectsScreen() {
+  const buildProjectFiles = (projectsList: any[]) =>
+    (projectsList ?? []).flatMap((project: any, projectIndex: number) =>
+      (project?.document ?? []).map((doc: any, docIndex: number) => ({
+        fileName: project?.project?.name ?? "Project file",
+        fileURI: doc?.url,
+        fileKey: `${doc?.url || "project-file"}-${projectIndex}-${docIndex}`,
+      }))
+    );
+
   const [initialProjects, setInitialProjects] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
-  const [projectFiles, setProjectFiles] = useState<any[]>([]);
+  const [projectFiles, setProjectFiles] = useState<
+    Array<{ fileName: string; fileURI: string; fileKey: string }>
+  >([]);
   const [loading, setLoading] = useState(false);
   const [downloadingFiles, setDownloadingFiles] = useState<Set<string>>(new Set());
 
@@ -30,9 +40,7 @@ export default function ProjectsScreen() {
           const allProjects = res.data?.data || [];
           setInitialProjects(allProjects);
           setProjects(allProjects);
-          setProjectFiles(
-            allProjects.flatMap((project: any) => project.document)
-          );
+          setProjectFiles(buildProjectFiles(allProjects));
         }
       } catch (error) {
         Toast.error("Error fetching initial projects")
@@ -48,9 +56,7 @@ export default function ProjectsScreen() {
     const query = value.trim().toLowerCase();
     if (!query.length) {
       setProjects(initialProjects);
-      setProjectFiles(
-        initialProjects.flatMap((project: any) => project.document)
-      );
+      setProjectFiles(buildProjectFiles(initialProjects));
       return;
     }
 
@@ -59,9 +65,7 @@ export default function ProjectsScreen() {
     );
 
     setProjects(filteredProjects);
-    setProjectFiles(
-      filteredProjects.flatMap((project: any) => project.document)
-    );
+    setProjectFiles(buildProjectFiles(filteredProjects));
   };
 
   const addDownloadingFile = (fileName: string) => {
@@ -94,22 +98,24 @@ export default function ProjectsScreen() {
               />
             </View>
           ) : projects?.length && projectFiles?.length ? (
-            <FlashList
+            <ScrollView
+              style={{ flex: 1 }}
+              keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
-              data={projectFiles}
-              estimatedItemSize={70}
-              keyExtractor={(item, index) => `${item?.url || index}-${index}`}
-              renderItem={({ item, index }) => (
+              contentContainerStyle={{ paddingBottom: hscale(12) }}
+            >
+              {projectFiles.map((item) => (
                 <ProjectItemView
-                  fileName={projects[index].project.name}
-                  fileURI={item?.url}
-                  fileKey={`${item?.url || index}-${index}`}
-                  isDownloading={downloadingFiles.has(projects[index].project.name)}
-                  onDownloadStart={() => addDownloadingFile(projects[index].project.name)}
-                  onDownloadComplete={() => removeDownloadingFile(projects[index].project.name)}
+                  key={item.fileKey}
+                  fileName={item.fileName}
+                  fileURI={item.fileURI}
+                  fileKey={item.fileKey}
+                  isDownloading={downloadingFiles.has(item.fileName)}
+                  onDownloadStart={() => addDownloadingFile(item.fileName)}
+                  onDownloadComplete={() => removeDownloadingFile(item.fileName)}
                 />
-              )}
-            />
+              ))}
+            </ScrollView>
           ) : (
             <EmptyStateView/>
           )}

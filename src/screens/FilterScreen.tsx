@@ -1,7 +1,6 @@
 import { StackActions, useFocusEffect, useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ActivityIndicator, StyleSheet, Text, View, Image } from "react-native";
-import { FlashList } from "@shopify/flash-list";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
 import { useCallback, useEffect, useState } from "react";
 
 import { DownloadItemView } from "../components/downloadItemView";
@@ -160,21 +159,27 @@ export default function FilterScreen() {
           // </View>
           <EmptyStateView />
         ) : (
-          <FlashList
-            contentContainerStyle={{ paddingVertical: hscale(40) }}
-            estimatedItemSize={78}
-            data={filteredList}
+          <ScrollView
+            style={{ flex: 1 }}
+            keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
-            renderItem={({ item, index }) => (
+            contentContainerStyle={{ paddingVertical: hscale(40) }}
+          >
+            {filteredList.map((item, index) => (
               <DownloadItemView
-                fileCode={item.fileCode?.trim() + "(" + (index + 1) + ")"}
+                key={`${item.filePath}-${index}`}
+                fileCode={
+                  item.fileCode?.trim()
+                    ? `${item.fileCode.trim()}(${index + 1})`
+                    : undefined
+                }
                 source={item.filePath}
                 fileName={item.fileName}
                 parentDirectory={item.parentDirectory}
                 onItemPress={() => handleOpenItem(item)}
               />
-            )}
-          />
+            ))}
+          </ScrollView>
         )}
       </View>
     </View>
