@@ -1,8 +1,8 @@
-import { StackActions, useNavigation } from "@react-navigation/native";
+import { StackActions, useFocusEffect, useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ActivityIndicator, StyleSheet, Text, View, Image } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { DownloadItemView } from "../components/downloadItemView";
 import { SearchBoxView } from "../components/searchBoxView";
@@ -50,43 +50,49 @@ export default function FilterScreen() {
   //   getDownloads();
   // }, [filterQuery, currentTab]);
 
-  useEffect(() => {
-    const getDownloads = async () => {
-      setIsLoading(true);
-      try {
-        const downloadRefs = await AsyncStorage.getItem("DownloadRefs");
-        const downloads: DownloadedFileRef[] =
-          downloadRefs && JSON.parse(downloadRefs);
+  const getDownloads = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const downloadRefs = await AsyncStorage.getItem("DownloadRefs");
+      const downloads: DownloadedFileRef[] =
+        downloadRefs && JSON.parse(downloadRefs);
 
-        if (!downloads) {
-          setFilterdList([]);
-          return;
-        }
-
-        let filtered = downloads.filter(
-          (item) => item.parentDirectory === currentTab
-        );
-
-        if (filterQuery.trim().length > 0) {
-          filtered = filtered.filter(
-            (item) =>
-              item.fileCode
-                ?.toLowerCase()
-                .includes(filterQuery.toLowerCase().trim()) ||
-              item.fileName
-                .toLowerCase()
-                .includes(filterQuery.toLowerCase().trim())
-          );
-        }
-
-        setFilterdList(filtered);
-      } finally {
-        setIsLoading(false);
+      if (!downloads) {
+        setFilterdList([]);
+        return;
       }
-    };
 
+      let filtered = downloads.filter(
+        (item) => item.parentDirectory === currentTab
+      );
+
+      if (filterQuery.trim().length > 0) {
+        filtered = filtered.filter(
+          (item) =>
+            item.fileCode
+              ?.toLowerCase()
+              .includes(filterQuery.toLowerCase().trim()) ||
+            item.fileName
+              .toLowerCase()
+              .includes(filterQuery.toLowerCase().trim())
+        );
+      }
+
+      setFilterdList(filtered);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentTab, filterQuery]);
+
+  useEffect(() => {
     getDownloads();
-  }, [filterQuery, currentTab]);
+  }, [getDownloads]);
+
+  useFocusEffect(
+    useCallback(() => {
+      getDownloads();
+    }, [getDownloads])
+  );
 
   const handleSearchInputTextChange = (text: string) => {
     setFilterQuery(text);

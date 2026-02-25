@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Pressable, TextInput } from "react-native-gesture-handler";
-import { View, StyleSheet, Text, Alert } from "react-native";
+import { View, StyleSheet, Text, Alert, Platform } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { AUTH_API_CLIENT } from "@/src/api/apiClient";
 import { useCallback, useState } from "react";
@@ -239,6 +239,13 @@ const styles = StyleSheet.create({
     height: hscale(60),
     fontFamily: "Inter-Medium",
     color: "#5C5F62",
+    borderWidth: 0,
+   ...Platform.select({
+      web: {
+        outlineStyle: "none",
+        outlineWidth: 0,
+      } as any,
+    }),
   },
   inputFieldViewWrap: { gap: hscale(12), marginVertical: hscale(40) },
   dropdownContainer: {
@@ -261,6 +268,7 @@ const styles = StyleSheet.create({
   alignItems: "center",
   backgroundColor: colors.inputField,
   borderRadius: mscale(30),
+  borderWidth: 0,
   paddingHorizontal: wscale(16),
   marginBottom: hscale(12),
 },

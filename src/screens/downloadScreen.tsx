@@ -1,11 +1,10 @@
 import { StackActions, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Text, View, RefreshControl, Alert , StyleSheet} from "react-native";
+import { Text, View, RefreshControl, StyleSheet, Platform } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { open } from "react-native-file-viewer-turbo";
 import { FlashList } from "@shopify/flash-list";
 import * as FileSystem from "expo-file-system";
-import { useCallback, useState,useEffect } from "react";
+import { useCallback, useState } from "react";
 
 import { DownloadItemView } from "../components/downloadItemView";
 import { hscale, mscale,wscale } from "../helpers/metric";
@@ -19,19 +18,22 @@ export default function DownloadScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
 
+  const fetchDownloads = useCallback(async () => {
+    try {
+      const downloadsRefListInStore = await AsyncStorage.getItem("DownloadRefs");
+      const downloadsRefList: DownloadedFileRef[] = downloadsRefListInStore
+        ? JSON.parse(downloadsRefListInStore)
+        : [];
+      setDownloadsList(downloadsRefList);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
-      const fetchDonwloads = async () => {
-        const downloadsRefListInStore = await AsyncStorage.getItem("DownloadRefs");
-        if (downloadsRefListInStore) {
-          const downloadsRefList = JSON.parse(downloadsRefListInStore);
-          setDownloadsList(downloadsRefList);
-          setRefreshing(false);
-        }
-      };
-
-      fetchDonwloads();
-    }, [refreshing])
+      fetchDownloads();
+    }, [fetchDownloads, refreshing])
   );
 
   const onRefresh = () => {
@@ -40,37 +42,24 @@ export default function DownloadScreen() {
 
   const handleDeleteItem = async (item: DownloadedFileRef) => {
     const downloadsInStore = await AsyncStorage.getItem("DownloadRefs");
-    const downloadList: DownloadedFileRef[] = downloadsInStore && JSON.parse(downloadsInStore);
-
-
-    // In your downloads screen component
-const [downloadedFiles, setDownloadedFiles] = useState<DownloadedFileRef[]>([]);
-
-  useEffect(() => {
-  const fetchDownloads = async () => {
-    try {
-      const downloadRefsInStore = await AsyncStorage.getItem("DownloadRefs");
-      if (downloadRefsInStore) {
-        const downloads = JSON.parse(downloadRefsInStore);
-        setDownloadedFiles(downloads);
-      }
-    } catch (error) {
-      console.error("Error fetching downloads:", error);
-    }
-  };
-
-  fetchDownloads();
-}, []);
+    const downloadList: DownloadedFileRef[] = downloadsInStore ? JSON.parse(downloadsInStore) : [];
 
     // Delete actual file from device storage !important
-    await FileSystem.deleteAsync(item.filePath);
+    const isRemotePath =
+      item.platform === "web" ||
+      item.filePath?.startsWith("http://") ||
+      item.filePath?.startsWith("https://");
+
+    if (Platform.OS !== "web" && !isRemotePath) {
+      await FileSystem.deleteAsync(item.filePath, { idempotent: true });
+    }
     // Remove the file reference !important
     const filteredDownloadRefList = downloadList.filter(
       (currentItem) => currentItem.filePath !== item.filePath
     );
     await AsyncStorage.setItem("DownloadRefs", JSON.stringify(filteredDownloadRefList));
-    // update state
-    setRefreshing(true);
+    setDownloadsList(filteredDownloadRefList);
+    setRefreshing(false);
   };
 
   const handleOpenItem = (item: DownloadedFileRef) => {
@@ -126,7 +115,7 @@ const [downloadedFiles, setDownloadedFiles] = useState<DownloadedFileRef[]>([]);
               />
             );
           }}
-          //contentContainerStyle={{ paddingVertical: hscale(20) }}
+          contentContainerStyle={{ paddingVertical: hscale(4), paddingBottom: hscale(24) }}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -165,8 +154,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    height: 838, // Fixed height as requested
-    width:440,
+    width: "100%",
     paddingHorizontal: wscale(16),
     paddingVertical: hscale(12),
     alignItems: 'center',
@@ -176,8 +164,8 @@ const styles = StyleSheet.create({
   downloadsContainer: {
     backgroundColor: colors.inputFieldNew,
     borderRadius: 10,
-    height: 82, // Fixed height as requested
-    width: 390,
+    flex: 1,
+    width: "100%",
     paddingVertical: hscale(20),
     paddingHorizontal:wscale(20),
   },

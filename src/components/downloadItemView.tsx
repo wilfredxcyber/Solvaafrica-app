@@ -15,16 +15,18 @@ export const DownloadItemView = ({
   onItemPress,
   onDeletePress,
 }: DownloadItemViewProps) => {
+  const isPdfFile =
+    fileName?.toLowerCase().endsWith(".pdf") || source?.toLowerCase().includes(".pdf");
+
   return (
     <Pressable style={styles.downloadItemView} onPress={onItemPress}>
       {/* left side */}
       <View style={styles.downloadItemViewLeftSide}>
-        {parentDirectory === "Courses" && (
-          <Image source={source} style={{ width: wscale(40), height: hscale(40) }} />
-        )}
-        {parentDirectory === "Projects" && (
+        {isPdfFile ? (
           <PDFIcon name="file-pdf" size={36} color={colors.primary} />
-        )}
+        ) : parentDirectory === "Courses" ? (
+          <Image source={source} style={{ width: wscale(40), height: hscale(40) }} />
+        ) : null}
         <Text numberOfLines={1} style={styles.text}>
           {fileCode ? fileCode + " " + fileName : fileName}
         </Text>

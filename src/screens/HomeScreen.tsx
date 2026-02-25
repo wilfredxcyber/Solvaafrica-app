@@ -45,7 +45,9 @@ interface IMenuItems {
 
 export default function HomeScreen() {
   const user = useAuthStore((state) => state.user);
-  const userProfile = user.profile;
+  const userProfile = user?.profile;
+  const firstName =
+    userProfile?.fullName?.trim()?.split(" ")?.[0] || "User";
   const { width } = Dimensions.get("window");
   // const slidesPlaceholder = ;
   const [isSubscribed, setIsSubscribed] = useState(true);
@@ -151,7 +153,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <View style={{ marginLeft: 8 }}>
             <Text style={styles.greetUserText }>
-              Hello, {userProfile.fullName.trim().split(" ")[0]}
+              Hello, {firstName}
             </Text>
             <Text style={[globalStyles.bodyText, { fontSize: mscale(14) }]}>
               Here's what is happening today.
