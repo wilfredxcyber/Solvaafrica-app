@@ -1,9 +1,12 @@
 import { useLocalSearchParams, router } from "expo-router";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
+import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
 import DownloadIcon from "@expo/vector-icons/Feather";
 import { FlashList } from "@shopify/flash-list";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PDFIcon from "@expo/vector-icons/FontAwesome6";
+import * as FileSystem from "expo-file-system";
 
 import { hscale, mscale, wscale } from "../helpers/metric";
 import { getImageSource } from "../helpers/getImageSource";
@@ -13,6 +16,8 @@ import { AUTH_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import ErrorModal from "../components/errorModal";
+import { DownloadedFileRef } from "../types";
+import { useDownloadFile } from "../hooks/useDownloadFile";
 
 const normalizeText = (value?: string | null) =>
   (value ?? "")
@@ -64,8 +69,129 @@ export default function CoursesList() {
   const facultyParam = Array.isArray(params.faculty) ? params.faculty[0] : params.faculty;
   const [coursesList, setCoursesList] = useState<any[] | []>([]);
   const [loadingCourses, setLoadingCourses] = useState<boolean>(false);
+  const [downloadedCourseCodes, setDownloadedCourseCodes] = useState<Set<string>>(new Set());
+  const [downloadingCourseCodes, setDownloadingCourseCodes] = useState<Set<string>>(new Set());
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const downloadCourseFile = useDownloadFile(true);
+  const normalizeCourseCode = (value?: string | null) =>
+    String(value ?? "").trim().toLowerCase();
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchDownloadedCourses = async () => {
+        try {
+          const raw = await AsyncStorage.getItem("DownloadRefs");
+          const downloads: DownloadedFileRef[] = raw ? JSON.parse(raw) : [];
+
+          const courseCodes = new Set(
+            downloads
+              .filter((item) => item.parentDirectory === "Courses" && item.fileCode)
+              .map((item) => item.fileCode!.trim().toLowerCase())
+          );
+
+          setDownloadedCourseCodes(courseCodes);
+        } catch (error) {
+          console.log("error fetching downloaded courses", error);
+          setDownloadedCourseCodes(new Set());
+        }
+      };
+
+      fetchDownloadedCourses();
+    }, [])
+  );
+
+  const handleDownloadIconPress = async (
+    courseCode: string,
+    courseDocuments: Array<{ url?: string; name?: string }>
+  ) => {
+    const normalizedCourseCode = normalizeCourseCode(courseCode);
+
+    try {
+      const raw = await AsyncStorage.getItem("DownloadRefs");
+      const downloads: DownloadedFileRef[] = raw ? JSON.parse(raw) : [];
+
+      const matchingCourseDownloads = downloads.filter(
+        (item) =>
+          item.parentDirectory === "Courses" &&
+          normalizeCourseCode(item.fileCode) === normalizedCourseCode
+      );
+
+      if (!matchingCourseDownloads.length) {
+        const validDocuments = (courseDocuments ?? []).filter(
+          (doc) => !!doc?.url && !!doc?.name
+        );
+
+        if (!validDocuments.length) {
+          Alert.alert("No files", "This course has no downloadable files yet.");
+          return;
+        }
+
+        setDownloadingCourseCodes((prev) => new Set(prev).add(normalizedCourseCode));
+
+        try {
+          for (const doc of validDocuments) {
+            await downloadCourseFile("Courses", doc.url!, doc.name!, courseCode);
+          }
+
+          setDownloadedCourseCodes((prev) => new Set(prev).add(normalizedCourseCode));
+        } finally {
+          setDownloadingCourseCodes((prev) => {
+            const next = new Set(prev);
+            next.delete(normalizedCourseCode);
+            return next;
+          });
+        }
+
+        return;
+      }
+
+      Alert.alert(
+        "Delete downloaded files?",
+        `Remove ${matchingCourseDownloads.length} downloaded file(s) for ${courseCode}?`,
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: async () => {
+              for (const item of matchingCourseDownloads) {
+                const isRemotePath =
+                  item.platform === "web" ||
+                  item.filePath.startsWith("http://") ||
+                  item.filePath.startsWith("https://");
+
+                if (isRemotePath) continue;
+
+                try {
+                  await FileSystem.deleteAsync(item.filePath, { idempotent: true });
+                } catch (deleteError) {
+                  console.log("error deleting local file", deleteError);
+                }
+              }
+
+              const filteredDownloads = downloads.filter(
+                (item) =>
+                  !(
+                    item.parentDirectory === "Courses" &&
+                    normalizeCourseCode(item.fileCode) === normalizedCourseCode
+                  )
+              );
+
+              await AsyncStorage.setItem("DownloadRefs", JSON.stringify(filteredDownloads));
+              setDownloadedCourseCodes((prev) => {
+                const next = new Set(prev);
+                next.delete(normalizedCourseCode);
+                return next;
+              });
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.log("error deleting downloaded course files", error);
+    }
+  };
 
   useEffect(() => {
     // fetch courses based on params
@@ -135,17 +261,25 @@ export default function CoursesList() {
           estimatedItemSize={coursesList.length}
           keyExtractor={(item) => item.question.id}
           showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <View style={globalStyles.screen}>
-              <CoursesListItem
-                courseTitle={item.question.title}
-                courseCode={item.question.courseCode}
-                university={item.question.university}
-                previewUrl={item.document[0]?.url}
-                courseId={item.question.id}
-              />
-            </View>
-          )}
+          renderItem={({ item }) => {
+            const courseCode = String(item.question.courseCode ?? "");
+            return (
+              <View style={globalStyles.screen}>
+                <CoursesListItem
+                  courseTitle={item.question.title}
+                  courseCode={courseCode}
+                  university={item.question.university}
+                  previewUrl={item.document[0]?.url}
+                  courseId={item.question.id}
+                  isDownloaded={downloadedCourseCodes.has(normalizeCourseCode(courseCode))}
+                  isDownloading={downloadingCourseCodes.has(normalizeCourseCode(courseCode))}
+                  onDownloadIconPress={() =>
+                    handleDownloadIconPress(courseCode, Array.isArray(item.document) ? item.document : [])
+                  }
+                />
+              </View>
+            );
+          }}
         />
       )}
       <ErrorModal
@@ -163,6 +297,9 @@ interface CourseListItemProps {
   university: string;
   previewUrl: string;
   courseId: string;
+  isDownloaded: boolean;
+  isDownloading: boolean;
+  onDownloadIconPress: () => void;
 }
 
 const CoursesListItem = ({
@@ -171,6 +308,9 @@ const CoursesListItem = ({
   university,
   previewUrl,
   courseId,
+  isDownloaded,
+  isDownloading,
+  onDownloadIconPress,
 }: CourseListItemProps) => {
   const handleCourseListItemPressed = () => {
     router.push({
@@ -241,7 +381,19 @@ const CoursesListItem = ({
         </View>
 
         {/* far right icon */}
-        <DownloadIcon name="download-cloud" size={24} color="#5427D7" />
+        <Pressable
+          onPress={(event) => {
+            event.stopPropagation();
+            onDownloadIconPress();
+          }}
+          hitSlop={8}
+        >
+          <DownloadIcon
+            name={isDownloading ? "loader" : isDownloaded ? "check-circle" : "download-cloud"}
+            size={24}
+            color={isDownloaded ? colors.primary : colors.primary}
+          />
+        </Pressable>
       </View>
     </Pressable>
   );

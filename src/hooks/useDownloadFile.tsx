@@ -7,15 +7,18 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
   const downloadFile = async (
     fileDirectory: FileDirectory,
     downloadFileUri: string,
-    originalFileName: string
+    originalFileName: string,
+    overrideFileCode?: string
   ) => {
     try {
+      const effectiveFileCode = overrideFileCode ?? fileCode;
+
       // Always track the download reference regardless of platform
       const downloadedFileRef: DownloadedFileRef = {
         fileName: originalFileName,
         filePath: downloadFileUri, // For web, store the original URL
         parentDirectory: fileDirectory,
-        fileCode,
+        fileCode: effectiveFileCode,
         platform: Platform.OS,
         downloadDate: new Date().toISOString(),
       };
@@ -25,7 +28,7 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
       if (Platform.OS === 'web') {
         result = await handleWebDownload(downloadFileUri, originalFileName, downloadedFileRef);
       } else {
-        result = await handleMobileDownload(fileDirectory, downloadFileUri, originalFileName, fileCode, downloadedFileRef);
+        result = await handleMobileDownload(fileDirectory, downloadFileUri, originalFileName, effectiveFileCode, downloadedFileRef);
       }
 
       // Save download reference to AsyncStorage for both platforms
