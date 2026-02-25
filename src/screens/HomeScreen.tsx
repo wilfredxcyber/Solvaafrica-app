@@ -3,6 +3,7 @@ import {
   Text,
   StyleSheet,
   Image,
+  ImageSourcePropType,
   Dimensions,
   Pressable,
   Linking,
@@ -40,7 +41,7 @@ enum MenuItemScreensRoutes {
 
 interface IMenuItems {
   item: MenuItemScreensRoutes;
-  icon: () => React.ReactNode;
+  icon: ImageSourcePropType;
 }
 
 export default function HomeScreen() {
@@ -55,51 +56,35 @@ export default function HomeScreen() {
   const MENU_ITEMS: IMenuItems[] = [
     {
       item: MenuItemScreensRoutes.COURSES,
-      icon: () => <MenuIcon name="book-outline" size={20} color={colors.primary}/>,
+      icon: require("../../assets/images/dashImgs/Vector.png"),
     },
     {
       item: MenuItemScreensRoutes.PROJECTS,
-      icon: () => (
-        <MenuIcon name="folder-open-outline" size={20} color={colors.primary} />
-      ),
+      icon: require("../../assets/images/dashImgs/mdi_files.png"),
     },
     {
       item: MenuItemScreensRoutes.UPLOAD,
-      icon: () => (
-        <MenuIcon name="cloud-upload-outline" size={20} color={colors.primary} />
-      ),
+      icon: require("../../assets/images/dashImgs/bytesize_upload.png"),
     },
     {
       item: MenuItemScreensRoutes.PREMIUM,
-      icon: () => (
-        <MenuIcon name="pricetags-outline" size={20} color={colors.primary} />
-      ),
+      icon: require("../../assets/images/dashImgs/oi_badge.png"),
     },
     {
       item: MenuItemScreensRoutes.EARNING,
-      icon: () => <MenuIcon name="cash-outline" size={20} color={colors.primary} />,
+      icon: require("../../assets/images/dashImgs/money.png"),
     },
     {
       item: MenuItemScreensRoutes.SERVICES,
-      icon: () => (
-        <MenuIcon name="briefcase-outline" size={20} color={colors.primary} />
-      ),
+      icon: require("../../assets/images/dashImgs/mdi_tag.png"),
     },
     {
       item: MenuItemScreensRoutes.ASK,
-      icon: () => (
-        <MenuIcon
-          name="chatbubble-ellipses-outline"
-          size={20}
-          color={colors.primary}
-        />
-      ),
+      icon: require("../../assets/images/dashImgs/question-mark.png"),
     },
     {
       item: MenuItemScreensRoutes.TASK,
-      icon: () => (
-        <MenuIcon name="list" size={20} color={colors.primary} />
-      ),
+      icon: require("../../assets/images/dashImgs/task.png"),
     },
   ];
 
@@ -229,7 +214,13 @@ export default function HomeScreen() {
             style={styles.menuItemView}
             onPress={() => handleMenuItemPressed(currentItem.item)}
           >
-            <View style={styles.menuItemIconView}>{currentItem.icon()}</View>
+            <View style={styles.menuItemIconView}>
+              <Image
+                source={currentItem.icon}
+                style={styles.menuItemIconImage}
+                resizeMode="contain"
+              />
+            </View>
             <Text
               style={{
                 textAlign: "center",
@@ -293,5 +284,9 @@ const styles = StyleSheet.create({
     borderRadius: "100%",
     justifyContent: "center",
     alignItems: "center",
+  },
+  menuItemIconImage: {
+    width: wscale(24),
+    height: hscale(24),
   },
 });
