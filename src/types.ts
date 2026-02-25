@@ -40,11 +40,11 @@ export interface ImageViewerProps {
 
 export interface DownloadItemViewProps {
   source: string;
-  fileCode: string;
+  fileCode?: string;
   fileName: string;
-  parentDirectory: string;
+  parentDirectory: FileDirectory;
   onItemPress: () => void;
-  onDeletePress: () => void; // Should not take any parameters
+  onDeletePress?: () => void; // Optional in filter/search lists
   platform?: string; // Optional platform prop
 }
 

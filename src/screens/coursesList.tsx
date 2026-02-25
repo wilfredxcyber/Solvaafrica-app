@@ -1,10 +1,18 @@
 import { useLocalSearchParams, router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Alert,
+  Animated,
+  Easing,
+} from "react-native";
 import DownloadIcon from "@expo/vector-icons/Feather";
 import { FlashList } from "@shopify/flash-list";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import PDFIcon from "@expo/vector-icons/FontAwesome6";
 import * as FileSystem from "expo-file-system";
 
@@ -130,11 +138,25 @@ export default function CoursesList() {
         setDownloadingCourseCodes((prev) => new Set(prev).add(normalizedCourseCode));
 
         try {
+          let allDownloadsSuccessful = true;
+
           for (const doc of validDocuments) {
-            await downloadCourseFile("Courses", doc.url!, doc.name!, courseCode);
+            const result = await downloadCourseFile(
+              "Courses",
+              doc.url!,
+              doc.name!,
+              courseCode
+            );
+
+            if (!result?.success) {
+              allDownloadsSuccessful = false;
+              break;
+            }
           }
 
-          setDownloadedCourseCodes((prev) => new Set(prev).add(normalizedCourseCode));
+          if (allDownloadsSuccessful) {
+            setDownloadedCourseCodes((prev) => new Set(prev).add(normalizedCourseCode));
+          }
         } finally {
           setDownloadingCourseCodes((prev) => {
             const next = new Set(prev);
@@ -258,6 +280,10 @@ export default function CoursesList() {
       ) : (
         <FlashList
           data={coursesList}
+          extraData={{
+            downloadedCourseCodes,
+            downloadingCourseCodes,
+          }}
           estimatedItemSize={coursesList.length}
           keyExtractor={(item) => item.question.id}
           showsVerticalScrollIndicator={false}
@@ -312,6 +338,38 @@ const CoursesListItem = ({
   isDownloading,
   onDownloadIconPress,
 }: CourseListItemProps) => {
+  const spinAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!isDownloading) {
+      spinAnim.stopAnimation();
+      spinAnim.setValue(0);
+      return;
+    }
+
+    const loop = Animated.loop(
+      Animated.timing(spinAnim, {
+        toValue: 1,
+        duration: 800,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    );
+
+    loop.start();
+
+    return () => {
+      loop.stop();
+      spinAnim.stopAnimation();
+      spinAnim.setValue(0);
+    };
+  }, [isDownloading, spinAnim]);
+
+  const spin = spinAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "360deg"],
+  });
+
   const handleCourseListItemPressed = () => {
     router.push({
       pathname: '/courses/materials',
@@ -386,13 +444,18 @@ const CoursesListItem = ({
             event.stopPropagation();
             onDownloadIconPress();
           }}
+          disabled={isDownloading}
           hitSlop={8}
         >
-          <DownloadIcon
-            name={isDownloading ? "loader" : isDownloaded ? "check-circle" : "download-cloud"}
-            size={24}
-            color={isDownloaded ? colors.primary : colors.primary}
-          />
+          <Animated.View
+            style={isDownloading ? { transform: [{ rotate: spin }] } : undefined}
+          >
+            <DownloadIcon
+              name={isDownloading ? "loader" : isDownloaded ? "check-circle" : "download-cloud"}
+              size={24}
+              color={colors.primary}
+            />
+          </Animated.View>
         </Pressable>
       </View>
     </Pressable>
