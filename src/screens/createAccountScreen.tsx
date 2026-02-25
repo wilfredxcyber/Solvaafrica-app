@@ -1,4 +1,4 @@
-import { Text, TextInput, View, StyleSheet, ScrollView } from "react-native";
+import { Text, TextInput, View, StyleSheet, ScrollView, Platform } from "react-native";
 import ToastManager, { Toast } from "toastify-react-native";
 import Icon from "@expo/vector-icons/Feather";
 import { Formik, FormikProps } from "formik";
@@ -270,7 +270,7 @@ export default function CreateAccountScreen() {
               />
               <TextLinkButton
                 text="By checking this box, you agree to our terms/conditions."
-                onPress={() => router.push('/(auth)/term-and-conditions')}
+                onPress={() => router.push('/(auth)/terms-and-conditions')}
                 customStyle={{ textAlign: "left", color: colors.textLink }}
               />
             </View>
@@ -339,8 +339,15 @@ const styles = StyleSheet.create({
     height: "100%",
     fontFamily: "Inter-Bold",
     color: colors.black,
-    fontSize: 14,
-    paddingLeft: 8,
+    fontSize: mscale(14),
+    paddingLeft: wscale(8),
+    borderWidth: 0,
+    ...Platform.select({
+      web: {
+        outlineStyle: "none",
+        outlineWidth: 0,
+      } as any,
+    }),
   },
   errorText: {
     fontFamily: "Inter-Medium",
