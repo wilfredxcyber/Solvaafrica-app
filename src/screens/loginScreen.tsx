@@ -216,6 +216,13 @@ const styles = StyleSheet.create({
     color: colors.black,
     fontSize: mscale(14),
     paddingLeft: wscale(8),
+    borderWidth: 0,
+    ...Platform.select({
+      web: {
+        outlineStyle: "none",
+        outlineWidth: 0,
+      } as any,
+    }),
   },
   formView: { 
     flex: 1,
