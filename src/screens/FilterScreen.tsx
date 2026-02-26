@@ -117,6 +117,7 @@ export default function FilterScreen() {
 
   return (
     <View style={globalStyles.screen}>
+      <Text style={styles.screenTitle}>Filter</Text>
       <SearchBoxView
         handleSearchInputTextChange={handleSearchInputTextChange}
       />
@@ -220,6 +221,14 @@ const TabsSwitcher = ({
 };
 
 const styles = StyleSheet.create({
+  screenTitle: {
+    fontFamily: "Inter-Regular",
+    fontSize: 24,
+    color: colors.black,
+    textAlign: "left",
+    paddingTop: hscale(20),
+    marginBottom: hscale(10),
+  },
   tabSwitcherView: {
     flexDirection: "row",
     gap: 20,

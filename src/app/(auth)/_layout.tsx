@@ -8,7 +8,7 @@ export default function AuthLayout() {
       <Stack.Screen name="forgot-password" />
       <Stack.Screen name="forgot-password-otp" />
       <Stack.Screen name="forgot-password-success" />
-      <Stack.Screen name="terms-and-conditions" options={{ headerShown: true }} />
+      <Stack.Screen name="terms-and-conditions" options={{ headerShown: true}} />
     </Stack>
   );
 }
