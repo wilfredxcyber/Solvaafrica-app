@@ -43,8 +43,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
   const [errorMessage, setErrorMessage] = useState("");
 
   const authUser = useAuthStore((state) => state.user);
-
-  const { fullName } = authUser.profile;
+  const fullName = authUser?.profile?.fullName ?? "";
 
 
  const toggleSection = (section: DrawerSection) => {
@@ -86,30 +85,44 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
   };
 
   
-  const handleLogout = () => {
-    const logoutUser = async () => {
+  const logoutUser = async () => {
+    try {
+      setIsLoading(true);
+      await AsyncStorage.removeItem("User");
+
+      // On web, use a browser redirect to avoid Expo Router mount timing issues
+      // during logout state changes.
+      if (Platform.OS === "web") {
+        window.location.replace("/");
+        return;
+      }
+
       useAuthStore.setState((currState) => {
         return { ...currState, user: null };
       });
+      router.replace("/(auth)/login");
+    } catch (error) {
+      console.log("Error logging out user", error);
+      let message = "Error, Sorry, could not log you out. Try again.";
+      setErrorMessage(message);
+      setErrorVisible(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      try {
-        setIsLoading(true);
-        await AsyncStorage.removeItem("User");
-      } catch (error) {
-        console.log("Error logging out user", error);
-
-        // Alert.alert("Error", "Sorry, could not log you out. Try again.");
-        let message = "Error, Sorry, could not log you out. Try again.";
-        setErrorMessage(message);
-        setErrorVisible(true);
-      } finally {
-        setIsLoading(false);
+  const handleLogout = () => {
+    if (Platform.OS === "web") {
+      const confirmed = window.confirm("Are you sure you want to logout?");
+      if (confirmed) {
+        void logoutUser();
       }
-    };
+      return;
+    }
 
     // confirm logout
     Alert.alert("Logout", "Are you sure you want to logout?", [
-      { text: "Yes", onPress: logoutUser },
+      { text: "Yes", onPress: () => void logoutUser() },
       { text: "No", onPress: () => null },
     ]);
   };
