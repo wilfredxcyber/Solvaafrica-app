@@ -15,16 +15,14 @@ import { useAuthStore } from "@/src/stores/authStore";
 export default function ServicesScreen() {
   const router = useRouter();
   const AuthUser = useAuthStore((state) => state.user);
-
-  // ✅ SAFE: AuthUser can be null on first load / refresh (especially on web)
   const role = AuthUser?.profile?.role;
+  const hasFreelancerProfile =
+    Boolean(AuthUser?.profile?.freelancer) || role === "freelancer";
 
   const handleNav = () => {
     router.push("/(services)/find-service");
   };
 
-  // ✅ Optional: prevent crashes + show something while user loads
-  // If you don't want any loader, you can remove this block.
   if (!AuthUser) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -40,7 +38,6 @@ export default function ServicesScreen() {
         resizeMode="cover"
         source={require("@/assets/images/services/serviceBg.png")}
       >
-        {/* ✅ Explore button positioned like UI */}
         <TouchableOpacity
           style={styles.ctaButton}
           onPress={handleNav}
@@ -64,7 +61,6 @@ export default function ServicesScreen() {
             paddingBottom: mscale(18),
           }}
         >
-          {/* cards row stays the same */}
           <View
             style={{
               flexDirection: "row",
@@ -103,7 +99,11 @@ export default function ServicesScreen() {
 
             <TouchableOpacity
               onPress={() =>
-                router.push("/(services)/services-profile/setup-profile")
+                router.push(
+                  hasFreelancerProfile
+                    ? "/(services)/services-profile/service-profile"
+                    : "/(services)/services-profile/setup-profile"
+                )
               }
               style={styles.box}
             >
@@ -133,7 +133,6 @@ export default function ServicesScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* ✅ Bottom text styled like UI */}
           <Text style={styles.title}>
             Find & connect with service{"\n"}providers around you!
           </Text>
@@ -157,12 +156,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: mscale(1.5),
   },
-
-  // ✅ NEW: absolute position like screenshot
   ctaButton: {
     position: "absolute",
     alignSelf: "center",
-    bottom: hscale(220) + mscale(35), // sits right above purple section
+    bottom: hscale(220) + mscale(35),
     width: wscale(250),
     height: hscale(52),
     borderRadius: mscale(100),
@@ -170,14 +167,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
   ctaText: {
     color: "#fff",
     fontSize: mscale(16),
     fontFamily: "Inter-SemiBold",
   },
-
-  // ✅ NEW: smaller + matching UI
   title: {
     marginTop: mscale(14),
     fontFamily: "Inter-Bold",

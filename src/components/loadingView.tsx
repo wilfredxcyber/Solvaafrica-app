@@ -28,12 +28,6 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     zIndex: 9900,
-   // ...Platform.select({
-    //  web:{
-     //   maxWidth: 800,
-      //  left: '50%',
-      //  transform: [{ translateX: '-50%'}],
-     // }
-   // })
+   
   },
 });
