@@ -1,7 +1,9 @@
-import { StackActions, useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StyleSheet, Text, View, ScrollView } from "react-native";
 import { useCallback, useEffect, useState } from "react";
+import { router } from "expo-router";
+import { normalizeRemoteFileUrl } from "../helpers/normalizeRemoteFileUrl";
 
 import { DownloadItemView } from "../components/downloadItemView";
 import { SearchBoxView } from "../components/searchBoxView";
@@ -16,7 +18,6 @@ export default function FilterScreen() {
   const [currentTab, setCurrentTab] = useState<FileDirectory>("Courses");
   const [filterQuery, setFilterQuery] = useState("");
   const [filteredList, setFilterdList] = useState<DownloadedFileRef[]>([]);
-  const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
 
   // useEffect(() => {
@@ -98,20 +99,21 @@ export default function FilterScreen() {
   };
 
   const handleOpenItem = async (item: DownloadedFileRef) => {
-    if (item.parentDirectory === "Projects") {
-      navigation.dispatch(
-        StackActions.push("App", {
-          screen: "PdfViewer",
-          params: { pdfUri: item.filePath },
-        })
-      );
+    const normalizedPath = normalizeRemoteFileUrl(item.filePath);
+    const lowerName = item.fileName?.toLowerCase() || "";
+    const lowerPath = normalizedPath.toLowerCase();
+    const isPdf = lowerName.endsWith(".pdf") || lowerPath.includes(".pdf");
+
+    if (isPdf) {
+      router.push({
+        pathname: "/pdf-viewer",
+        params: { pdfUri: normalizedPath },
+      });
     } else {
-      navigation.dispatch(
-        StackActions.push("App", {
-          screen: "ImageViewer",
-          params: { imageSource: item.filePath },
-        })
-      );
+      router.push({
+        pathname: "/image-viewer",
+        params: { imageSource: normalizedPath },
+      });
     }
   };
 

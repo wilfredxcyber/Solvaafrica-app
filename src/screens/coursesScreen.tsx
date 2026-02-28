@@ -76,7 +76,7 @@ export default function CoursesScreen() {
     }
 
     router.push({
-      pathname: "/courses",
+      pathname: "/courses/courses",
       params: {
         university,
         faculty,
