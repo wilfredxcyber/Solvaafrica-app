@@ -14,10 +14,23 @@ import EmptyStateView from "../components/emptyStateView";
 import { Toast } from "toastify-react-native";
 
 export default function ProjectsScreen() {
+  const getFileNameFromUrl = (url?: string) => {
+    if (!url) return "Project file.pdf";
+
+    try {
+      const cleanUrl = url.split("?")[0];
+      const lastSegment = cleanUrl.substring(cleanUrl.lastIndexOf("/") + 1);
+      const decoded = decodeURIComponent(lastSegment || "");
+      return decoded || "Project file.pdf";
+    } catch {
+      return "Project file.pdf";
+    }
+  };
+
   const buildProjectFiles = (projectsList: any[]) =>
     (projectsList ?? []).flatMap((project: any, projectIndex: number) =>
       (project?.document ?? []).map((doc: any, docIndex: number) => ({
-        fileName: project?.project?.name ?? "Project file",
+        fileName: doc?.name || getFileNameFromUrl(doc?.url) || project?.project?.name || "Project file.pdf",
         fileURI: doc?.url,
         fileKey: `${doc?.url || "project-file"}-${projectIndex}-${docIndex}`,
       }))

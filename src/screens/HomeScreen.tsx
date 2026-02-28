@@ -90,7 +90,7 @@ export default function HomeScreen() {
 
   const handleMenuItemPressed = (pressedItem: MenuItemScreensRoutes) => {
     if (pressedItem === MenuItemScreensRoutes.COURSES) {
-      router.push("/courses");
+      router.push("/courses/courses");
     } else if (pressedItem === MenuItemScreensRoutes.PROJECTS) {
       router.push("/projects");
     } else if (pressedItem === MenuItemScreensRoutes.UPLOAD) {

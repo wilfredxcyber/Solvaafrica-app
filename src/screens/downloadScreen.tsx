@@ -1,10 +1,11 @@
-import { StackActions, useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Text, View, RefreshControl, StyleSheet, Platform } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { router } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
 import * as FileSystem from "expo-file-system";
 import { useCallback, useState } from "react";
+import { normalizeRemoteFileUrl } from "../helpers/normalizeRemoteFileUrl";
 
 import { DownloadItemView } from "../components/downloadItemView";
 import { hscale, mscale,wscale } from "../helpers/metric";
@@ -16,7 +17,6 @@ import { colors } from "../constants/theme";
 export default function DownloadScreen() {
   const [downloadsList, setDownloadsList] = useState<DownloadedFileRef[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const navigation = useNavigation();
 
   const fetchDownloads = useCallback(async () => {
     try {
@@ -63,14 +63,15 @@ export default function DownloadScreen() {
   };
 
   const handleOpenItem = (item: DownloadedFileRef) => {
-    if (item.parentDirectory === 'Projects') {
-      navigation.dispatch(
-        StackActions.push("App", { screen: "PdfViewer", params: { pdfUri: item.filePath } })
-      );
+    const normalizedPath = normalizeRemoteFileUrl(item.filePath);
+    const lowerName = item.fileName?.toLowerCase() || "";
+    const lowerPath = normalizedPath.toLowerCase();
+    const isPdf = lowerName.endsWith(".pdf") || lowerPath.includes(".pdf");
+
+    if (isPdf) {
+      router.push({ pathname: "/pdf-viewer", params: { pdfUri: normalizedPath } });
     } else {
-      navigation.dispatch(
-        StackActions.push("App", { screen: "ImageViewer", params: { imageSource: item.filePath } })
-      );
+      router.push({ pathname: "/image-viewer", params: { imageSource: normalizedPath } });
     }
   };
 
@@ -83,7 +84,7 @@ export default function DownloadScreen() {
         </View>
         <View style={styles.emptyContentContainer}>
           <Text style={styles.emptyText}>
-            Files you downloaded to this device will show here
+            Files you downloaded in this app will show here
           </Text>
         </View>
       </View>

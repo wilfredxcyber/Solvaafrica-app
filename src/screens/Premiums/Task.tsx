@@ -31,7 +31,13 @@ type ApiTask = {
 
 async function fetchTasks(): Promise<ApiTask[]> {
   const res = await AUTH_API_CLIENT.get("/tasks");
-  return res.data.data;
+  const payload = res.data;
+
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.tasks)) return payload.tasks;
+
+  throw new Error("Unexpected tasks response format");
 }
 
 function calcTimeLeft(endDate: string) {
@@ -58,7 +64,7 @@ export default function ExploreTaskScreen() {
   const [_, setActive] = useState("high");
 
   const { data, isLoading, isFetching, refetch, error } = useQuery({
-    queryKey: ["task"],
+    queryKey: ["tasks"],
     queryFn: fetchTasks,
   });
 
