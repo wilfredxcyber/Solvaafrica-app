@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   ToastAndroid,
+  Platform,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { colors } from "@/src/constants/theme";
@@ -213,23 +214,23 @@ export default function EditProfile() {
       />
 
       <Text style={styles.label}>Category</Text>
-      <View style={styles.pickerContainer}>
-        <Picker
-          enabled={!updating}
-          selectedValue={selectedCategoryId}
-          onValueChange={(itemValue) => setSelectedCategoryId(itemValue)}
-        >
-          <Picker.Item label="Select a category" value={null} />
-          {categories.map((cat) => (
-            <Picker.Item
-              style={styles.input}
-              key={cat.id}
-              label={cat.title}
-              value={cat.id.toString()}
-            />
-          ))}
-        </Picker>
-      </View>
+            <View style={styles.pickerContainer}>
+              <Picker
+                enabled={!updating}
+                style={styles.picker}
+                selectedValue={selectedCategoryId}
+                onValueChange={(itemValue) => setSelectedCategoryId(itemValue)}
+              >
+                <Picker.Item label="Select a category" value={null} />
+                {categories.map((cat) => (
+                  <Picker.Item
+                    key={cat.id}
+                    label={cat.title}
+                    value={cat.id}
+                  />
+                ))}
+              </Picker>
+            </View>
 
       <Text style={styles.label}>Location</Text>
       <TextInput
@@ -331,14 +332,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#EBEDEB80",
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: mscale(8),
-    padding: mscale(14),
-    marginBottom: hscale(16),
-    fontFamily: "Inter-Regular",
-    fontSize: mscale(14),
-  },
+  borderWidth: 1,
+  borderColor: "#000", // black border
+  borderRadius: mscale(8),
+  padding: mscale(12),
+  marginBottom: hscale(16),
+  fontFamily: "Inter-Regular",
+  fontSize: mscale(14),
+  backgroundColor: colors.inputFieldNew, // background added
+  color: "#5C5F62",
+},
   updateButton: {
     backgroundColor: colors.primary,
     padding: mscale(12),
@@ -351,13 +354,38 @@ const styles = StyleSheet.create({
     fontFamily: "Inter-Bold",
     fontSize: mscale(16),
   },
-  pickerContainer: {
+ pickerContainer: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#000",
     borderRadius: mscale(8),
     marginBottom: hscale(16),
-    backgroundColor: "#fff",
+    backgroundColor: colors.inputFieldNew,
+    minHeight: hscale(48),
+    justifyContent: "center",
+    overflow: "hidden",
+    paddingRight: wscale(12), // to prevent text from touching the edge
   },
+
+  picker: {
+      color: "#5C5F62",
+      fontFamily: "Inter-Regular",
+      fontSize: mscale(14),
+      backgroundColor: colors.inputFieldNew,
+      ...Platform.select({
+        android: {
+          height: hscale(48),
+        },
+        ios: {
+          height: hscale(48),
+        },
+        web: {
+          height: hscale(48),
+          paddingHorizontal: mscale(12),
+          borderWidth: 0,
+          outlineWidth: 0 as any,
+        } as any,
+      }),
+    },
   label: {
     fontSize: mscale(13),
     fontFamily: "Inter-Medium",

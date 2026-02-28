@@ -94,7 +94,7 @@ export default function ReadServiceProfile() {
     }
   };
 
-  const handleEditProfilePress = () => {
+ /**  const handleEditProfilePress = () => {
     if (user) {
       router.push({
         pathname: "/(services)/services-profile/edit-profile",
@@ -102,6 +102,7 @@ export default function ReadServiceProfile() {
       });
     }
   };
+  */
 
   // Show loading if userData is not available yet
   if (!userData) {
@@ -166,10 +167,11 @@ export default function ReadServiceProfile() {
           {user.fullName || "Profile"}
         </Text>
         
-        {/* Edit Profile Button - Only show if user is viewing their own profile */}
+        {/* Edit Profile Button - Only show if user is viewing their own profile 
         <TouchableOpacity onPress={handleEditProfilePress}>
           <Ionicons name="create-outline" size={24} color="#fff" />
         </TouchableOpacity>
+        */}
       </View>
 
       {/* Profile Picture */}
