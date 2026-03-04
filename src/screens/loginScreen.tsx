@@ -55,7 +55,19 @@ export default function LoginScreen() {
           console.log("User", data);
 
           // save user
-          const { fullName, gender, email, address, phone, referralCode } = data;
+          const {
+            fullName,
+            gender,
+            email,
+            address,
+            phone,
+            referralCode,
+            role,
+            freelancer,
+            freelancerId,
+            freelancerProfile,
+            freelancerProfileId,
+          } = data;
           const userProfile: UserProfile = {
             fullName,
             gender,
@@ -64,6 +76,18 @@ export default function LoginScreen() {
             phone,
             referralCode,
             userID: userId,
+            role,
+            freelancer,
+            freelancerId,
+            freelancerProfile,
+            freelancerProfileId,
+            hasServiceProfile: Boolean(
+              freelancer ||
+                freelancerId ||
+                freelancerProfile ||
+                freelancerProfileId ||
+                role === "freelancer"
+            ),
           };
           const user: { profile: UserProfile; tokens: Tokens | null } = {
             profile: userProfile,

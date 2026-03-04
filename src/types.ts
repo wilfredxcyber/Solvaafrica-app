@@ -6,6 +6,12 @@ export interface UserProfile {
   gender: string | null;
   referralCode: string;
   userID: string;
+  role?: "user" | "freelancer" | string;
+  freelancer?: string | number | { id?: string | number; _id?: string | number } | null;
+  freelancerId?: string | number | { id?: string | number; _id?: string | number } | null;
+  freelancerProfile?: string | number | { id?: string | number; _id?: string | number } | null;
+  freelancerProfileId?: string | number | { id?: string | number; _id?: string | number } | null;
+  hasServiceProfile?: boolean;
 }
 export interface ILoginForm {
   email: string;
