@@ -1,13 +1,11 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Alert,
   StyleSheet,
-  Linking,
   Image,
   ActivityIndicator,
   ToastAndroid,
@@ -15,13 +13,12 @@ import {
 } from "react-native";
 import { colors } from "@/src/constants/theme";
 import { mscale, hscale, wscale } from "@/src/helpers/metric";
-import { useFocusEffect, useRouter } from "expo-router";
-import { API_BASE_URL, AUTH_API_CLIENT } from "../../../api/apiClient";
+import { useRouter } from "expo-router";
+import { AUTH_API_CLIENT } from "../../../api/apiClient";
 import { ServiceType } from "@/src/types";
 import ErrorModal from "@/src/components/errorModal";
 import { Picker } from "@react-native-picker/picker";
 import ToastManager, { Toast } from "toastify-react-native";
-import { launchImageLibrary, launchCamera } from "react-native-image-picker";
 import * as DocumentPicker from "expo-document-picker";
 import { useAuthStore } from "@/src/stores/authStore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -37,13 +34,58 @@ export default function SetUpProfile() {
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const [profileImageUri, setProfileImageUri] = useState<any>(null);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState("");
+  const [portfolio, setPortfolio] = useState("");
+  const [phone, setPhone] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [uni, setUni] = useState("");
+
+  const router = useRouter();
+  const authUser = useAuthStore((state) => state.user);
+  const getFreelancerId = (value: any) => {
+    if (!value) return null;
+    if (typeof value === "string" || typeof value === "number") return value;
+    return value?.id ?? value?._id ?? null;
+  };
+  const hasFreelancerProfile = Boolean(
+    getFreelancerId(authUser?.profile?.freelancer) ||
+      getFreelancerId(authUser?.profile?.freelancerId) ||
+      getFreelancerId(authUser?.profile?.freelancerProfile) ||
+      getFreelancerId(authUser?.profile?.freelancerProfileId) ||
+      getFreelancerId(authUser?.freelancer) ||
+      getFreelancerId(authUser?.freelancerProfile) ||
+      authUser?.profile?.role === "freelancer" ||
+      authUser?.profile?.hasServiceProfile
+  );
+
+  // ✅ one place to show messages (cross-platform)
+  const notify = (type: "success" | "error" | "info", message: string) => {
+    if (Platform.OS === "android") {
+      // optional: keep native android toast
+      ToastAndroid.show(message, ToastAndroid.LONG);
+      return;
+    }
+
+    // toastify-react-native
+    if (type === "success") Toast.success(message);
+    else if (type === "error") Toast.error(message);
+    else Toast.info(message);
+  };
+
   useEffect(() => {
+    if (hasFreelancerProfile) {
+      router.replace("/(services)/services-profile/service-profile");
+      return;
+    }
+
     const getServices = async () => {
       try {
         setLoading(true);
         const response = await AUTH_API_CLIENT.get("/freelancers/catigories");
-
-        if (response && response.status === 200) {
+        if (response?.status === 200) {
           setCategories(response.data.data);
         }
       } catch (error) {
@@ -55,49 +97,49 @@ export default function SetUpProfile() {
     };
 
     getServices();
-  }, []);
-
-  const [profileImageUri, setProfileImageUri] = useState<string | any>(null);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState("");
-  const [portfolio, setPortfolio] = useState("");
-  const [phone, setPhone] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
-  const [uni, setUni] = useState("");
-
-  const router = useRouter();
+  }, [hasFreelancerProfile, router]);
 
   const handlePickProfileImage = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: ["image/*"],
-        copyToCacheDirectory: true,
-      });
+  try {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: ["image/*"],
+      copyToCacheDirectory: true,
+    });
 
-      if (!result.canceled) {
-        const { name, uri, mimeType } = result.assets[0];
-        if (!name || !uri || !mimeType) throw new Error("Invalid picked asset");
+    if (!result.canceled) {
+      const asset = result.assets?.[0];
+      const pickedName = asset?.name;
+      const uri = asset?.uri;
+      const mimeType = asset?.mimeType;
 
-        const _pickedFile: any = {
-          fileUri: uri,
-          imageUri: uri,
-          name,
-          mimeType,
-        };
+      // 👇 web may provide a real File object here
+      const file = (asset as any)?.file ?? null;
 
-        setProfileImageUri(_pickedFile);
+      if (!pickedName || !uri) {
+        notify("error", "Invalid image selected. Please try again.");
+        return;
       }
-    } catch (error) {
-      console.error("File picker error:", error);
-      ToastAndroid.show(
-        "Error picking image from document directory",
-        ToastAndroid.LONG
-      );
+
+      setProfileImageUri({
+        fileUri: uri,
+        name: pickedName,
+        mimeType: mimeType || "image/jpeg",
+        file, // ✅ important for web
+      });
     }
-  };
+  } catch (error) {
+    console.error("File picker error:", error);
+    notify("error", "Error picking image. Please try again.");
+  }
+};
 
   const handleUpdate = async () => {
+    if (hasFreelancerProfile) {
+      notify("info", "Freelancer profile already exists.");
+      router.replace("/(services)/services-profile/service-profile");
+      return;
+    }
+
     if (
       !name ||
       !selectedCategoryId ||
@@ -106,13 +148,10 @@ export default function SetUpProfile() {
       !portfolio ||
       !phone ||
       !whatsapp ||
-      !uni||
+      !uni ||
       !profileImageUri?.fileUri
     ) {
-      ToastAndroid.show(
-        "Ensure all fields are filled and an image is added.",
-        ToastAndroid.LONG
-      );
+      notify("info", "Ensure all fields are filled and an image is added.");
       return;
     }
 
@@ -126,55 +165,128 @@ export default function SetUpProfile() {
     formData.append("portfolioLink", portfolio);
     formData.append("phoneNumber", phone);
     formData.append("whatsappLink", whatsapp);
-    formData.append("location", uni)
+    formData.append("location", uni);
 
-    formData.append("profilePic", {
-      uri: profileImageUri.fileUri,
-      name: profileImageUri.name,
-      type: profileImageUri.mimeType,
-    } as any);
+    // ✅ Attach image correctly for each platform
+    if (Platform.OS === "web") {
+      let file = profileImageUri?.file as any;
+
+      if (!file && profileImageUri?.fileUri) {
+        const blob = await fetch(profileImageUri.fileUri).then((res) =>
+          res.blob()
+        );
+        file = new File([blob], profileImageUri.name || "profile.jpg", {
+          type: profileImageUri.mimeType || blob.type || "image/jpeg",
+        });
+      }
+
+      if (!file) {
+        notify(
+          "error",
+          "Web upload needs a real file object. Please re-pick the image."
+        );
+        setUpdating(false);
+        return;
+      }
+
+      formData.append("profilePic", file, file.name || profileImageUri.name);
+    } else {
+      formData.append("profilePic", {
+        uri: profileImageUri.fileUri,
+        name: profileImageUri.name,
+        type: profileImageUri.mimeType,
+      } as any);
+    }
 
     try {
-      const response = await AUTH_API_CLIENT.post(
-        "/freelancers/create",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
+      const response = await AUTH_API_CLIENT.post("/freelancers/create", formData, {
+          headers:
+            Platform.OS === "web"
+      ? undefined // ✅ let axios/browser set boundary
+      : { "Content-Type": "multipart/form-data" },
+});
       if (response.status === 200 || response.status === 201) {
-        ToastAndroid.show("Profile created successfully", ToastAndroid.LONG);
+        notify("success", "Profile created successfully");
 
         const AuthUser = useAuthStore.getState().user;
+
         if (AuthUser) {
+          // Important: store a boolean/id that indicates profile exists
+          const createdFreelancerId =
+            getFreelancerId(response?.data?.data) ||
+            getFreelancerId(response?.data?.data?.freelancer) ||
+            getFreelancerId(response?.data?.data?.freelancerId) ||
+            getFreelancerId(response?.data?.data?.freelancerProfile) ||
+            getFreelancerId(response?.data?.data?.freelancerProfileId);
+
           const updatedUser = {
             ...AuthUser,
             profile: {
               ...AuthUser.profile,
+              // keep your role if your backend uses it, but don't rely on role for navigation
               role: "freelancer",
-              freelancer: AuthUser.profile.freelancer ?? response?.data.data.id,
+              freelancer:
+                createdFreelancerId ??
+                getFreelancerId((AuthUser.profile as any)?.freelancer),
+              freelancerId:
+                createdFreelancerId ??
+                getFreelancerId((AuthUser.profile as any)?.freelancerId),
+              hasServiceProfile: true,
             },
-            tokens: AuthUser.tokens,
+          };
+
+          useAuthStore.setState({ user: updatedUser });
+          await AsyncStorage.setItem("User", JSON.stringify(updatedUser));
+        }
+
+        router.replace("/(services)/services-profile/service-profile");
+      } else {
+        notify("error", "Unexpected server response");
+      }
+    } catch (error: any) {
+      console.error("Upload failed:", error?.message || error);
+
+      const msg =
+        error?.response?.data?.message ||
+        "An unexpected error occurred. Please try again.";
+
+      if (
+        error?.response?.status === 400 &&
+        String(msg).toLowerCase().includes("already a freelancer")
+      ) {
+        const currentUser = useAuthStore.getState().user;
+        if (currentUser) {
+          const updatedUser = {
+            ...currentUser,
+            profile: {
+              ...currentUser.profile,
+              role: "freelancer",
+              hasServiceProfile: true,
+            },
           };
           useAuthStore.setState({ user: updatedUser });
           await AsyncStorage.setItem("User", JSON.stringify(updatedUser));
         }
 
-        // Navigate to ServiceProfile using Expo Router
-        router.push("/(services)/services-profile/service-profile");
-      } else {
-        ToastAndroid.show("Unexpected server response", ToastAndroid.LONG);
+        notify("info", "Freelancer profile already exists.");
+        router.replace("/(services)/services-profile/service-profile");
+        return;
       }
-    } catch (error: any) {
-      console.error("Upload failed:", error?.message || error);
-      ToastAndroid.show("An unexpected error occurred", ToastAndroid.LONG);
+
+      notify("error", msg);
     } finally {
       setUpdating(false);
     }
   };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <ToastManager />
+      </View>
+    );
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -188,15 +300,10 @@ export default function SetUpProfile() {
       >
         Setup your profile as a freelancer!
       </Text>
-      <TouchableOpacity
-        onPress={handlePickProfileImage}
-        style={styles.imagePicker}
-      >
+
+      <TouchableOpacity onPress={handlePickProfileImage} style={styles.imagePicker}>
         {profileImageUri ? (
-          <Image
-            source={{ uri: profileImageUri.fileUri }}
-            style={styles.profileImage}
-          />
+          <Image source={{ uri: profileImageUri.fileUri }} style={styles.profileImage} />
         ) : (
           <View
             style={{
@@ -233,11 +340,7 @@ export default function SetUpProfile() {
         >
           <Picker.Item label="Select a category" value={null} />
           {categories.map((cat) => (
-            <Picker.Item
-              key={cat.id}
-              label={cat.title}
-              value={cat.id}
-            />
+            <Picker.Item key={cat.id} label={cat.title} value={cat.id} />
           ))}
         </Picker>
       </View>
@@ -256,10 +359,7 @@ export default function SetUpProfile() {
         placeholder="Description"
         value={description}
         onChangeText={setDescription}
-        style={[
-          styles.input,
-          { height: hscale(100), textAlignVertical: "top" },
-        ]}
+        style={[styles.input, { height: hscale(100), textAlignVertical: "top" }]}
         multiline
         editable={!updating}
       />
@@ -302,11 +402,7 @@ export default function SetUpProfile() {
         editable={!updating}
       />
 
-      <TouchableOpacity
-        onPress={handleUpdate}
-        disabled={updating}
-        style={styles.updateButton}
-      >
+      <TouchableOpacity onPress={handleUpdate} disabled={updating} style={styles.updateButton}>
         {updating ? (
           <ActivityIndicator size="small" color="#fff" />
         ) : (
@@ -319,6 +415,8 @@ export default function SetUpProfile() {
         message={errorMessage}
         onClose={() => setErrorVisible(false)}
       />
+
+      {/* ✅ This is the correct JSX component for toastify-react-native */}
       <ToastManager />
     </ScrollView>
   );
@@ -338,30 +436,17 @@ const styles = StyleSheet.create({
     height: hscale(100),
     borderRadius: 50,
   },
-  placeholder: {
-    width: wscale(100),
-    height: hscale(100),
-    borderRadius: 50,
-    backgroundColor: "#ddd",
-    justifyContent: "center",
-    alignItems: "center",
-  
-  },
-  placeholderText: {
-    color: "#555",
-  },
   input: {
-  borderWidth: 1,
-  borderColor: "#000", // black border
-  borderRadius: mscale(8),
-  padding: mscale(12),
-  marginBottom: hscale(16),
-  fontFamily: "Inter-Regular",
-  fontSize: mscale(14),
-  backgroundColor: colors.inputFieldNew, // background added
-  color: "#5C5F62",
-},
-
+    borderWidth: 1,
+    borderColor: "#000",
+    borderRadius: mscale(8),
+    padding: mscale(12),
+    marginBottom: hscale(16),
+    fontFamily: "Inter-Regular",
+    fontSize: mscale(14),
+    backgroundColor: colors.inputFieldNew,
+    color: "#5C5F62",
+  },
   updateButton: {
     backgroundColor: colors.primary,
     padding: mscale(14),
@@ -383,7 +468,7 @@ const styles = StyleSheet.create({
     minHeight: hscale(48),
     justifyContent: "center",
     overflow: "hidden",
-    paddingRight: wscale(12), // to prevent text from touching the edge
+    paddingRight: wscale(12),
   },
   picker: {
     color: "#5C5F62",
@@ -391,12 +476,8 @@ const styles = StyleSheet.create({
     fontSize: mscale(14),
     backgroundColor: colors.inputFieldNew,
     ...Platform.select({
-      android: {
-        height: hscale(48),
-      },
-      ios: {
-        height: hscale(48),
-      },
+      android: { height: hscale(48) },
+      ios: { height: hscale(48) },
       web: {
         height: hscale(48),
         paddingHorizontal: mscale(12),

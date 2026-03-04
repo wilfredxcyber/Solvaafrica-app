@@ -35,6 +35,19 @@ export const AUTH_API_CLIENT = axios.create({
 AUTH_API_CLIENT.interceptors.request.use(
   async (request) => {
     try {
+      const isFormDataPayload =
+        typeof FormData !== "undefined" && request.data instanceof FormData;
+
+      if (isFormDataPayload && request.headers) {
+        // Let runtime set multipart boundary automatically.
+        if (typeof (request.headers as any).set === "function") {
+          (request.headers as any).set("Content-Type", undefined);
+        } else {
+          delete (request.headers as any)["Content-Type"];
+          delete (request.headers as any)["content-type"];
+        }
+      }
+
       const serializedUser = await AsyncStorage.getItem("User");
 
       if (!serializedUser) throw new Error("User not found");
