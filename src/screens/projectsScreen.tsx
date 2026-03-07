@@ -6,7 +6,6 @@ import LottieView from "lottie-react-native";
 import { SearchBoxView } from "../components/searchBoxView";
 import { useDownloadFile } from "../hooks/useDownloadFile";
 import { hscale, mscale, wscale } from "../helpers/metric";
-import ProtectPage from "../components/protectPage";
 import { AUTH_API_CLIENT } from "../api/apiClient";
 import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
@@ -94,7 +93,6 @@ export default function ProjectsScreen() {
   };
 
   return (
-    <ProtectPage>
       <View style={globalStyles.screen}>
         <SearchBoxView handleSearchInputTextChange={handleInputChange} />
         <View style={{ flex: 1, marginTop: hscale(12) }}>
@@ -134,7 +132,6 @@ export default function ProjectsScreen() {
           )}
         </View>
       </View>
-    </ProtectPage>
   );
 }
 
@@ -377,3 +374,4 @@ const renderDownloadButton = () => {
     </View>
   );
 };
+

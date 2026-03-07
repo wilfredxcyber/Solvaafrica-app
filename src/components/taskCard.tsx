@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Image,
-} from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 type TaskCardProps = {
   brandName: string;
@@ -20,8 +14,10 @@ type TaskCardProps = {
   onPress: () => void;
 };
 
+const PRIMARY = "#6207A0";
+
 const formatNaira = (amount: number) => {
-  return `₦ ${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+  return `\u20A6 ${amount.toLocaleString("en-NG")}`;
 };
 
 export default function TaskCard({
@@ -36,13 +32,12 @@ export default function TaskCard({
   banner,
   onPress,
 }: TaskCardProps) {
-  const isUrgent = timeLeft.toLowerCase().includes("hour");
+  const isUrgent = /hour|expired/i.test(timeLeft);
 
   return (
     <View style={styles.card}>
-      <View style={styles.topRow}>
-        {/* LEFT */}
-        <View style={styles.left}>
+      <View style={styles.contentRow}>
+        <View style={styles.leftColumn}>
           <View style={styles.brandRow}>
             <View style={styles.logoWrap}>
               {logo ? (
@@ -51,7 +46,9 @@ export default function TaskCard({
                 <View style={styles.logoPlaceholder} />
               )}
             </View>
-            <Text style={styles.brandName}>{brandName}</Text>
+            <Text style={styles.brandName} numberOfLines={1}>
+              {brandName}
+            </Text>
           </View>
 
           <View style={styles.tag}>
@@ -62,26 +59,20 @@ export default function TaskCard({
           {!!subtitle && <Text style={styles.title}>{subtitle}</Text>}
 
           <View style={styles.metaRow}>
-            <Text
-              style={[
-                styles.timeText,
-                isUrgent ? styles.urgent : styles.safe,
-              ]}
-            >
+            <Text style={[styles.timeText, isUrgent ? styles.urgent : styles.safe]}>
               {timeLeft}
             </Text>
             <Text style={styles.spotText}>{spotsLeft}</Text>
           </View>
         </View>
 
-        {/* RIGHT */}
-        <View style={styles.right}>
+        <View style={styles.rightColumn}>
           <Text style={styles.poolLabel}>Total pool</Text>
           <Text style={styles.poolValue}>{formatNaira(totalPool)}</Text>
 
           <View style={styles.bannerWrap}>
             {banner ? (
-              <Image source={banner} style={styles.banner} />
+              <Image source={banner} style={styles.banner} resizeMode="cover" />
             ) : (
               <View style={styles.bannerPlaceholder} />
             )}
@@ -96,163 +87,150 @@ export default function TaskCard({
   );
 }
 
-const PRIMARY = "#5B21B6";
-
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 18,
-    padding: 16,
-    marginBottom: 16,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 22,
+    paddingHorizontal: 14,
+    paddingTop: 18,
+    paddingBottom: 14,
+    marginBottom: 24,
+    shadowColor: "#000000",
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
     elevation: 4,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
   },
-
-  topRow: {
+  contentRow: {
     flexDirection: "row",
-    gap: 12,
+    justifyContent: "space-between",
+    gap: 14,
   },
-
-  left: {
+  leftColumn: {
     flex: 1,
+    paddingRight: 4,
   },
-
-  right: {
-    width: 120,
+  rightColumn: {
+    width: 128,
     alignItems: "flex-end",
   },
-
   brandRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
   },
-
   logoWrap: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: "#F2F2F2",
-    justifyContent: "center",
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "#F3F3F3",
     alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
   },
-
   logo: {
-    width: 26,
-    height: 26,
+    width: 30,
+    height: 30,
   },
-
   logoPlaceholder: {
     width: 18,
     height: 18,
-    borderRadius: 4,
-    backgroundColor: "#DADADA",
+    borderRadius: 9,
+    backgroundColor: "#D8D8D8",
   },
-
   brandName: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: "#111",
+    flex: 1,
+    fontSize: 22,
+    fontWeight: "900",
+    color: "#111111",
   },
-
   tag: {
-    marginTop: 8,
+    marginTop: 10,
+    marginLeft: 44,
     alignSelf: "flex-start",
-    borderRadius: 8,
+    minWidth: 154,
     borderWidth: 1,
-    borderColor: "#B7E4C7",
-    backgroundColor: "#F2FFF6",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    borderColor: "#9EA29E",
+    borderRadius: 5,
+    paddingVertical: 2,
+    paddingHorizontal: 12,
+    backgroundColor: "#F4F7F2",
   },
-
   tagText: {
     fontSize: 12,
-    fontWeight: "600",
-    color: "#2F855A",
+    color: "#8FB38C",
   },
-
   title: {
-    marginTop: 8,
+    marginTop: 14,
+    marginLeft: 10,
     fontSize: 16,
+    lineHeight: 23,
     fontWeight: "800",
-    color: "#111",
+    color: "#111111",
   },
-
   metaRow: {
     flexDirection: "row",
+    alignItems: "center",
     gap: 14,
-    marginTop: 10,
+    marginTop: 20,
+    marginLeft: 10,
   },
-
   timeText: {
     fontSize: 12,
     fontWeight: "700",
   },
-
-  urgent: {
-    color: "#E11D48",
-  },
-
   safe: {
-    color: "#2F855A",
+    color: "#49A15E",
   },
-
+  urgent: {
+    color: "#FF2B2B",
+  },
   spotText: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#111",
+    color: "#111111",
   },
-
   poolLabel: {
     fontSize: 12,
-    fontWeight: "600",
-    color: "#666",
+    color: "#3C3C3C",
   },
-
   poolValue: {
-    marginTop: 4,
+    marginTop: 2,
     fontSize: 18,
     fontWeight: "900",
     color: PRIMARY,
   },
-
   bannerWrap: {
-    marginTop: 10,
-    width: 66,
-    height: 66,
-    borderRadius: 14,
+    width: 74,
+    height: 98,
+    marginTop: 12,
+    borderRadius: 6,
     overflow: "hidden",
-    backgroundColor: "#F2F2F2",
+    backgroundColor: "#EEEEEE",
   },
-
   banner: {
     width: "100%",
     height: "100%",
   },
-
   bannerPlaceholder: {
     flex: 1,
-    backgroundColor: "#E6E6E6",
+    backgroundColor: "#E4E4E4",
   },
-
   button: {
-    marginTop: 14,
-    backgroundColor: PRIMARY,
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 18,
     alignSelf: "flex-start",
-    minWidth: 150,
+    marginTop: 20,
+    marginLeft: 10,
+    minWidth: 154,
+    borderRadius: 12,
+    backgroundColor: PRIMARY,
+    paddingVertical: 18,
+    paddingHorizontal: 28,
     alignItems: "center",
+    justifyContent: "center",
   },
-
   buttonText: {
-    color: "#fff",
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "800",
+    color: "#FFFFFF",
   },
 });

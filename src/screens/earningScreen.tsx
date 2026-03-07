@@ -5,7 +5,7 @@ import * as Clipboard from "expo-clipboard";
 import { Image } from "expo-image";
 import * as Linking from "expo-linking";
 import Icon from "@expo/vector-icons/FontAwesome";
-import { useRouter, useFocusEffect } from "expo-router";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 
 import { hscale, mscale, wscale } from "../helpers/metric";
 import { useAuthStore } from "../stores/authStore";
@@ -15,12 +15,23 @@ import { colors } from "../constants/theme";
 import ToastManager, { Toast } from "toastify-react-native";
 import { Job } from "../types";
 import ErrorModal from "../components/errorModal";
+import ProtectPage from "../components/protectPage";
 
 type Tab = "Refer" | "Earn";
 
+function resolveTab(tab: string | string[] | undefined): Tab {
+  const selectedTab = Array.isArray(tab) ? tab[0] : tab;
+  return selectedTab?.toLowerCase() === "earn" ? "Earn" : "Refer";
+}
+
 export default function EarningScreen() {
-  const [activeTab, setActiveTab] = useState<Tab>("Refer");
+  const { tab } = useLocalSearchParams<{ tab?: string | string[] }>();
+  const [activeTab, setActiveTab] = useState<Tab>(resolveTab(tab));
   const [userBalance, setUserBalance] = useState<null | number>(null);
+
+  useEffect(() => {
+    setActiveTab(resolveTab(tab));
+  }, [tab]);
 
   const AuthUser = useAuthStore((state) => state.user);
   const { userID } = AuthUser.profile;
@@ -89,6 +100,7 @@ const EarnTabView = ({ userBalance }: { userBalance: number | null }) => {
   }, []);
 
   return (
+   <ProtectPage>
     <View>
       <EarningsBalanceView userBalance={userBalance} />
       <View
@@ -224,6 +236,7 @@ const EarnTabView = ({ userBalance }: { userBalance: number | null }) => {
         onClose={() => setErrorVisible(false)}
       />
     </View>
+    </ProtectPage>
   );
 };
 
@@ -673,3 +686,4 @@ const styles = StyleSheet.create({
     fontSize: mscale(14),
   },
 });
+
