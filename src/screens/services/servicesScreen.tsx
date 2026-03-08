@@ -15,9 +15,20 @@ import { useAuthStore } from "@/src/stores/authStore";
 export default function ServicesScreen() {
   const router = useRouter();
   const AuthUser = useAuthStore((state) => state.user);
-  const role = AuthUser?.profile?.role;
-  const hasFreelancerProfile =
-    Boolean(AuthUser?.profile?.freelancer) || role === "freelancer";
+  const getFreelancerId = (value: any) => {
+    if (!value) return null;
+    if (typeof value === "string" || typeof value === "number") return value;
+    return value?.id ?? value?._id ?? null;
+  };
+
+  const hasFreelancerProfile = Boolean(
+    getFreelancerId(AuthUser?.profile?.freelancer) ||
+      getFreelancerId(AuthUser?.profile?.freelancerId) ||
+      getFreelancerId(AuthUser?.profile?.freelancerProfile) ||
+      getFreelancerId(AuthUser?.profile?.freelancerProfileId) ||
+      getFreelancerId(AuthUser?.freelancer) ||
+      getFreelancerId(AuthUser?.freelancerProfile)
+  );
 
   const handleNav = () => {
     router.push("/(services)/find-service");
