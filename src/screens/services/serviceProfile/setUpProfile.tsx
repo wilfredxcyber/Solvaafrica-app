@@ -22,6 +22,11 @@ import ToastManager, { Toast } from "toastify-react-native";
 import * as DocumentPicker from "expo-document-picker";
 import { useAuthStore } from "@/src/stores/authStore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  getFreelancerId,
+  getFreelancerProfileState,
+  mergeAuthUserProfile,
+} from "@/src/helpers/freelancerProfile";
 
 export default function SetUpProfile() {
   const [loading, setLoading] = useState(true);
@@ -45,31 +50,14 @@ export default function SetUpProfile() {
 
   const router = useRouter();
   const authUser = useAuthStore((state) => state.user);
-  const getFreelancerId = (value: any) => {
-    if (!value) return null;
-    if (typeof value === "string" || typeof value === "number") return value;
-    return value?.id ?? value?._id ?? null;
-  };
-  const hasFreelancerProfile = Boolean(
-    getFreelancerId(authUser?.profile?.freelancer) ||
-      getFreelancerId(authUser?.profile?.freelancerId) ||
-      getFreelancerId(authUser?.profile?.freelancerProfile) ||
-      getFreelancerId(authUser?.profile?.freelancerProfileId) ||
-      getFreelancerId(authUser?.freelancer) ||
-      getFreelancerId(authUser?.freelancerProfile) ||
-      authUser?.profile?.role === "freelancer" ||
-      authUser?.profile?.hasServiceProfile
-  );
+  const { hasFreelancerProfile } = getFreelancerProfileState(authUser);
 
-  // ✅ one place to show messages (cross-platform)
   const notify = (type: "success" | "error" | "info", message: string) => {
     if (Platform.OS === "android") {
-      // optional: keep native android toast
       ToastAndroid.show(message, ToastAndroid.LONG);
       return;
     }
 
-    // toastify-react-native
     if (type === "success") Toast.success(message);
     else if (type === "error") Toast.error(message);
     else Toast.info(message);
@@ -88,7 +76,7 @@ export default function SetUpProfile() {
         if (response?.status === 200) {
           setCategories(response.data.data);
         }
-      } catch (error) {
+      } catch {
         setErrorMessage("Something went wrong while fetching services!");
         setErrorVisible(true);
       } finally {
@@ -96,42 +84,40 @@ export default function SetUpProfile() {
       }
     };
 
-    getServices();
+    void getServices();
   }, [hasFreelancerProfile, router]);
 
   const handlePickProfileImage = async () => {
-  try {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: ["image/*"],
-      copyToCacheDirectory: true,
-    });
-
-    if (!result.canceled) {
-      const asset = result.assets?.[0];
-      const pickedName = asset?.name;
-      const uri = asset?.uri;
-      const mimeType = asset?.mimeType;
-
-      // 👇 web may provide a real File object here
-      const file = (asset as any)?.file ?? null;
-
-      if (!pickedName || !uri) {
-        notify("error", "Invalid image selected. Please try again.");
-        return;
-      }
-
-      setProfileImageUri({
-        fileUri: uri,
-        name: pickedName,
-        mimeType: mimeType || "image/jpeg",
-        file, // ✅ important for web
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ["image/*"],
+        copyToCacheDirectory: true,
       });
+
+      if (!result.canceled) {
+        const asset = result.assets?.[0];
+        const pickedName = asset?.name;
+        const uri = asset?.uri;
+        const mimeType = asset?.mimeType;
+        const file = (asset as any)?.file ?? null;
+
+        if (!pickedName || !uri) {
+          notify("error", "Invalid image selected. Please try again.");
+          return;
+        }
+
+        setProfileImageUri({
+          fileUri: uri,
+          name: pickedName,
+          mimeType: mimeType || "image/jpeg",
+          file,
+        });
+      }
+    } catch (error) {
+      console.error("File picker error:", error);
+      notify("error", "Error picking image. Please try again.");
     }
-  } catch (error) {
-    console.error("File picker error:", error);
-    notify("error", "Error picking image. Please try again.");
-  }
-};
+  };
 
   const handleUpdate = async () => {
     if (hasFreelancerProfile) {
@@ -167,7 +153,6 @@ export default function SetUpProfile() {
     formData.append("whatsappLink", whatsapp);
     formData.append("location", uni);
 
-    // ✅ Attach image correctly for each platform
     if (Platform.OS === "web") {
       let file = profileImageUri?.file as any;
 
@@ -200,18 +185,18 @@ export default function SetUpProfile() {
 
     try {
       const response = await AUTH_API_CLIENT.post("/freelancers/create", formData, {
-          headers:
-            Platform.OS === "web"
-      ? undefined // ✅ let axios/browser set boundary
-      : { "Content-Type": "multipart/form-data" },
-});
+        headers:
+          Platform.OS === "web"
+            ? undefined
+            : { "Content-Type": "multipart/form-data" },
+      });
+
       if (response.status === 200 || response.status === 201) {
         notify("success", "Profile created successfully");
 
-        const AuthUser = useAuthStore.getState().user;
+        const currentUser = useAuthStore.getState().user;
 
-        if (AuthUser) {
-          // Important: store a boolean/id that indicates profile exists
+        if (currentUser) {
           const createdFreelancerId =
             getFreelancerId(response?.data?.data) ||
             getFreelancerId(response?.data?.data?.freelancer) ||
@@ -219,21 +204,23 @@ export default function SetUpProfile() {
             getFreelancerId(response?.data?.data?.freelancerProfile) ||
             getFreelancerId(response?.data?.data?.freelancerProfileId);
 
-          const updatedUser = {
-            ...AuthUser,
-            profile: {
-              ...AuthUser.profile,
-              // keep your role if your backend uses it, but don't rely on role for navigation
-              role: "freelancer",
-              freelancer:
-                createdFreelancerId ??
-                getFreelancerId((AuthUser.profile as any)?.freelancer),
-              freelancerId:
-                createdFreelancerId ??
-                getFreelancerId((AuthUser.profile as any)?.freelancerId),
-              hasServiceProfile: true,
-            },
-          };
+          const updatedUser = mergeAuthUserProfile(currentUser, {
+            ...response?.data?.data,
+            role: "freelancer",
+            freelancer:
+              createdFreelancerId ??
+              getFreelancerId(currentUser?.profile?.freelancer),
+            freelancerId:
+              createdFreelancerId ??
+              getFreelancerId(currentUser?.profile?.freelancerId),
+            freelancerProfile:
+              createdFreelancerId ??
+              getFreelancerId(currentUser?.profile?.freelancerProfile),
+            freelancerProfileId:
+              createdFreelancerId ??
+              getFreelancerId(currentUser?.profile?.freelancerProfileId),
+            hasServiceProfile: true,
+          });
 
           useAuthStore.setState({ user: updatedUser });
           await AsyncStorage.setItem("User", JSON.stringify(updatedUser));
@@ -256,14 +243,10 @@ export default function SetUpProfile() {
       ) {
         const currentUser = useAuthStore.getState().user;
         if (currentUser) {
-          const updatedUser = {
-            ...currentUser,
-            profile: {
-              ...currentUser.profile,
-              role: "freelancer",
-              hasServiceProfile: true,
-            },
-          };
+          const updatedUser = mergeAuthUserProfile(currentUser, {
+            role: "freelancer",
+            hasServiceProfile: true,
+          });
           useAuthStore.setState({ user: updatedUser });
           await AsyncStorage.setItem("User", JSON.stringify(updatedUser));
         }
@@ -416,7 +399,6 @@ export default function SetUpProfile() {
         onClose={() => setErrorVisible(false)}
       />
 
-      {/* ✅ This is the correct JSX component for toastify-react-native */}
       <ToastManager />
     </ScrollView>
   );

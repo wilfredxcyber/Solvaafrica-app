@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import React, { useCallback, useLayoutEffect, useState } from "react";
 import { useFocusEffect, useRouter, useNavigation } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { globalStyles } from "@/src/styles/global";
 import { hscale, mscale, wscale } from "@/src/helpers/metric";
 import { colors } from "@/src/constants/theme";
@@ -20,10 +21,15 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AUTH_API_CLIENT } from "@/src/api/apiClient";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "@/src/stores/authStore";
+import {
+  getFreelancerProfileState,
+  mergeAuthUserProfile,
+} from "@/src/helpers/freelancerProfile";
 
 export default function ServiceProfile() {
   const navigation = useNavigation();
   const router = useRouter();
+  const authUser = useAuthStore((state) => state.user);
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any | null>(null);
@@ -31,33 +37,38 @@ export default function ServiceProfile() {
   const [reviewLoading, setReviewLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // freelancer is always just an ID
-  const freelancerId = useAuthStore((state) => state.user?.profile?.freelancer);
+  const { freelancerId, hasFreelancerProfile } =
+    getFreelancerProfileState(authUser);
 
-  // fetch full freelancer object
-  const getFreelancerInfo = async () => {
-    if (!freelancerId) return;
+  const syncFreelancerProfileState = useCallback(async () => {
+    const userId = authUser?.profile?.userID;
 
-    try {
-      setLoading(true);
-      const response = await AUTH_API_CLIENT.get(
-        `/freelancers/${freelancerId}`
-      );
-      if (response.status === 200) {
-        setUser(response.data.data.freelancer);
-        console.log(response.data.data.freelancer, "freelancer data");
-        getReviews(freelancerId);
-      }
-    } catch (error) {
-      console.error("Failed to fetch freelancer:", error);
-      setErrorMessage("Failed to load freelancer profile.");
-    } finally {
-      setLoading(false);
+    if (!authUser || !userId) {
+      return null;
     }
-  };
 
-  // fetch reviews
-  const getReviews = async (id: number) => {
+    const response = await AUTH_API_CLIENT.get(`/users/${userId}`, {
+      params: { _ts: Date.now() },
+      headers: {
+        "Cache-Control": "no-store, no-cache, max-age=0",
+        Pragma: "no-cache",
+      },
+    });
+
+    if (response.status !== 200) {
+      return null;
+    }
+
+    const updatedUser = mergeAuthUserProfile(authUser, response.data.data);
+    const refreshedState = getFreelancerProfileState(updatedUser);
+
+    useAuthStore.setState({ user: updatedUser });
+    await AsyncStorage.setItem("User", JSON.stringify(updatedUser));
+
+    return refreshedState;
+  }, [authUser]);
+
+  const getReviews = useCallback(async (id: string | number) => {
     try {
       setReviewLoading(true);
       const response = await AUTH_API_CLIENT.get(`/freelancers/comment/${id}`);
@@ -66,19 +77,80 @@ export default function ServiceProfile() {
       }
     } catch (err) {
       console.error("Failed to load reviews:", err);
+      setReviews([]);
     } finally {
       setReviewLoading(false);
     }
-  };
+  }, []);
 
-  // refetch when screen focuses
+  const getFreelancerInfo = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      let resolvedFreelancerId = freelancerId;
+      let resolvedHasFreelancerProfile = hasFreelancerProfile;
+
+      if (!resolvedFreelancerId) {
+        const refreshedState = await syncFreelancerProfileState();
+        resolvedFreelancerId = refreshedState?.freelancerId ?? null;
+        resolvedHasFreelancerProfile =
+          refreshedState?.hasFreelancerProfile ?? resolvedHasFreelancerProfile;
+      }
+
+      if (!resolvedFreelancerId) {
+        setUser(null);
+        setReviews([]);
+        setReviewLoading(false);
+
+        if (!resolvedHasFreelancerProfile) {
+          router.replace("/(services)/services-profile/setup-profile");
+          return;
+        }
+
+        setErrorMessage("We could not load your service profile. Please try again.");
+        return;
+      }
+
+      const response = await AUTH_API_CLIENT.get(
+        `/freelancers/${resolvedFreelancerId}`,
+        {
+          params: { _ts: Date.now() },
+          headers: {
+            "Cache-Control": "no-store, no-cache, max-age=0",
+            Pragma: "no-cache",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        const freelancer = response.data?.data?.freelancer ?? response.data?.data;
+        setUser(freelancer);
+        setErrorMessage("");
+        await getReviews(resolvedFreelancerId);
+        return;
+      }
+
+      setUser(null);
+      setReviews([]);
+      setReviewLoading(false);
+      setErrorMessage("Failed to load freelancer profile.");
+    } catch (error) {
+      console.error("Failed to fetch freelancer:", error);
+      setUser(null);
+      setReviews([]);
+      setReviewLoading(false);
+      setErrorMessage("Failed to load freelancer profile.");
+    } finally {
+      setLoading(false);
+    }
+  }, [freelancerId, getReviews, hasFreelancerProfile, router, syncFreelancerProfileState]);
+
   useFocusEffect(
     useCallback(() => {
-      getFreelancerInfo();
-    }, [freelancerId])
+      void getFreelancerInfo();
+    }, [getFreelancerInfo])
   );
 
-  // set header title and edit button
   useLayoutEffect(() => {
     if (!user) return;
     navigation.setOptions({
@@ -97,7 +169,7 @@ export default function ServiceProfile() {
         />
       ),
     });
-  }, [navigation, user]);
+  }, [navigation, router, user]);
 
   if (loading) {
     return (
@@ -129,11 +201,10 @@ export default function ServiceProfile() {
         </Text>
       </View>
     );
-  } 
+  }
 
   return (
     <ScrollView style={globalStyles.screen}>
-      {/* Profile Picture */}
       <View
         style={{
           height: hscale(123),
@@ -158,7 +229,6 @@ export default function ServiceProfile() {
         />
       </View>
 
-      {/* About */}
       <View>
         <Text
           style={{
@@ -182,7 +252,7 @@ export default function ServiceProfile() {
           {user?.bio || "No bio available"}
         </Text>
       </View>
-    
+
       <View>
         <Text
           style={{
@@ -207,7 +277,6 @@ export default function ServiceProfile() {
         </Text>
       </View>
 
-      {/* Portfolio */}
       <View>
         <Text
           style={{
@@ -257,7 +326,6 @@ export default function ServiceProfile() {
         From: NGN {user?.startingAmount || "N/A"}
       </Text>
 
-      {/* Contact Info */}
       <View>
         <Text
           style={{
@@ -301,7 +369,6 @@ export default function ServiceProfile() {
         </View>
       </View>
 
-      {/* Reviews */}
       <View>
         <Text
           style={{
@@ -381,32 +448,6 @@ export default function ServiceProfile() {
             No reviews yet.
           </Text>
         )}
-
-        {/* <TouchableOpacity
-          onPress={() =>
-            navigation.navigate("App", {
-              screen: "Review",
-              params: { userData: user },
-            })
-          }
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: mscale(10),
-            marginBottom: mscale(20),
-          }}
-        >
-          <Entypo name="plus" size={20} color={colors.primary} />
-          <Text
-            style={{
-              fontFamily: "Inter-Regular",
-              fontSize: mscale(16),
-              color: colors.primary,
-            }}
-          >
-            Add review
-          </Text>
-        </TouchableOpacity> */}
       </View>
     </ScrollView>
   );

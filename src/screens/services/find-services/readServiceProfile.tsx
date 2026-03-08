@@ -43,7 +43,14 @@ export default function ReadServiceProfile() {
     try {
       setLoading(true);
       const response = await AUTH_API_CLIENT.get(
-        `/freelancers/${freelancerId}`
+        `/freelancers/${freelancerId}`,
+        {
+          params: { _ts: Date.now() },
+          headers: {
+            "Cache-Control": "no-store, no-cache, max-age=0",
+            Pragma: "no-cache",
+          },
+        }
       );
       if (response.status === 200) {
         setUser(response.data.data.freelancer);

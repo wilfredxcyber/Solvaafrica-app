@@ -34,11 +34,35 @@ const splitFileName = (fileName: string) => {
   };
 };
 
-const buildStoredFileName = (originalFileName: string, fileCode?: string) => {
+const buildStableSuffix = (value?: string) => {
+  const input = String(value ?? "").trim();
+
+  if (!input) {
+    return "";
+  }
+
+  let hash = 0;
+
+  for (let index = 0; index < input.length; index += 1) {
+    hash = (hash * 31 + input.charCodeAt(index)) >>> 0;
+  }
+
+  return hash.toString(36);
+};
+
+const buildStoredFileName = (
+  originalFileName: string,
+  fileCode?: string,
+  sourceUrl?: string
+) => {
   const { baseName, extension } = splitFileName(originalFileName);
   const safeCode = (fileCode ?? "").trim().replace(/[^\w-]+/g, "_");
+  const uniqueSuffix = buildStableSuffix(sourceUrl);
+  const fileBaseName = uniqueSuffix ? `${baseName}_${uniqueSuffix}` : baseName;
 
-  return safeCode ? `${safeCode}_${baseName}${extension}` : `${baseName}${extension}`;
+  return safeCode
+    ? `${safeCode}_${fileBaseName}${extension}`
+    : `${fileBaseName}${extension}`;
 };
 
 const isAbsoluteHttpUrl = (uri: string) => {
@@ -144,6 +168,7 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
         filePath: normalizedDownloadUri, // Web: store URL reference; Mobile: updated after download
         parentDirectory: fileDirectory,
         fileCode: effectiveFileCode,
+        sourceUrl: normalizedDownloadUri,
         platform: Platform.OS,
         downloadDate: new Date().toISOString(),
       };
@@ -158,6 +183,7 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
           normalizedDownloadUri,
           originalFileName,
           effectiveFileCode,
+          normalizedDownloadUri,
           downloadedFileRef
         );
       }
@@ -179,17 +205,23 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
     try {
       const downloadRefsInStore = await AsyncStorage.getItem("DownloadRefs");
       if (downloadRefsInStore) {
-        const downloadRefsList = JSON.parse(downloadRefsInStore);
+        const downloadRefsList: DownloadedFileRef[] = JSON.parse(downloadRefsInStore);
 
         // Check if file already exists in references
         const existingIndex = downloadRefsList.findIndex((ref: DownloadedFileRef) => {
           const sameParent = ref.parentDirectory === downloadedFileRef.parentDirectory;
+          const sameSource =
+            !!ref.sourceUrl &&
+            !!downloadedFileRef.sourceUrl &&
+            ref.sourceUrl === downloadedFileRef.sourceUrl;
           const samePath = ref.filePath === downloadedFileRef.filePath;
           const sameFile =
+            !ref.sourceUrl &&
+            !downloadedFileRef.sourceUrl &&
             ref.fileName === downloadedFileRef.fileName &&
             (ref.fileCode ?? "") === (downloadedFileRef.fileCode ?? "");
 
-          return sameParent && (samePath || sameFile);
+          return sameParent && (sameSource || samePath || sameFile);
         });
 
         if (existingIndex >= 0) {
@@ -216,10 +248,11 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
     downloadFileUri: string,
     originalFileName: string,
     fileCode?: string,
+    sourceUrl?: string,
     downloadedFileRef?: DownloadedFileRef
   ) => {
     const filesDownloadsDirectoryPath = FileSystem.documentDirectory + `${fileDirectory}`;
-    const storedFileName = buildStoredFileName(originalFileName, fileCode);
+    const storedFileName = buildStoredFileName(originalFileName, fileCode, sourceUrl);
     const storedFilePath = `${filesDownloadsDirectoryPath}/${storedFileName}`;
     const filesDirectoryExist = (await FileSystem.getInfoAsync(filesDownloadsDirectoryPath)).exists;
 
@@ -231,6 +264,10 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
     const existingFileInfo = await FileSystem.getInfoAsync(storedFilePath);
 
     if (existingFileInfo.exists) {
+      if (downloadedFileRef) {
+        downloadedFileRef.filePath = storedFilePath;
+      }
+
       return {
         isExistingFile: true,
         fileUri: storedFilePath,
@@ -257,7 +294,10 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
     return { isExistingFile: null, fileUri: null, success: false };
   };
 
-  const handleWebDownload = async (downloadFileUri: string, downloadedFileRef?: DownloadedFileRef) => {
+  const handleWebDownload = async (
+    downloadFileUri: string,
+    downloadedFileRef?: DownloadedFileRef
+  ) => {
     /**
      * On web:
      * - Do NOT rely on HEAD requests: many CDNs / Firebase configurations can block it via CORS.
