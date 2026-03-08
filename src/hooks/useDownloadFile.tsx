@@ -74,41 +74,6 @@ const isAbsoluteHttpUrl = (uri: string) => {
   }
 };
 
-/**
- * Normalizes Firebase Storage download URLs to avoid double-encoding issues.
- * We ONLY touch the object path portion (after `/o/`) and leave query params (token) intact.
- */
-const normalizeFirebaseStorageUrl = (uri: string) => {
-  try {
-    const u = new URL(uri);
-
-    if (!u.hostname.toLowerCase().includes("firebasestorage.googleapis.com")) {
-      return uri;
-    }
-
-    // Expect: /v0/b/<bucket>/o/<encodedObjectPath>
-    const match = u.pathname.match(/^\/v0\/b\/[^/]+\/o\/(.+)$/);
-    if (!match) return uri;
-
-    const encodedObject = match[1];
-
-    // If it's double-encoded, you'll see `%25` sequences (because `%` becomes `%25`).
-    // Decode ONCE if needed, then encode properly once.
-    const decodedOnce = decodeURIComponent(encodedObject);
-    const reEncoded = encodeURIComponent(decodedOnce);
-
-    u.pathname = u.pathname.replace(encodedObject, reEncoded);
-
-    // Ensure alt=media stays (required for direct download)
-    if (u.searchParams.get("alt") !== "media") {
-      u.searchParams.set("alt", "media");
-    }
-
-    return u.toString();
-  } catch {
-    return uri;
-  }
-};
 
 const isValidDownloadUrl = (uri: string) => {
   if (!isAbsoluteHttpUrl(uri)) return false;
@@ -131,13 +96,7 @@ const isValidDownloadUrl = (uri: string) => {
   }
 };
 
-const buildNormalizedDownloadUrl = (rawUrl: string) => {
-  // Your helper may already do some cleanup; keep it.
-  const normalized = normalizeRemoteFileUrl(rawUrl);
-
-  // Then fix Firebase-specific double encoding (big source of 404s)
-  return normalizeFirebaseStorageUrl(normalized);
-};
+const buildNormalizedDownloadUrl = (rawUrl: string) => normalizeRemoteFileUrl(rawUrl);
 
 export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: string) => {
   const downloadFile = async (
@@ -307,42 +266,41 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
      * - If it looks like a valid URL, store it as a reference (success = true).
      * - Optionally, try a lightweight GET with Range to catch obvious 404s when supported.
      */
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 7000);
+
     try {
-      // Lightweight validation attempt (may fail due to CORS; we treat CORS failures as non-fatal)
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 7000);
+      const res = await fetch(downloadFileUri, {
+        method: "GET",
+        headers: { Range: "bytes=0-0" },
+        signal: controller.signal,
+      });
 
-      try {
-        const res = await fetch(downloadFileUri, {
-          method: "GET",
-          headers: { Range: "bytes=0-0" },
-          signal: controller.signal,
-        });
+      if (res.status === 404) {
+        console.error("Web download validation failed with 404", { downloadFileUri });
+        return { isExistingFile: null, fileUri: null, success: false };
+      }
 
-        // If the server clearly says 404, the link is wrong (often double-encoded or deleted file).
-        if (res.status === 404) {
-          throw new Error(
-            "File not found (404). The file may have been deleted or the URL is malformed."
-          );
-        }
-        // 200 / 206 are fine. Other statuses might be CORS or auth issues; we won't block.
-      } finally {
-        clearTimeout(timeout);
+      if (downloadedFileRef) {
+        downloadedFileRef.filePath = downloadFileUri;
       }
 
       return { isExistingFile: true, fileUri: downloadFileUri, success: true };
     } catch (error) {
       console.error("Web download validation warning (storing URL anyway):", error);
 
-      // Keep URL reference so user can still open it via viewer screens;
-      // your viewer will surface the real error if the URL is truly broken.
       if (downloadedFileRef) {
         downloadedFileRef.filePath = downloadFileUri;
       }
 
       return { isExistingFile: true, fileUri: downloadFileUri, success: true };
+    } finally {
+      clearTimeout(timeout);
     }
   };
 
   return downloadFile;
 };
+
+
+

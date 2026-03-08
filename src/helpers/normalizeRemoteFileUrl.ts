@@ -1,17 +1,11 @@
-const trimEncodedTrailingSpace = (value: string) => value.replace(/(?:%20)+$/gi, "");
-
 /**
- * Some URLs end up with "double-encoded" sequences like:
+ * Some URLs end up with double-encoded sequences like:
  *   documents%252Ffile.pdf
  * where %25 is the encoded "%" character.
- *
- * If decodeURIComponent fails due to any malformed "%" sequence,
- * we must still avoid re-encoding "%" again (which causes %252F).
  */
 const unwrapPercentEncodingSafely = (value: string, maxPasses: number = 3) => {
   let current = value;
 
-  // Unwrap %25 -> % repeatedly WITHOUT throwing
   for (let i = 0; i < maxPasses; i += 1) {
     const next = current.replace(/%25/gi, "%");
     if (next === current) break;
@@ -25,7 +19,6 @@ const safeDecodeURIComponent = (value: string) => {
   try {
     return decodeURIComponent(value);
   } catch {
-    // If it's malformed, return as-is (but at least we won't double-encode later)
     return value;
   }
 };
@@ -42,48 +35,51 @@ const decodeRepeatedlySafe = (value: string, maxPasses: number = 3) => {
   return current;
 };
 
+const isAbsoluteHttpUrl = (value: string) => /^https?:\/\//i.test(value);
+
+const shouldRepairFirebaseObjectPath = (value: string) =>
+  /%25/i.test(value) || /\s/.test(value) || value.includes("/");
+
 export const normalizeRemoteFileUrl = (rawUrl?: string | null) => {
   const input = String(rawUrl ?? "").trim();
   if (!input) return "";
 
-  try {
-    const maybeEncodedInput = input.replace(/\s+\?/g, "?");
+  const maybeEncodedInput = input.replace(/\s+\?/g, "?");
 
-    // If it's not an absolute URL, try decoding it into one.
-    const parsedInput = maybeEncodedInput.startsWith("http")
+  try {
+    const parsedInput = isAbsoluteHttpUrl(maybeEncodedInput)
       ? maybeEncodedInput
       : decodeRepeatedlySafe(maybeEncodedInput);
 
     const parsed = new URL(parsedInput);
     const host = parsed.hostname.toLowerCase();
 
-    if (host.includes("firebasestorage.googleapis.com")) {
-      const objectMarker = "/o/";
-      const markerIndex = parsed.pathname.indexOf(objectMarker);
-
-      if (markerIndex >= 0) {
-        const prefix = parsed.pathname.slice(0, markerIndex + objectMarker.length);
-        const rawObjectPath = parsed.pathname.slice(markerIndex + objectMarker.length);
-
-        // ✅ Step 1: unwrap %25 safely (prevents %252F problems)
-        const unwrapped = unwrapPercentEncodingSafely(rawObjectPath);
-
-        // ✅ Step 2: decode repeatedly but safely (won't break on malformed %)
-        const decodedObjectPath = decodeRepeatedlySafe(unwrapped);
-
-        // ✅ Step 3: clean and re-encode ONCE
-        const cleanedObjectPath = trimEncodedTrailingSpace(decodedObjectPath).trim();
-        parsed.pathname = `${prefix}${encodeURIComponent(cleanedObjectPath)}`;
-
-        // Ensure alt=media for direct file access (optional but recommended)
-        if (parsed.searchParams.get("alt") !== "media") {
-          parsed.searchParams.set("alt", "media");
-        }
-      }
+    if (!host.includes("firebasestorage.googleapis.com")) {
+      return parsed.toString();
     }
 
+    const objectMarker = "/o/";
+    const markerIndex = parsed.pathname.indexOf(objectMarker);
+
+    if (markerIndex < 0) {
+      return parsed.toString();
+    }
+
+    const prefix = parsed.pathname.slice(0, markerIndex + objectMarker.length);
+    const rawObjectPath = parsed.pathname.slice(markerIndex + objectMarker.length);
+
+    // Leave already-valid Firebase URLs untouched.
+    if (!shouldRepairFirebaseObjectPath(rawObjectPath)) {
+      return parsedInput;
+    }
+
+    const repairedObjectPath = encodeURIComponent(
+      decodeRepeatedlySafe(unwrapPercentEncodingSafely(rawObjectPath))
+    );
+
+    parsed.pathname = `${prefix}${repairedObjectPath}`;
     return parsed.toString();
   } catch {
-    return input.replace(/\s+\?/g, "?");
+    return maybeEncodedInput;
   }
 };

@@ -1,11 +1,12 @@
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Text, View, RefreshControl, StyleSheet, Platform } from "react-native";
+import { Alert, Text, View, RefreshControl, StyleSheet, Platform } from "react-native";
 import { router } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
 import * as FileSystem from "expo-file-system";
 import { useCallback, useState } from "react";
 import { normalizeRemoteFileUrl } from "../helpers/normalizeRemoteFileUrl";
+import { isRemoteFileMissing } from "../helpers/isRemoteFileMissing";
 
 import { DownloadItemView } from "../components/downloadItemView";
 import { hscale, mscale,wscale } from "../helpers/metric";
@@ -62,8 +63,17 @@ export default function DownloadScreen() {
     setRefreshing(false);
   };
 
-  const handleOpenItem = (item: DownloadedFileRef) => {
+  const handleOpenItem = async (item: DownloadedFileRef) => {
     const normalizedPath = normalizeRemoteFileUrl(item.filePath);
+
+    if (await isRemoteFileMissing(normalizedPath)) {
+      Alert.alert(
+        "File unavailable",
+        "This file link now returns 404 from storage. Download it again after the source link is fixed."
+      );
+      return;
+    }
+
     const lowerName = item.fileName?.toLowerCase() || "";
     const lowerPath = normalizedPath.toLowerCase();
     const isPdf = lowerName.endsWith(".pdf") || lowerPath.includes(".pdf");
@@ -205,3 +215,6 @@ const styles = StyleSheet.create({
     color: colors.bodyText,
   },
 });
+
+
+

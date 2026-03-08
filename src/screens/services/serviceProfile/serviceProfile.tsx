@@ -8,8 +8,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import React, { useCallback, useLayoutEffect, useState } from "react";
-import { useFocusEffect, useRouter, useNavigation } from "expo-router";
+import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { useRouter, useNavigation } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { globalStyles } from "@/src/styles/global";
 import { hscale, mscale, wscale } from "@/src/helpers/metric";
@@ -22,9 +22,20 @@ import { AUTH_API_CLIENT } from "@/src/api/apiClient";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "@/src/stores/authStore";
 import {
+  getFreelancerId,
   getFreelancerProfileState,
   mergeAuthUserProfile,
 } from "@/src/helpers/freelancerProfile";
+
+const createNoCacheRequestConfig = () => ({
+  params: { _ts: Date.now() },
+});
+
+const normalizePhone = (value?: string | null) =>
+  String(value ?? "").replace(/\D/g, "");
+
+const normalizeText = (value?: string | null) =>
+  String(value ?? "").trim().toLowerCase();
 
 export default function ServiceProfile() {
   const navigation = useNavigation();
@@ -40,33 +51,98 @@ export default function ServiceProfile() {
   const { freelancerId, hasFreelancerProfile } =
     getFreelancerProfileState(authUser);
 
-  const syncFreelancerProfileState = useCallback(async () => {
-    const userId = authUser?.profile?.userID;
+  const userId = String(authUser?.profile?.userID ?? "");
+  const userPhone = normalizePhone(authUser?.profile?.phone);
+  const userEmail = normalizeText(authUser?.profile?.email);
+  const userName = normalizeText(authUser?.profile?.fullName);
+  const userRole = authUser?.profile?.role;
 
-    if (!authUser || !userId) {
+  const persistResolvedFreelancer = useCallback(async (freelancerProfile: any) => {
+    const currentUser = useAuthStore.getState().user;
+    const resolvedFreelancerId = getFreelancerId(freelancerProfile?.id);
+    const currentFreelancerId = getFreelancerId(
+      currentUser?.profile?.freelancerId ??
+        currentUser?.profile?.freelancer ??
+        currentUser?.profile?.freelancerProfile ??
+        currentUser?.profile?.freelancerProfileId
+    );
+
+    if (!currentUser || !resolvedFreelancerId) {
+      return freelancerProfile ?? null;
+    }
+
+    if (
+      currentFreelancerId &&
+      String(currentFreelancerId) === String(resolvedFreelancerId) &&
+      currentUser?.profile?.hasServiceProfile
+    ) {
+      return freelancerProfile;
+    }
+
+    const updatedUser = mergeAuthUserProfile(currentUser, {
+      role: "freelancer",
+      freelancer: resolvedFreelancerId,
+      freelancerId: resolvedFreelancerId,
+      freelancerProfile: resolvedFreelancerId,
+      freelancerProfileId: resolvedFreelancerId,
+      hasServiceProfile: true,
+    });
+
+    useAuthStore.setState({ user: updatedUser });
+    await AsyncStorage.setItem("User", JSON.stringify(updatedUser));
+
+    return freelancerProfile;
+  }, []);
+
+  const findOwnFreelancerProfile = useCallback(async () => {
+    if (!userId) {
       return null;
     }
 
-    const response = await AUTH_API_CLIENT.get(`/users/${userId}`, {
-      params: { _ts: Date.now() },
-      headers: {
-        "Cache-Control": "no-store, no-cache, max-age=0",
-        Pragma: "no-cache",
-      },
-    });
+    const response = await AUTH_API_CLIENT.get(
+      "/freelancers",
+      createNoCacheRequestConfig()
+    );
 
     if (response.status !== 200) {
       return null;
     }
 
-    const updatedUser = mergeAuthUserProfile(authUser, response.data.data);
-    const refreshedState = getFreelancerProfileState(updatedUser);
+    const freelancers = Array.isArray(response.data?.data)
+      ? response.data.data
+      : [];
 
-    useAuthStore.setState({ user: updatedUser });
-    await AsyncStorage.setItem("User", JSON.stringify(updatedUser));
+    const ownerMatch = freelancers.find(
+      (current: any) => String(current?.owner ?? "") === userId
+    );
 
-    return refreshedState;
-  }, [authUser]);
+    const matchedFreelancer =
+      ownerMatch ||
+      freelancers.find(
+        (current: any) =>
+          Boolean(
+            userPhone &&
+              normalizePhone(current?.phoneNumber ?? current?.phone) === userPhone
+          )
+      ) ||
+      freelancers.find(
+        (current: any) =>
+          Boolean(
+            userEmail &&
+              normalizeText(current?.email ?? current?.user?.email) === userEmail
+          )
+      ) ||
+      freelancers.find(
+        (current: any) =>
+          Boolean(userName && normalizeText(current?.fullName) === userName)
+      );
+
+    if (!matchedFreelancer) {
+      return null;
+    }
+
+    return persistResolvedFreelancer(matchedFreelancer);
+  }, [persistResolvedFreelancer, userEmail, userId, userName, userPhone]);
 
   const getReviews = useCallback(async (id: string | number) => {
     try {
@@ -74,6 +150,8 @@ export default function ServiceProfile() {
       const response = await AUTH_API_CLIENT.get(`/freelancers/comment/${id}`);
       if (response.status === 200) {
         setReviews(response.data.data.comments || []);
+      } else {
+        setReviews([]);
       }
     } catch (err) {
       console.error("Failed to load reviews:", err);
@@ -83,26 +161,49 @@ export default function ServiceProfile() {
     }
   }, []);
 
+  const loadByFreelancerId = useCallback(async (id: string | number) => {
+    const response = await AUTH_API_CLIENT.get(
+      `/freelancers/${id}`,
+      createNoCacheRequestConfig()
+    );
+
+    if (response.status !== 200) {
+      return null;
+    }
+
+    return response.data?.data?.freelancer ?? response.data?.data ?? null;
+  }, []);
+
   const getFreelancerInfo = useCallback(async () => {
+    if (!authUser) {
+      setLoading(false);
+      setReviewLoading(false);
+      setUser(null);
+      setReviews([]);
+      setErrorMessage("Please sign in to view your service profile.");
+      return;
+    }
+
     try {
       setLoading(true);
+      setErrorMessage("");
 
-      let resolvedFreelancerId = freelancerId;
-      let resolvedHasFreelancerProfile = hasFreelancerProfile;
+      let freelancerProfile: any | null = null;
 
-      if (!resolvedFreelancerId) {
-        const refreshedState = await syncFreelancerProfileState();
-        resolvedFreelancerId = refreshedState?.freelancerId ?? null;
-        resolvedHasFreelancerProfile =
-          refreshedState?.hasFreelancerProfile ?? resolvedHasFreelancerProfile;
+      if (freelancerId) {
+        freelancerProfile = await loadByFreelancerId(freelancerId);
       }
 
-      if (!resolvedFreelancerId) {
+      if (!freelancerProfile && (hasFreelancerProfile || userRole === "freelancer")) {
+        freelancerProfile = await findOwnFreelancerProfile();
+      }
+
+      if (!freelancerProfile) {
         setUser(null);
         setReviews([]);
         setReviewLoading(false);
 
-        if (!resolvedHasFreelancerProfile) {
+        if (userRole !== "freelancer" && !hasFreelancerProfile) {
           router.replace("/(services)/services-profile/setup-profile");
           return;
         }
@@ -111,29 +212,8 @@ export default function ServiceProfile() {
         return;
       }
 
-      const response = await AUTH_API_CLIENT.get(
-        `/freelancers/${resolvedFreelancerId}`,
-        {
-          params: { _ts: Date.now() },
-          headers: {
-            "Cache-Control": "no-store, no-cache, max-age=0",
-            Pragma: "no-cache",
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        const freelancer = response.data?.data?.freelancer ?? response.data?.data;
-        setUser(freelancer);
-        setErrorMessage("");
-        await getReviews(resolvedFreelancerId);
-        return;
-      }
-
-      setUser(null);
-      setReviews([]);
-      setReviewLoading(false);
-      setErrorMessage("Failed to load freelancer profile.");
+      setUser(freelancerProfile);
+      await getReviews(freelancerProfile.id);
     } catch (error) {
       console.error("Failed to fetch freelancer:", error);
       setUser(null);
@@ -143,13 +223,25 @@ export default function ServiceProfile() {
     } finally {
       setLoading(false);
     }
-  }, [freelancerId, getReviews, hasFreelancerProfile, router, syncFreelancerProfileState]);
+  }, [
+    authUser,
+    findOwnFreelancerProfile,
+    freelancerId,
+    getReviews,
+    hasFreelancerProfile,
+    loadByFreelancerId,
+    router,
+    userRole,
+  ]);
 
-  useFocusEffect(
-    useCallback(() => {
-      void getFreelancerInfo();
-    }, [getFreelancerInfo])
-  );
+  useEffect(() => {
+    if (!authUser) {
+      setLoading(false);
+      return;
+    }
+
+    void getFreelancerInfo();
+  }, [authUser?.profile?.userID]);
 
   useLayoutEffect(() => {
     if (!user) return;

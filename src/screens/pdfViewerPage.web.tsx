@@ -4,22 +4,12 @@ import { useMemo } from "react";
 import { hscale } from "../helpers/metric";
 import { normalizeRemoteFileUrl } from "../helpers/normalizeRemoteFileUrl";
 
-function safeDecodeOnce(value: string) {
-  try {
-    if (/%[0-9A-Fa-f]{2}/.test(value)) return decodeURIComponent(value);
-    return value;
-  } catch {
-    return value;
-  }
-}
-
 export default function PdfViewerPageWeb() {
   const params = useLocalSearchParams<{ pdfUri?: string; url?: string }>();
 
   const pdfUri = useMemo(() => {
     const raw = (params.pdfUri || params.url || "").toString();
-    const decodedOnce = safeDecodeOnce(raw);
-    return normalizeRemoteFileUrl(decodedOnce);
+    return normalizeRemoteFileUrl(raw);
   }, [params.pdfUri, params.url]);
 
   const width = Dimensions.get("window").width;

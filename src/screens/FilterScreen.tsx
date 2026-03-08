@@ -1,9 +1,10 @@
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import { Alert, StyleSheet, Text, View, ScrollView } from "react-native";
 import { useCallback, useEffect, useState } from "react";
 import { router } from "expo-router";
 import { normalizeRemoteFileUrl } from "../helpers/normalizeRemoteFileUrl";
+import { isRemoteFileMissing } from "../helpers/isRemoteFileMissing";
 
 import { DownloadItemView } from "../components/downloadItemView";
 import { SearchBoxView } from "../components/searchBoxView";
@@ -100,6 +101,15 @@ export default function FilterScreen() {
 
   const handleOpenItem = async (item: DownloadedFileRef) => {
     const normalizedPath = normalizeRemoteFileUrl(item.filePath);
+
+    if (await isRemoteFileMissing(normalizedPath)) {
+      Alert.alert(
+        "File unavailable",
+        "This file link now returns 404 from storage. Download it again after the source link is fixed."
+      );
+      return;
+    }
+
     const lowerName = item.fileName?.toLowerCase() || "";
     const lowerPath = normalizedPath.toLowerCase();
     const isPdf = lowerName.endsWith(".pdf") || lowerPath.includes(".pdf");
@@ -262,3 +272,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
 });
+
+
