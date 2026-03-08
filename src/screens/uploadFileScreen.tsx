@@ -7,7 +7,6 @@ import { Image } from "expo-image";
 
 import { colors, screenHorizontalPadding } from "../constants/theme";
 import { hscale, mscale, wscale } from "../helpers/metric";
-import ProtectPage from "../components/protectPage";
 import { PickedFile } from "../types";
 import ToastManager, { Toast } from "toastify-react-native";
 
@@ -51,7 +50,7 @@ export default function UploadFilesScreen() {
   };
 
   return (
-    <ProtectPage>
+    <>
       <View style={{ backgroundColor: colors.primary, flex: 1 }}>
         {/* Back button */}
         <Pressable
@@ -205,8 +204,9 @@ export default function UploadFilesScreen() {
           </View>
         </View>
       </View>
-
       <ToastManager />
-    </ProtectPage>
+    </>
   );
 }
+
+

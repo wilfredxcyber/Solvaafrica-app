@@ -8,8 +8,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import React, { useCallback, useLayoutEffect, useState } from "react";
-import { useFocusEffect, useRouter, useNavigation } from "expo-router";
+import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { useRouter, useNavigation } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { globalStyles } from "@/src/styles/global";
 import { hscale, mscale, wscale } from "@/src/helpers/metric";
 import { colors } from "@/src/constants/theme";
@@ -20,10 +21,26 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AUTH_API_CLIENT } from "@/src/api/apiClient";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "@/src/stores/authStore";
+import {
+  getFreelancerId,
+  getFreelancerProfileState,
+  mergeAuthUserProfile,
+} from "@/src/helpers/freelancerProfile";
+
+const createNoCacheRequestConfig = () => ({
+  params: { _ts: Date.now() },
+});
+
+const normalizePhone = (value?: string | null) =>
+  String(value ?? "").replace(/\D/g, "");
+
+const normalizeText = (value?: string | null) =>
+  String(value ?? "").trim().toLowerCase();
 
 export default function ServiceProfile() {
   const navigation = useNavigation();
   const router = useRouter();
+  const authUser = useAuthStore((state) => state.user);
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any | null>(null);
@@ -31,54 +48,201 @@ export default function ServiceProfile() {
   const [reviewLoading, setReviewLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // freelancer is always just an ID
-  const freelancerId = useAuthStore((state) => state.user?.profile?.freelancer);
+  const { freelancerId, hasFreelancerProfile } =
+    getFreelancerProfileState(authUser);
 
-  // fetch full freelancer object
-  const getFreelancerInfo = async () => {
-    if (!freelancerId) return;
+  const userId = String(authUser?.profile?.userID ?? "");
+  const userPhone = normalizePhone(authUser?.profile?.phone);
+  const userEmail = normalizeText(authUser?.profile?.email);
+  const userName = normalizeText(authUser?.profile?.fullName);
+  const userRole = authUser?.profile?.role;
 
-    try {
-      setLoading(true);
-      const response = await AUTH_API_CLIENT.get(
-        `/freelancers/${freelancerId}`
-      );
-      if (response.status === 200) {
-        setUser(response.data.data.freelancer);
-        console.log(response.data.data.freelancer, "freelancer data");
-        getReviews(freelancerId);
-      }
-    } catch (error) {
-      console.error("Failed to fetch freelancer:", error);
-      setErrorMessage("Failed to load freelancer profile.");
-    } finally {
-      setLoading(false);
+  const persistResolvedFreelancer = useCallback(async (freelancerProfile: any) => {
+    const currentUser = useAuthStore.getState().user;
+    const resolvedFreelancerId = getFreelancerId(freelancerProfile?.id);
+    const currentFreelancerId = getFreelancerId(
+      currentUser?.profile?.freelancerId ??
+        currentUser?.profile?.freelancer ??
+        currentUser?.profile?.freelancerProfile ??
+        currentUser?.profile?.freelancerProfileId
+    );
+
+    if (!currentUser || !resolvedFreelancerId) {
+      return freelancerProfile ?? null;
     }
-  };
 
-  // fetch reviews
-  const getReviews = async (id: number) => {
+    if (
+      currentFreelancerId &&
+      String(currentFreelancerId) === String(resolvedFreelancerId) &&
+      currentUser?.profile?.hasServiceProfile
+    ) {
+      return freelancerProfile;
+    }
+
+    const updatedUser = mergeAuthUserProfile(currentUser, {
+      role: "freelancer",
+      freelancer: resolvedFreelancerId,
+      freelancerId: resolvedFreelancerId,
+      freelancerProfile: resolvedFreelancerId,
+      freelancerProfileId: resolvedFreelancerId,
+      hasServiceProfile: true,
+    });
+
+    useAuthStore.setState({ user: updatedUser });
+    await AsyncStorage.setItem("User", JSON.stringify(updatedUser));
+
+    return freelancerProfile;
+  }, []);
+
+  const findOwnFreelancerProfile = useCallback(async () => {
+    if (!userId) {
+      return null;
+    }
+
+    const response = await AUTH_API_CLIENT.get(
+      "/freelancers",
+      createNoCacheRequestConfig()
+    );
+
+    if (response.status !== 200) {
+      return null;
+    }
+
+    const freelancers = Array.isArray(response.data?.data)
+      ? response.data.data
+      : [];
+
+    const ownerMatch = freelancers.find(
+      (current: any) => String(current?.owner ?? "") === userId
+    );
+
+    const matchedFreelancer =
+      ownerMatch ||
+      freelancers.find(
+        (current: any) =>
+          Boolean(
+            userPhone &&
+              normalizePhone(current?.phoneNumber ?? current?.phone) === userPhone
+          )
+      ) ||
+      freelancers.find(
+        (current: any) =>
+          Boolean(
+            userEmail &&
+              normalizeText(current?.email ?? current?.user?.email) === userEmail
+          )
+      ) ||
+      freelancers.find(
+        (current: any) =>
+          Boolean(userName && normalizeText(current?.fullName) === userName)
+      );
+
+    if (!matchedFreelancer) {
+      return null;
+    }
+
+    return persistResolvedFreelancer(matchedFreelancer);
+  }, [persistResolvedFreelancer, userEmail, userId, userName, userPhone]);
+
+  const getReviews = useCallback(async (id: string | number) => {
     try {
       setReviewLoading(true);
       const response = await AUTH_API_CLIENT.get(`/freelancers/comment/${id}`);
       if (response.status === 200) {
         setReviews(response.data.data.comments || []);
+      } else {
+        setReviews([]);
       }
     } catch (err) {
       console.error("Failed to load reviews:", err);
+      setReviews([]);
     } finally {
       setReviewLoading(false);
     }
-  };
+  }, []);
 
-  // refetch when screen focuses
-  useFocusEffect(
-    useCallback(() => {
-      getFreelancerInfo();
-    }, [freelancerId])
-  );
+  const loadByFreelancerId = useCallback(async (id: string | number) => {
+    const response = await AUTH_API_CLIENT.get(
+      `/freelancers/${id}`,
+      createNoCacheRequestConfig()
+    );
 
-  // set header title and edit button
+    if (response.status !== 200) {
+      return null;
+    }
+
+    return response.data?.data?.freelancer ?? response.data?.data ?? null;
+  }, []);
+
+  const getFreelancerInfo = useCallback(async () => {
+    if (!authUser) {
+      setLoading(false);
+      setReviewLoading(false);
+      setUser(null);
+      setReviews([]);
+      setErrorMessage("Please sign in to view your service profile.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setErrorMessage("");
+
+      let freelancerProfile: any | null = null;
+
+      if (freelancerId) {
+        freelancerProfile = await loadByFreelancerId(freelancerId);
+      }
+
+      if (!freelancerProfile && (hasFreelancerProfile || userRole === "freelancer")) {
+        freelancerProfile = await findOwnFreelancerProfile();
+      }
+
+      if (!freelancerProfile) {
+        setUser(null);
+        setReviews([]);
+        setReviewLoading(false);
+
+        if (userRole !== "freelancer" && !hasFreelancerProfile) {
+          router.replace("/(services)/services-profile/setup-profile");
+          return;
+        }
+
+        setErrorMessage("We could not load your service profile. Please try again.");
+        return;
+      }
+
+      setUser(freelancerProfile);
+      await getReviews(freelancerProfile.id);
+    } catch (error) {
+      console.error("Failed to fetch freelancer:", error);
+      setUser(null);
+      setReviews([]);
+      setReviewLoading(false);
+      setErrorMessage("Failed to load freelancer profile.");
+    } finally {
+      setLoading(false);
+    }
+  }, [
+    authUser,
+    findOwnFreelancerProfile,
+    freelancerId,
+    getReviews,
+    hasFreelancerProfile,
+    loadByFreelancerId,
+    router,
+    userRole,
+  ]);
+
+  useEffect(() => {
+    if (!authUser) {
+      setLoading(false);
+      return;
+    }
+
+    void getFreelancerInfo();
+  }, [authUser?.profile?.userID]);
+
   useLayoutEffect(() => {
     if (!user) return;
     navigation.setOptions({
@@ -97,7 +261,7 @@ export default function ServiceProfile() {
         />
       ),
     });
-  }, [navigation, user]);
+  }, [navigation, router, user]);
 
   if (loading) {
     return (
@@ -129,11 +293,10 @@ export default function ServiceProfile() {
         </Text>
       </View>
     );
-  } 
+  }
 
   return (
     <ScrollView style={globalStyles.screen}>
-      {/* Profile Picture */}
       <View
         style={{
           height: hscale(123),
@@ -158,7 +321,6 @@ export default function ServiceProfile() {
         />
       </View>
 
-      {/* About */}
       <View>
         <Text
           style={{
@@ -182,7 +344,7 @@ export default function ServiceProfile() {
           {user?.bio || "No bio available"}
         </Text>
       </View>
-    
+
       <View>
         <Text
           style={{
@@ -207,7 +369,6 @@ export default function ServiceProfile() {
         </Text>
       </View>
 
-      {/* Portfolio */}
       <View>
         <Text
           style={{
@@ -257,7 +418,6 @@ export default function ServiceProfile() {
         From: NGN {user?.startingAmount || "N/A"}
       </Text>
 
-      {/* Contact Info */}
       <View>
         <Text
           style={{
@@ -301,7 +461,6 @@ export default function ServiceProfile() {
         </View>
       </View>
 
-      {/* Reviews */}
       <View>
         <Text
           style={{
@@ -381,32 +540,6 @@ export default function ServiceProfile() {
             No reviews yet.
           </Text>
         )}
-
-        {/* <TouchableOpacity
-          onPress={() =>
-            navigation.navigate("App", {
-              screen: "Review",
-              params: { userData: user },
-            })
-          }
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: mscale(10),
-            marginBottom: mscale(20),
-          }}
-        >
-          <Entypo name="plus" size={20} color={colors.primary} />
-          <Text
-            style={{
-              fontFamily: "Inter-Regular",
-              fontSize: mscale(16),
-              color: colors.primary,
-            }}
-          >
-            Add review
-          </Text>
-        </TouchableOpacity> */}
       </View>
     </ScrollView>
   );

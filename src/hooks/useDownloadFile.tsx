@@ -34,11 +34,35 @@ const splitFileName = (fileName: string) => {
   };
 };
 
-const buildStoredFileName = (originalFileName: string, fileCode?: string) => {
+const buildStableSuffix = (value?: string) => {
+  const input = String(value ?? "").trim();
+
+  if (!input) {
+    return "";
+  }
+
+  let hash = 0;
+
+  for (let index = 0; index < input.length; index += 1) {
+    hash = (hash * 31 + input.charCodeAt(index)) >>> 0;
+  }
+
+  return hash.toString(36);
+};
+
+const buildStoredFileName = (
+  originalFileName: string,
+  fileCode?: string,
+  sourceUrl?: string
+) => {
   const { baseName, extension } = splitFileName(originalFileName);
   const safeCode = (fileCode ?? "").trim().replace(/[^\w-]+/g, "_");
+  const uniqueSuffix = buildStableSuffix(sourceUrl);
+  const fileBaseName = uniqueSuffix ? `${baseName}_${uniqueSuffix}` : baseName;
 
-  return safeCode ? `${safeCode}_${baseName}${extension}` : `${baseName}${extension}`;
+  return safeCode
+    ? `${safeCode}_${fileBaseName}${extension}`
+    : `${fileBaseName}${extension}`;
 };
 
 const isAbsoluteHttpUrl = (uri: string) => {
@@ -50,41 +74,6 @@ const isAbsoluteHttpUrl = (uri: string) => {
   }
 };
 
-/**
- * Normalizes Firebase Storage download URLs to avoid double-encoding issues.
- * We ONLY touch the object path portion (after `/o/`) and leave query params (token) intact.
- */
-const normalizeFirebaseStorageUrl = (uri: string) => {
-  try {
-    const u = new URL(uri);
-
-    if (!u.hostname.toLowerCase().includes("firebasestorage.googleapis.com")) {
-      return uri;
-    }
-
-    // Expect: /v0/b/<bucket>/o/<encodedObjectPath>
-    const match = u.pathname.match(/^\/v0\/b\/[^/]+\/o\/(.+)$/);
-    if (!match) return uri;
-
-    const encodedObject = match[1];
-
-    // If it's double-encoded, you'll see `%25` sequences (because `%` becomes `%25`).
-    // Decode ONCE if needed, then encode properly once.
-    const decodedOnce = decodeURIComponent(encodedObject);
-    const reEncoded = encodeURIComponent(decodedOnce);
-
-    u.pathname = u.pathname.replace(encodedObject, reEncoded);
-
-    // Ensure alt=media stays (required for direct download)
-    if (u.searchParams.get("alt") !== "media") {
-      u.searchParams.set("alt", "media");
-    }
-
-    return u.toString();
-  } catch {
-    return uri;
-  }
-};
 
 const isValidDownloadUrl = (uri: string) => {
   if (!isAbsoluteHttpUrl(uri)) return false;
@@ -107,13 +96,7 @@ const isValidDownloadUrl = (uri: string) => {
   }
 };
 
-const buildNormalizedDownloadUrl = (rawUrl: string) => {
-  // Your helper may already do some cleanup; keep it.
-  const normalized = normalizeRemoteFileUrl(rawUrl);
-
-  // Then fix Firebase-specific double encoding (big source of 404s)
-  return normalizeFirebaseStorageUrl(normalized);
-};
+const buildNormalizedDownloadUrl = (rawUrl: string) => normalizeRemoteFileUrl(rawUrl);
 
 export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: string) => {
   const downloadFile = async (
@@ -144,6 +127,7 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
         filePath: normalizedDownloadUri, // Web: store URL reference; Mobile: updated after download
         parentDirectory: fileDirectory,
         fileCode: effectiveFileCode,
+        sourceUrl: normalizedDownloadUri,
         platform: Platform.OS,
         downloadDate: new Date().toISOString(),
       };
@@ -158,6 +142,7 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
           normalizedDownloadUri,
           originalFileName,
           effectiveFileCode,
+          normalizedDownloadUri,
           downloadedFileRef
         );
       }
@@ -179,17 +164,23 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
     try {
       const downloadRefsInStore = await AsyncStorage.getItem("DownloadRefs");
       if (downloadRefsInStore) {
-        const downloadRefsList = JSON.parse(downloadRefsInStore);
+        const downloadRefsList: DownloadedFileRef[] = JSON.parse(downloadRefsInStore);
 
         // Check if file already exists in references
         const existingIndex = downloadRefsList.findIndex((ref: DownloadedFileRef) => {
           const sameParent = ref.parentDirectory === downloadedFileRef.parentDirectory;
+          const sameSource =
+            !!ref.sourceUrl &&
+            !!downloadedFileRef.sourceUrl &&
+            ref.sourceUrl === downloadedFileRef.sourceUrl;
           const samePath = ref.filePath === downloadedFileRef.filePath;
           const sameFile =
+            !ref.sourceUrl &&
+            !downloadedFileRef.sourceUrl &&
             ref.fileName === downloadedFileRef.fileName &&
             (ref.fileCode ?? "") === (downloadedFileRef.fileCode ?? "");
 
-          return sameParent && (samePath || sameFile);
+          return sameParent && (sameSource || samePath || sameFile);
         });
 
         if (existingIndex >= 0) {
@@ -216,10 +207,11 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
     downloadFileUri: string,
     originalFileName: string,
     fileCode?: string,
+    sourceUrl?: string,
     downloadedFileRef?: DownloadedFileRef
   ) => {
     const filesDownloadsDirectoryPath = FileSystem.documentDirectory + `${fileDirectory}`;
-    const storedFileName = buildStoredFileName(originalFileName, fileCode);
+    const storedFileName = buildStoredFileName(originalFileName, fileCode, sourceUrl);
     const storedFilePath = `${filesDownloadsDirectoryPath}/${storedFileName}`;
     const filesDirectoryExist = (await FileSystem.getInfoAsync(filesDownloadsDirectoryPath)).exists;
 
@@ -231,6 +223,10 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
     const existingFileInfo = await FileSystem.getInfoAsync(storedFilePath);
 
     if (existingFileInfo.exists) {
+      if (downloadedFileRef) {
+        downloadedFileRef.filePath = storedFilePath;
+      }
+
       return {
         isExistingFile: true,
         fileUri: storedFilePath,
@@ -257,7 +253,10 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
     return { isExistingFile: null, fileUri: null, success: false };
   };
 
-  const handleWebDownload = async (downloadFileUri: string, downloadedFileRef?: DownloadedFileRef) => {
+  const handleWebDownload = async (
+    downloadFileUri: string,
+    downloadedFileRef?: DownloadedFileRef
+  ) => {
     /**
      * On web:
      * - Do NOT rely on HEAD requests: many CDNs / Firebase configurations can block it via CORS.
@@ -267,42 +266,41 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
      * - If it looks like a valid URL, store it as a reference (success = true).
      * - Optionally, try a lightweight GET with Range to catch obvious 404s when supported.
      */
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 7000);
+
     try {
-      // Lightweight validation attempt (may fail due to CORS; we treat CORS failures as non-fatal)
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 7000);
+      const res = await fetch(downloadFileUri, {
+        method: "GET",
+        headers: { Range: "bytes=0-0" },
+        signal: controller.signal,
+      });
 
-      try {
-        const res = await fetch(downloadFileUri, {
-          method: "GET",
-          headers: { Range: "bytes=0-0" },
-          signal: controller.signal,
-        });
+      if (res.status === 404) {
+        console.error("Web download validation failed with 404", { downloadFileUri });
+        return { isExistingFile: null, fileUri: null, success: false };
+      }
 
-        // If the server clearly says 404, the link is wrong (often double-encoded or deleted file).
-        if (res.status === 404) {
-          throw new Error(
-            "File not found (404). The file may have been deleted or the URL is malformed."
-          );
-        }
-        // 200 / 206 are fine. Other statuses might be CORS or auth issues; we won't block.
-      } finally {
-        clearTimeout(timeout);
+      if (downloadedFileRef) {
+        downloadedFileRef.filePath = downloadFileUri;
       }
 
       return { isExistingFile: true, fileUri: downloadFileUri, success: true };
     } catch (error) {
       console.error("Web download validation warning (storing URL anyway):", error);
 
-      // Keep URL reference so user can still open it via viewer screens;
-      // your viewer will surface the real error if the URL is truly broken.
       if (downloadedFileRef) {
         downloadedFileRef.filePath = downloadFileUri;
       }
 
       return { isExistingFile: true, fileUri: downloadFileUri, success: true };
+    } finally {
+      clearTimeout(timeout);
     }
   };
 
   return downloadFile;
 };
+
+
+

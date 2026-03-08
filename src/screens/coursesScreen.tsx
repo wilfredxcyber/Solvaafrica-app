@@ -8,9 +8,8 @@ import { colors, screenHorizontalPadding } from "../constants/theme";
 import { universities, faculties } from "../constants/data";
 import { hscale, mscale, wscale } from "../helpers/metric";
 import PrimaryButton from "../components/primaryButton";
-import ProtectPage from "../components/protectPage";
 import { globalStyles } from "../styles/global";
-import { CoursesList } from "./index";
+import CoursesList from "./coursesList";
 
 export default function CoursesScreen() {
   const params = useLocalSearchParams();
@@ -94,7 +93,6 @@ export default function CoursesScreen() {
   }
 
   return (
-    <ProtectPage>
       <View style={globalStyles.screen}>
         <View style={{ gap: 12 }}>
           <DropDownPicker
@@ -120,7 +118,6 @@ export default function CoursesScreen() {
           </View>
         </View>
       </View>
-    </ProtectPage>
   );
 }
 
@@ -241,3 +238,5 @@ const styles = StyleSheet.create({
     color: colors.black,
   },
 });
+
+

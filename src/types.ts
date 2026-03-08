@@ -34,6 +34,7 @@ export interface DownloadedFileRef {
   filePath: string;
   parentDirectory: FileDirectory;
   fileCode?: string;
+  sourceUrl?: string;
   platform?: string; // 'web' | 'ios' | 'android'
   downloadDate?: string;
 }

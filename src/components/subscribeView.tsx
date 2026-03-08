@@ -86,7 +86,7 @@ export default function SubscribeView() {
         <SubButton
           handleOnPress={() => handleSubButtonPress("Premium")}
           subPlan="Premium"
-          subPrice="1,999"
+          subPrice="999"
           isActive={activePlan === "Premium" ? true : false}
         />
         {activePlan === "Premium" && (
@@ -120,7 +120,7 @@ export default function SubscribeView() {
 
 interface SubButtonProps {
   subPlan: "Premium" | "Basic";
-  subPrice: "999" | "1,999";
+  subPrice: "999";
   isActive: boolean;
   handleOnPress: () => void;
 }
@@ -160,7 +160,7 @@ const SubButton = ({
           color: isActive ? colors.primary : colors.bodyText,
         }}
       >
-        {`₦ ${subPrice}${subPlan === "Premium" ? " / 3months" : " / month"}`}
+        {`\u20A6 ${subPrice} / month`}
       </Text>
     </Pressable>
   );

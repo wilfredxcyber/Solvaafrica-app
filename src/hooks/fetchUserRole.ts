@@ -1,5 +1,7 @@
 import { AUTH_API_CLIENT } from "../api/apiClient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { normalizeUserProfile } from "../helpers/freelancerProfile";
+
 type Role = "user" | "freelancer";
 
 export const fetchUserRole = async (): Promise<Role | null> => {
@@ -14,31 +16,21 @@ export const fetchUserRole = async (): Promise<Role | null> => {
     if (!userId || !tokens) return null;
 
     const res = await AUTH_API_CLIENT.get(`/users/${userId}`, {
-      headers: { Authorization: `Bearer ${tokens.accessToken}` },
+      params: { _ts: Date.now() },
+      headers: {
+        Authorization: `Bearer ${tokens.accessToken}`,
+        "Cache-Control": "no-store, no-cache, max-age=0",
+        Pragma: "no-cache",
+      },
     });
 
     if (res.status === 200) {
       const profileData = res.data.data as any;
-      const { role } = profileData as { role: string };
+      const normalizedProfile = normalizeUserProfile(profileData, parsed.profile);
+      const { role } = normalizedProfile as { role: string };
 
       if (role === "user" || role === "freelancer") {
-        parsed.profile = {
-          ...parsed.profile,
-          role,
-          freelancer: profileData?.freelancer ?? parsed.profile?.freelancer,
-          freelancerId: profileData?.freelancerId ?? parsed.profile?.freelancerId,
-          freelancerProfile:
-            profileData?.freelancerProfile ?? parsed.profile?.freelancerProfile,
-          freelancerProfileId:
-            profileData?.freelancerProfileId ?? parsed.profile?.freelancerProfileId,
-          hasServiceProfile: Boolean(
-            profileData?.freelancer ||
-              profileData?.freelancerId ||
-              profileData?.freelancerProfile ||
-              profileData?.freelancerProfileId ||
-              role === "freelancer"
-          ),
-        };
+        parsed.profile = normalizedProfile;
         await AsyncStorage.setItem("User", JSON.stringify(parsed));
         return role;
       }

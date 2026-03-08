@@ -5,25 +5,13 @@ import Pdf from "react-native-pdf";
 import { hscale } from "../helpers/metric";
 import { normalizeRemoteFileUrl } from "../helpers/normalizeRemoteFileUrl";
 
-function safeDecodeOnce(value: string) {
-  // If the param looks like it's URL-encoded (contains %3A, %2F, etc), decode once.
-  // If it's already decoded, this does nothing harmful.
-  try {
-    if (/%[0-9A-Fa-f]{2}/.test(value)) return decodeURIComponent(value);
-    return value;
-  } catch {
-    return value;
-  }
-}
-
 export default function PdfViewerPage() {
   const params = useLocalSearchParams<{ pdfUri?: string; url?: string }>();
   const [loading, setLoading] = useState(true);
 
   const pdfUri = useMemo(() => {
     const raw = (params.pdfUri || params.url || "").toString();
-    const decodedOnce = safeDecodeOnce(raw);
-    return normalizeRemoteFileUrl(decodedOnce);
+    return normalizeRemoteFileUrl(raw);
   }, [params.pdfUri, params.url]);
 
   const pdfSource = { uri: pdfUri, cache: true };

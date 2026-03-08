@@ -14,27 +14,13 @@ import { useAuthStore } from "@/src/stores/authStore";
 
 export default function ServicesScreen() {
   const router = useRouter();
-  const AuthUser = useAuthStore((state) => state.user);
-  const getFreelancerId = (value: any) => {
-    if (!value) return null;
-    if (typeof value === "string" || typeof value === "number") return value;
-    return value?.id ?? value?._id ?? null;
-  };
-
-  const hasFreelancerProfile = Boolean(
-    getFreelancerId(AuthUser?.profile?.freelancer) ||
-      getFreelancerId(AuthUser?.profile?.freelancerId) ||
-      getFreelancerId(AuthUser?.profile?.freelancerProfile) ||
-      getFreelancerId(AuthUser?.profile?.freelancerProfileId) ||
-      getFreelancerId(AuthUser?.freelancer) ||
-      getFreelancerId(AuthUser?.freelancerProfile)
-  );
+  const authUser = useAuthStore((state) => state.user);
 
   const handleNav = () => {
     router.push("/(services)/find-service");
   };
 
-  if (!AuthUser) {
+  if (!authUser) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -104,17 +90,13 @@ export default function ServicesScreen() {
                   textAlign: "center",
                 }}
               >
-                I'm looking for talented people to work with
+                I&apos;m looking for talented people to work with
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={() =>
-                router.push(
-                  hasFreelancerProfile
-                    ? "/(services)/services-profile/service-profile"
-                    : "/(services)/services-profile/setup-profile"
-                )
+                router.push("/(services)/services-profile/service-profile")
               }
               style={styles.box}
             >
@@ -139,13 +121,13 @@ export default function ServicesScreen() {
                   textAlign: "center",
                 }}
               >
-                I'd like to offer my services
+                I&apos;d like to offer my services
               </Text>
             </TouchableOpacity>
           </View>
 
           <Text style={styles.title}>
-            Find & connect with service{"\n"}providers around you!
+            Find &amp; connect with service{"\n"}providers around you!
           </Text>
         </View>
       </ImageBackground>

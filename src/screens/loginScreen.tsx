@@ -1,4 +1,12 @@
-import { View, Text, StyleSheet, TextInput, Alert, Image, Platform, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Image,
+  Platform,
+  ScrollView,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "@expo/vector-icons/Feather";
 import { useRef, useState } from "react";
@@ -16,6 +24,7 @@ import { globalStyles } from "../styles/global";
 import { colors } from "../constants/theme";
 import Logo from "../components/logo";
 import ErrorModal from "../components/errorModal";
+import { normalizeUserProfile } from "../helpers/freelancerProfile";
 
 export default function LoginScreen() {
   const [form, setForm] = useState<ILoginForm>({ email: "", password: "" });
@@ -36,15 +45,13 @@ export default function LoginScreen() {
     if (!email || !password) return;
     setIsLoading(true);
     try {
-      //login
       const res = await PUB_API_CLIENT.post("/users/login", form);
 
       if (res.status === 200) {
-        const { data: UserData } = res.data;
-        const userId = UserData.user.id;
-        const tokens = UserData.tokens;
+        const { data: userData } = res.data;
+        const userId = userData.user.id;
+        const tokens = userData.tokens;
 
-        // get user
         const getUserRes = await PUB_API_CLIENT.get(`/users/${userId}`, {
           headers: { Authorization: `Bearer ${tokens.accessToken}` },
         });
@@ -54,41 +61,9 @@ export default function LoginScreen() {
 
           console.log("User", data);
 
-          // save user
-          const {
-            fullName,
-            gender,
-            email,
-            address,
-            phone,
-            referralCode,
-            role,
-            freelancer,
-            freelancerId,
-            freelancerProfile,
-            freelancerProfileId,
-          } = data;
-          const userProfile: UserProfile = {
-            fullName,
-            gender,
-            email,
-            address,
-            phone,
-            referralCode,
+          const userProfile: UserProfile = normalizeUserProfile(data, {
             userID: userId,
-            role,
-            freelancer,
-            freelancerId,
-            freelancerProfile,
-            freelancerProfileId,
-            hasServiceProfile: Boolean(
-              freelancer ||
-                freelancerId ||
-                freelancerProfile ||
-                freelancerProfileId ||
-                role === "freelancer"
-            ),
-          };
+          });
           const user: { profile: UserProfile; tokens: Tokens | null } = {
             profile: userProfile,
             tokens,
@@ -97,11 +72,9 @@ export default function LoginScreen() {
           await AsyncStorage.setItem("User", JSON.stringify(user));
           console.log("Auth User: \n", user);
 
-          // store user in global store
           useAuthStore.setState((state) => ({ ...state, user }));
-          
-          // ✅ NAVIGATE TO MAIN APP
-          router.replace('/(tabs)');
+
+          router.replace("/(tabs)");
           return;
         }
       }
@@ -121,14 +94,13 @@ export default function LoginScreen() {
     }
   };
 
-  return(
+  return (
     <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
       <View style={[globalStyles.screen, styles.container]}>
         <View style={styles.logoContainer}>
           <Logo />
         </View>
 
-        {/* form view */}
         <View style={styles.formView}>
           <View>
             <Image
@@ -141,7 +113,7 @@ export default function LoginScreen() {
             customStyle={{ textAlign: "center" }}
           />
           <Text style={styles.subtitle}>
-            It's good to have you back. Always a good time to learn and earn
+            It&apos;s good to have you back. Always a good time to learn and earn
           </Text>
 
           <View style={{ marginTop: hscale(20), gap: hscale(8) }}>
@@ -156,7 +128,9 @@ export default function LoginScreen() {
                 placeholder="Email"
                 style={styles.input}
                 value={form.email}
-                onChangeText={(email) => setForm((prev) => ({ ...prev, email }))}
+                onChangeText={(nextEmail) =>
+                  setForm((prev) => ({ ...prev, email: nextEmail }))
+                }
               />
             </View>
 
@@ -171,8 +145,8 @@ export default function LoginScreen() {
                 placeholder="Password"
                 style={styles.input}
                 value={form.password}
-                onChangeText={(password) =>
-                  setForm((prev) => ({ ...prev, password }))
+                onChangeText={(nextPassword) =>
+                  setForm((prev) => ({ ...prev, password: nextPassword }))
                 }
               />
 
@@ -190,7 +164,7 @@ export default function LoginScreen() {
             <PrimaryButton text="Login" onPress={handleFormSubmit} />
             <TextLinkButton
               text="Forgot password"
-              onPress={() => router.push('/(auth)/forgot-password')}
+              onPress={() => router.push("/(auth)/forgot-password")}
             />
           </View>
         </View>
@@ -208,17 +182,17 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
   },
-  
+
   container: {
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     ...Platform.select({
       web: {
-        height: '100vh' as any,
-        maxHeight: '100vh' as any,
-      }
-    })
+        height: "100vh" as any,
+        maxHeight: "100vh" as any,
+      },
+    }),
   },
   logoContainer: {
     marginHorizontal: "auto",
@@ -248,9 +222,9 @@ const styles = StyleSheet.create({
       } as any,
     }),
   },
-  formView: { 
+  formView: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     minHeight: 0,
   },
   helloImage: {
