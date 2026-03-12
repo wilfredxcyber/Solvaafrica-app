@@ -27,7 +27,10 @@ import ErrorModal from "../components/errorModal";
 import { normalizeUserProfile } from "../helpers/freelancerProfile";
 
 export default function LoginScreen() {
-  const [form, setForm] = useState<ILoginForm>({ email: "", password: "" });
+  const [form, setForm] = useState<ILoginForm>({
+    email: "Marvis.david124@gmail.com",
+    password: "Marvis124",
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errorVisible, setErrorVisible] = useState(false);
@@ -113,7 +116,8 @@ export default function LoginScreen() {
             customStyle={{ textAlign: "center" }}
           />
           <Text style={styles.subtitle}>
-            It&apos;s good to have you back. Always a good time to learn and earn
+            It&apos;s good to have you back. Always a good time to learn and
+            earn
           </Text>
 
           <View style={{ marginTop: hscale(20), gap: hscale(8) }}>

@@ -1,26 +1,81 @@
-import { Dimensions, StyleSheet, View } from "react-native";
+import {
+  Dimensions,
+  StyleSheet,
+  View,
+  ActivityIndicator,
+  Text,
+} from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Pdf from "react-native-pdf";
 import { hscale } from "../helpers/metric";
-import { normalizeRemoteFileUrl } from "../helpers/normalizeRemoteFileUrl";
 
-export default function PdfViewerPageWeb() {
-  const params = useLocalSearchParams<{ pdfUri?: string; url?: string }>();
+export default function PdfViewerPage() {
+  const { id } = useLocalSearchParams();
 
-  const pdfUri = useMemo(() => {
-    const raw = (params.pdfUri || params.url || "").toString();
-    return normalizeRemoteFileUrl(raw);
-  }, [params.pdfUri, params.url]);
+  const [pdfUri, setPdfUri] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const width = Dimensions.get("window").width;
-  const height = Dimensions.get("window").height;
+  useEffect(() => {
+    const loadFile = async () => {
+      try {
+        const stored = await AsyncStorage.getItem("DownloadRefs");
+        const list = stored ? JSON.parse(stored) : [];
+
+        const file = list[id ? Number(id) : 0];
+
+        if (file?.sourceUrl) {
+          setPdfUri(file.sourceUrl.trim());
+        }
+      } catch (err) {
+        console.log("PDF load error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFile();
+  }, [id]);
+
+  const source = useMemo(
+    () =>
+      pdfUri
+        ? {
+            uri: pdfUri,
+            cache: true,
+            headers: { Accept: "application/pdf" },
+          }
+        : null,
+    [pdfUri],
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" />
+        <Text>Loading PDF...</Text>
+      </View>
+    );
+  }
+
+  if (!source) {
+    return (
+      <View style={styles.loader}>
+        <Text>PDF not available</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <iframe
-        src={pdfUri}
-        style={{ width, height, border: "none" }}
-        title="PDF Viewer"
+      <Pdf
+        source={source}
+        style={styles.pdf}
+        trustAllCerts={false}
+        onLoadComplete={(pages) => console.log("Pages:", pages)}
+        onPageChanged={(page) => console.log("Page:", page)}
+        onError={(err) => console.log("PDF error:", err)}
       />
     </View>
   );
@@ -29,8 +84,16 @@ export default function PdfViewerPageWeb() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "flex-start",
-    alignItems: "center",
     marginTop: hscale(25),
+  },
+  pdf: {
+    flex: 1,
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

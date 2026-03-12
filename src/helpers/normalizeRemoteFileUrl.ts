@@ -66,16 +66,24 @@ export const normalizeRemoteFileUrl = (rawUrl?: string | null) => {
     }
 
     const prefix = parsed.pathname.slice(0, markerIndex + objectMarker.length);
-    const rawObjectPath = parsed.pathname.slice(markerIndex + objectMarker.length);
+    const rawObjectPath = parsed.pathname.slice(
+      markerIndex + objectMarker.length,
+    );
 
     // Leave already-valid Firebase URLs untouched.
     if (!shouldRepairFirebaseObjectPath(rawObjectPath)) {
       return parsedInput;
     }
 
-    const repairedObjectPath = encodeURIComponent(
-      decodeRepeatedlySafe(unwrapPercentEncodingSafely(rawObjectPath))
+    const decodedPath = decodeRepeatedlySafe(
+      unwrapPercentEncodingSafely(rawObjectPath),
     );
+
+    // encode but preserve slashes
+    const repairedObjectPath = decodedPath
+      .split("/")
+      .map((segment) => encodeURIComponent(segment))
+      .join("%2F");
 
     parsed.pathname = `${prefix}${repairedObjectPath}`;
     return parsed.toString();
