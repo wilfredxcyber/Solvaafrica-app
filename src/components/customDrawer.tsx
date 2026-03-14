@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   socialIconsView: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: "100%",
+    width: "80%",
     alignSelf: "center",
   },
   logoutView: {
