@@ -14,8 +14,12 @@ import ErrorModal from "../components/errorModal";
 export default function CourseMaterials() {
   const params = useLocalSearchParams();
   const { courseId, headerTitle, courseCode } = params;
-  const headerTitleString = Array.isArray(headerTitle) ? headerTitle[0] : headerTitle;
-  const courseCodeString = Array.isArray(courseCode) ? courseCode[0] : courseCode;
+  const headerTitleString = Array.isArray(headerTitle)
+    ? headerTitle[0]
+    : headerTitle;
+  const courseCodeString = Array.isArray(courseCode)
+    ? courseCode[0]
+    : courseCode;
   const [courses, setCourses] = useState<any[] | []>([]);
   const [fetchingCourseMaterials, setFetchingCourseMaterials] =
     useState<boolean>(false);
@@ -93,8 +97,13 @@ const CourseItemView = ({
 }) => {
   const handleImagePress = () => {
     router.push({
-      pathname: '/courses/download-material',
-      params: { url, screenTitle: title, originalFileName: fileName, fileCode: courseCode }
+      pathname: "/courses/download-material",
+      params: {
+        url,
+        screenTitle: title,
+        originalFileName: fileName,
+        fileCode: courseCode,
+      },
     });
   };
   return (

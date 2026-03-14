@@ -1,4 +1,12 @@
-import { View, Text, StyleSheet, Pressable, Dimensions, Modal, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Dimensions,
+  Modal,
+  Alert,
+} from "react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import DropdownIcon from "@expo/vector-icons/Entypo";
@@ -23,11 +31,10 @@ export default function CoursesScreen() {
 
   const allUniversities = useMemo(() => universities, []);
 
-  // New data.ts exports faculties separately (not nested under a university)
   const facultyList = useMemo(() => faculties, []);
 
   const departmentList = useMemo(() => {
-    const selectedFaculty = facultyList.find(f => f.name === faculty);
+    const selectedFaculty = facultyList.find((f) => f.name === faculty);
     return selectedFaculty?.departments ?? [];
   }, [facultyList, faculty]);
 
@@ -35,7 +42,6 @@ export default function CoursesScreen() {
    * STATE SYNC
    * ============================ */
 
-  // Initialize with first university if none selected
   useEffect(() => {
     if (allUniversities.length && !university) {
       setUniversity(allUniversities[0]);
@@ -43,7 +49,6 @@ export default function CoursesScreen() {
   }, [allUniversities]);
 
   useEffect(() => {
-    // Keep faculty aligned with selected university.
     const facultyExists = facultyList.some((f) => f.name === faculty);
 
     if (facultyList.length && !facultyExists) {
@@ -54,7 +59,6 @@ export default function CoursesScreen() {
   }, [facultyList, faculty]);
 
   useEffect(() => {
-    // Keep department aligned with selected faculty.
     const departmentExists = departmentList.includes(department);
 
     if (departmentList.length && !departmentExists) {
@@ -70,7 +74,10 @@ export default function CoursesScreen() {
 
   const handleSearch = () => {
     if (!university || !faculty || !department) {
-      Alert.alert("Missing Information", "Please select all fields before searching");
+      Alert.alert(
+        "Missing Information",
+        "Please select all fields before searching",
+      );
       return;
     }
 
@@ -84,45 +91,51 @@ export default function CoursesScreen() {
     });
   };
 
-  const universityParam = Array.isArray(params.university) ? params.university[0] : params.university;
-  const facultyParam = Array.isArray(params.faculty) ? params.faculty[0] : params.faculty;
-  const departmentParam = Array.isArray(params.department) ? params.department[0] : params.department;
+  const universityParam = Array.isArray(params.university)
+    ? params.university[0]
+    : params.university;
+  const facultyParam = Array.isArray(params.faculty)
+    ? params.faculty[0]
+    : params.faculty;
+  const departmentParam = Array.isArray(params.department)
+    ? params.department[0]
+    : params.department;
 
   if (universityParam && facultyParam && departmentParam) {
     return <CoursesList />;
   }
 
   return (
-      <View style={globalStyles.screen}>
-        <View style={{ gap: 12 }}>
-          <DropDownPicker
-            data={allUniversities}
-            setSelectedValue={setUniversity}
-            defaultValue={university}
-          />
+    <View style={globalStyles.screen}>
+      <View style={{ gap: 12 }}>
+        <DropDownPicker
+          data={allUniversities}
+          setSelectedValue={setUniversity}
+          defaultValue={university}
+        />
 
-          <DropDownPicker
-            data={facultyList.map(f => f.name)}
-            setSelectedValue={setFaculty}
-            defaultValue={faculty}
-          />
+        <DropDownPicker
+          data={facultyList.map((f) => f.name)}
+          setSelectedValue={setFaculty}
+          defaultValue={faculty}
+        />
 
-          <DropDownPicker
-            data={departmentList}
-            setSelectedValue={setDepartment}
-            defaultValue={department}
-          />
+        <DropDownPicker
+          data={departmentList}
+          setSelectedValue={setDepartment}
+          defaultValue={department}
+        />
 
-          <View style={{ marginTop: hscale(40) }}>
-            <PrimaryButton text="Search" onPress={handleSearch} />
-          </View>
+        <View style={{ marginTop: hscale(40) }}>
+          <PrimaryButton text="Search" onPress={handleSearch} />
         </View>
       </View>
+    </View>
   );
 }
 
 /** ============================
- * DROPDOWN (UNCHANGED STYLING)
+ * DROPDOWN
  * ============================ */
 
 interface DropdownPickerProps {
@@ -131,13 +144,30 @@ interface DropdownPickerProps {
   defaultValue: string;
 }
 
-function DropDownPicker({ data, setSelectedValue, defaultValue }: DropdownPickerProps) {
+function DropDownPicker({
+  data,
+  setSelectedValue,
+  defaultValue,
+}: DropdownPickerProps) {
   const [dropdownIsVisibile, setDropdownIsVisibile] = useState(false);
+
   const dropdownViewRef = useRef<View | null>(null);
-  const [dropdownViewPos, setDropdownViewPos] = useState(0);
+
+  const [dropdownY, setDropdownY] = useState(0);
+  const [dropdownX, setDropdownX] = useState(0);
+  const [dropdownWidth, setDropdownWidth] = useState(0);
+
+  /** Measure input position and width */
+  const measureDropdown = () => {
+    dropdownViewRef.current?.measureInWindow((x, y, width, height) => {
+      setDropdownX(x);
+      setDropdownY(y + height);
+      setDropdownWidth(width);
+    });
+  };
 
   useEffect(() => {
-    dropdownViewRef.current?.measureInWindow((_, y) => setDropdownViewPos(y));
+    measureDropdown();
   }, []);
 
   const handleSelect = useCallback(
@@ -145,7 +175,7 @@ function DropDownPicker({ data, setSelectedValue, defaultValue }: DropdownPicker
       setSelectedValue(item);
       setDropdownIsVisibile(false);
     },
-    [setSelectedValue]
+    [setSelectedValue],
   );
 
   const renderItem = useCallback(
@@ -154,22 +184,32 @@ function DropDownPicker({ data, setSelectedValue, defaultValue }: DropdownPicker
         <Text
           style={[
             styles.dropDownListItem,
-            { borderBottomWidth: index + 1 === data.length ? 0 : StyleSheet.hairlineWidth },
+            {
+              borderBottomWidth:
+                index + 1 === data.length ? 0 : StyleSheet.hairlineWidth,
+            },
           ]}
         >
           {item}
         </Text>
       </Pressable>
     ),
-    [data.length, handleSelect]
+    [data.length, handleSelect],
   );
 
   return (
     <View ref={dropdownViewRef}>
-      <Pressable onPress={() => setDropdownIsVisibile(v => !v)} style={styles.dropdownInputContainer}>
+      <Pressable
+        onPress={() => {
+          measureDropdown();
+          setDropdownIsVisibile((v) => !v);
+        }}
+        style={styles.dropdownInputContainer}
+      >
         <Text numberOfLines={1} style={styles.dropdownValueText}>
           {defaultValue}
         </Text>
+
         <DropdownIcon
           name={dropdownIsVisibile ? "chevron-small-up" : "chevron-small-down"}
           size={20}
@@ -180,19 +220,25 @@ function DropDownPicker({ data, setSelectedValue, defaultValue }: DropdownPicker
       {dropdownIsVisibile && (
         <Modal transparent>
           <Pressable
+            style={styles.overlay}
             onPress={() => setDropdownIsVisibile(false)}
-            style={{ paddingHorizontal: screenHorizontalPadding, height: Dimensions.get("screen").height }}
           >
             <View
               style={[
                 styles.dropDownContainer,
-                { width: "100%", height: hscale(300), marginTop: dropdownViewPos + hscale(68) },
+                {
+                  position: "absolute",
+                  top: dropdownY,
+                  left: dropdownX,
+                  width: dropdownWidth,
+                  height: hscale(300),
+                },
               ]}
             >
               <FlashList
                 data={data}
                 renderItem={renderItem}
-                estimatedItemSize={data.length}
+                estimatedItemSize={50}
                 keyExtractor={(item, index) => index + item}
               />
             </View>
@@ -201,9 +247,13 @@ function DropDownPicker({ data, setSelectedValue, defaultValue }: DropdownPicker
       )}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+  },
+
   dropDownListItem: {
     fontFamily: "Inter-Medium",
     fontSize: mscale(14),
@@ -212,6 +262,7 @@ const styles = StyleSheet.create({
     padding: wscale(20),
     color: colors.bodyText,
   },
+
   dropDownContainer: {
     elevation: 5,
     shadowColor: colors.primary,
@@ -222,6 +273,7 @@ const styles = StyleSheet.create({
     paddingVertical: hscale(20),
     borderRadius: mscale(8),
   },
+
   dropdownInputContainer: {
     height: hscale(56),
     justifyContent: "space-between",
@@ -231,6 +283,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wscale(20),
     borderRadius: mscale(50),
   },
+
   dropdownValueText: {
     flex: 1,
     fontFamily: "Inter-Regular",
@@ -238,5 +291,3 @@ const styles = StyleSheet.create({
     color: colors.black,
   },
 });
-
-

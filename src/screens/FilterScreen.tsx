@@ -64,7 +64,7 @@ export default function FilterScreen() {
       }
 
       let filtered = downloads.filter(
-        (item) => item.parentDirectory === currentTab
+        (item) => item.parentDirectory === currentTab,
       );
 
       if (filterQuery.trim().length > 0) {
@@ -75,7 +75,7 @@ export default function FilterScreen() {
               .includes(filterQuery.toLowerCase().trim()) ||
             item.fileName
               .toLowerCase()
-              .includes(filterQuery.toLowerCase().trim())
+              .includes(filterQuery.toLowerCase().trim()),
         );
       }
 
@@ -92,7 +92,7 @@ export default function FilterScreen() {
   useFocusEffect(
     useCallback(() => {
       getDownloads();
-    }, [getDownloads])
+    }, [getDownloads]),
   );
 
   const handleSearchInputTextChange = (text: string) => {
@@ -105,7 +105,7 @@ export default function FilterScreen() {
     if (await isRemoteFileMissing(normalizedPath)) {
       Alert.alert(
         "File unavailable",
-        "This file link now returns 404 from storage. Download it again after the source link is fixed."
+        "This file link now returns 404 from storage. Download it again after the source link is fixed.",
       );
       return;
     }
@@ -272,5 +272,3 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
 });
-
-

@@ -16,7 +16,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import LogoutIcon from "@expo/vector-icons/MaterialIcons";
 import SocialIcon from "@expo/vector-icons/FontAwesome";
 import { useState } from "react";
-import {router} from "expo-router";
+import { router } from "expo-router";
 
 import { colors, screenHorizontalPadding } from "../constants/theme";
 import { hscale, mscale, wscale } from "../helpers/metric";
@@ -24,15 +24,13 @@ import { useAuthStore } from "../stores/authStore";
 import LoadingView from "./loadingView";
 import AvatarView from "./avatarView";
 import ErrorModal from "./errorModal";
-import  Profile from "../screens/Drawer/Profile";
-import  Complaints from "../screens/Drawer/Complaints";
+import Profile from "../screens/Drawer/Profile";
+import Complaints from "../screens/Drawer/Complaints";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import { globalStyles } from "../styles/global";
 
 type DrawerSection = "profile" | "complaints" | null;
-
-
 
 export default function CustomDrawer(props: DrawerContentComponentProps) {
   const { navigation } = props;
@@ -45,35 +43,33 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
   const authUser = useAuthStore((state) => state.user);
   const fullName = authUser?.profile?.fullName ?? "";
 
-
- const toggleSection = (section: DrawerSection) => {
- setOpenSection(prev => (prev === section ? null : section));
-};
-
+  const toggleSection = (section: DrawerSection) => {
+    setOpenSection((prev) => (prev === section ? null : section));
+  };
 
   const handleSocialIconPressed = async (icon: "tw" | "ig" | "fb" | "tt") => {
     try {
       if (icon === "tw") {
         await Linking.openURL(
-          "https://x.com/solva_africa?t=GTrgJcb-uy8BOkJ94_3cfw&s=09"
+          "https://x.com/solva_africa?t=GTrgJcb-uy8BOkJ94_3cfw&s=09",
         );
       }
 
       if (icon === "fb") {
         await Linking.openURL(
-          "https://www.facebook.com/profile.php?id=61562756354347"
+          "https://www.facebook.com/profile.php?id=61562756354347",
         );
       }
 
       if (icon === "ig") {
         await Linking.openURL(
-          "https://www.instagram.com/solva_africa?igsh=eGF1eW1rYWx0bWxy"
+          "https://www.instagram.com/solva_africa?igsh=eGF1eW1rYWx0bWxy",
         );
       }
 
       if (icon === "tt") {
         await Linking.openURL(
-          "https://www.tiktok.com/@solva_africa?_t=ZS-8zTTXNGGpmy&_r=1"
+          "https://www.tiktok.com/@solva_africa?_t=ZS-8zTTXNGGpmy&_r=1",
         );
       }
     } catch (error) {
@@ -84,7 +80,6 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
     }
   };
 
-  
   const logoutUser = async () => {
     try {
       setIsLoading(true);
@@ -131,10 +126,10 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
     <DrawerContentScrollView style={styles.drawerView}>
       <View style={styles.drawerHeaderView}>
         <Image
-        source={require("../../assets/images/Person.png")} 
-        style={styles.avatar}
-        resizeMode="contain"
-      />
+          source={require("../../assets/images/Person.png")}
+          style={styles.avatar}
+          resizeMode="contain"
+        />
         <Text
           style={{
             fontFamily: "Inter-Bold",
@@ -146,45 +141,53 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         </Text>
       </View>
 
-        <Pressable
-           onPress={() => toggleSection("profile")}
-            style={styles.customDrawerItem}
-        >
-          <Text
-            style={[
-            styles.activeScreenTextLink,
-            { color: openSection === "profile" ? colors.primary : colors.bodyText },]}
-          >
-             Profile
-          </Text>
-        </Pressable>
-
-        {openSection === "profile" && (
-        <View style={{ paddingVertical: hscale(16) }}>
-        <Profile />
-      </View>
-    )}
-
       <Pressable
-       onPress={() => toggleSection("complaints")}
-       style={styles.customDrawerItem}
+        onPress={() => toggleSection("profile")}
+        style={styles.customDrawerItem}
       >
         <Text
           style={[
-          styles.activeScreenTextLink,
-          { color: openSection === "complaints" ? colors.primary : colors.bodyText },]}
-          >
+            styles.activeScreenTextLink,
+            {
+              color:
+                openSection === "profile" ? colors.primary : colors.bodyText,
+            },
+          ]}
+        >
+          Profile
+        </Text>
+      </Pressable>
+
+      {openSection === "profile" && (
+        <View style={{ paddingVertical: hscale(16) }}>
+          <Profile />
+        </View>
+      )}
+
+      <Pressable
+        onPress={() => toggleSection("complaints")}
+        style={styles.customDrawerItem}
+      >
+        <Text
+          style={[
+            styles.activeScreenTextLink,
+            {
+              color:
+                openSection === "complaints" ? colors.primary : colors.bodyText,
+            },
+          ]}
+        >
           Complaints
         </Text>
       </Pressable>
 
       {openSection === "complaints" && (
-      <View style={{ paddingVertical: hscale(16) }}>
-      <Complaints />
-    </View>
-)}
+        <View style={{ paddingVertical: hscale(16) }}>
+          <Complaints />
+        </View>
+      )}
 
-     {/* This footer stays at the bottom and is always visible */}
+      {/* This footer stays at the bottom and is always visible */}
       <View style={styles.footer}>
         <View style={styles.socialIconsView}>
           <SocialIcon
@@ -242,7 +245,7 @@ const styles = StyleSheet.create({
   socialIconsView: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: "80%",
+    width: "100%",
     alignSelf: "center",
   },
   logoutView: {
@@ -261,13 +264,13 @@ const styles = StyleSheet.create({
     borderColor: "#C9CFC9",
     justifyContent: "center",
   },
-   avatar: {
+  avatar: {
     width: 90,
     height: 90,
   },
 
   footer: {
-    marginTop: 'auto', // This pushes footer to bottom
+    marginTop: "auto", // This pushes footer to bottom
     paddingTop: hscale(180),
     paddingBottom: hscale(40),
   },

@@ -15,10 +15,16 @@ export default function DownloadCourseMaterial() {
   const navigation = useNavigation();
   const [startDownload, setStartDownload] = useState(false);
   const [fileExist, setFileExist] = useState(false);
-  const fileCode = Array.isArray(params.fileCode) ? params.fileCode[0] : params.fileCode;
-  const screenTitle = Array.isArray(params.screenTitle) ? params.screenTitle[0] : params.screenTitle;
+  const fileCode = Array.isArray(params.fileCode)
+    ? params.fileCode[0]
+    : params.fileCode;
+  const screenTitle = Array.isArray(params.screenTitle)
+    ? params.screenTitle[0]
+    : params.screenTitle;
   const url = Array.isArray(params.url) ? params.url[0] : params.url;
-  const originalFileName = Array.isArray(params.originalFileName) ? params.originalFileName[0] : params.originalFileName;
+  const originalFileName = Array.isArray(params.originalFileName)
+    ? params.originalFileName[0]
+    : params.originalFileName;
   const downloadFile = useDownloadFile(startDownload, fileCode);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,7 +43,7 @@ export default function DownloadCourseMaterial() {
         const { isExistingFile } = await downloadFile(
           "Courses",
           url,
-          originalFileName
+          originalFileName,
         );
         if (isExistingFile) {
           setFileExist(true);
@@ -65,7 +71,7 @@ export default function DownloadCourseMaterial() {
   };
 
   const handleOpenDownloads = () => {
-    router.replace('/(tabs)/downloads');
+    router.replace("/(tabs)/downloads");
   };
 
   return (

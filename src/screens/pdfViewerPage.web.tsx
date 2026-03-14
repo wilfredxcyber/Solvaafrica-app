@@ -4,17 +4,19 @@ import {
   View,
   ActivityIndicator,
   Text,
+  Platform,
 } from "react-native";
+
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Pdf from "react-native-pdf";
+import { WebView } from "react-native-webview";
 import { hscale } from "../helpers/metric";
 
 export default function PdfViewerPage() {
   const { id } = useLocalSearchParams();
 
-  const [pdfUri, setPdfUri] = useState(null);
+  const [viewerUrl, setViewerUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,7 +28,13 @@ export default function PdfViewerPage() {
         const file = list[id ? Number(id) : 0];
 
         if (file?.sourceUrl) {
-          setPdfUri(file.sourceUrl.trim());
+          const cleanUrl = file.sourceUrl.trim();
+
+          const url =
+            "https://docs.google.com/gview?embedded=true&url=" +
+            encodeURIComponent(cleanUrl);
+
+          setViewerUrl(url);
         }
       } catch (err) {
         console.log("PDF load error:", err);
@@ -38,18 +46,6 @@ export default function PdfViewerPage() {
     loadFile();
   }, [id]);
 
-  const source = useMemo(
-    () =>
-      pdfUri
-        ? {
-            uri: pdfUri,
-            cache: true,
-            headers: { Accept: "application/pdf" },
-          }
-        : null,
-    [pdfUri],
-  );
-
   if (loading) {
     return (
       <View style={styles.loader}>
@@ -59,7 +55,7 @@ export default function PdfViewerPage() {
     );
   }
 
-  if (!source) {
+  if (!viewerUrl) {
     return (
       <View style={styles.loader}>
         <Text>PDF not available</Text>
@@ -69,14 +65,18 @@ export default function PdfViewerPage() {
 
   return (
     <View style={styles.container}>
-      <Pdf
-        source={source}
-        style={styles.pdf}
-        trustAllCerts={false}
-        onLoadComplete={(pages) => console.log("Pages:", pages)}
-        onPageChanged={(page) => console.log("Page:", page)}
-        onError={(err) => console.log("PDF error:", err)}
-      />
+      {Platform.OS === "web" ? (
+        <iframe
+          src={viewerUrl}
+          style={{
+            width: "100vw",
+            height: "100vh",
+            border: "none",
+          }}
+        />
+      ) : (
+        <WebView source={{ uri: viewerUrl }} style={styles.webview} />
+      )}
     </View>
   );
 }
@@ -86,11 +86,13 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: hscale(25),
   },
-  pdf: {
+
+  webview: {
     flex: 1,
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
   },
+
   loader: {
     flex: 1,
     justifyContent: "center",
