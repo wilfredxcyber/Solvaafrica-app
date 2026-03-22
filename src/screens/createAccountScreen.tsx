@@ -1,4 +1,11 @@
-import { Text, TextInput, View, StyleSheet, ScrollView, Platform } from "react-native";
+import {
+  Text,
+  TextInput,
+  View,
+  StyleSheet,
+  ScrollView,
+  Platform,
+} from "react-native";
 import ToastManager, { Toast } from "toastify-react-native";
 import Icon from "@expo/vector-icons/Feather";
 import { Formik, FormikProps } from "formik";
@@ -38,7 +45,7 @@ const CreateAccountSchema = Yup.object().shape({
   email: Yup.string()
     .matches(
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-      "Kindly provide a valid email address"
+      "Kindly provide a valid email address",
     )
     .required(requiredFieldMessage),
   phone: Yup.string().max(14).required(requiredFieldMessage),
@@ -72,7 +79,7 @@ export default function CreateAccountScreen() {
       Toast.error("Accept user terms and agreement");
       return;
     }
-    
+
     try {
       setIsLoading(true);
       const createUserRes = await PUB_API_CLIENT.post("/users/create", {
@@ -86,7 +93,7 @@ export default function CreateAccountScreen() {
 
       if (createUserRes.status === 201) {
         // ✅ NAVIGATE TO LOGIN
-        router.replace('/(auth)/login');
+        router.replace("/(auth)/login");
         return;
       }
     } catch (error: any) {
@@ -106,7 +113,7 @@ export default function CreateAccountScreen() {
   };
 
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.scrollView}
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
@@ -119,9 +126,7 @@ export default function CreateAccountScreen() {
         text="create your account"
         customStyle={styles.heading}
       />
-      <Text style={styles.subtitle}>
-        Fill in your details accurately
-      </Text>
+      <Text style={styles.subtitle}>Fill in your details accurately</Text>
 
       <Formik
         initialValues={initialValues}
@@ -270,7 +275,7 @@ export default function CreateAccountScreen() {
               />
               <TextLinkButton
                 text="By checking this box, you agree to our terms/conditions."
-                onPress={() => router.push('/(auth)/terms-and-conditions')}
+                onPress={() => router.push("/(auth)/terms-and-conditions")}
                 customStyle={{ textAlign: "left", color: colors.textLink }}
               />
             </View>
@@ -284,16 +289,16 @@ export default function CreateAccountScreen() {
           </View>
         )}
       </Formik>
-      
+
       <Text style={styles.haveAccount}>
         Already have an account?{" "}
         <TextLinkButton
           customStyle={{ color: colors.textLink }}
           text="Log in"
-          onPress={() => router.push('/(auth)/login')}
+          onPress={() => router.push("/(auth)/login")}
         />
       </Text>
-      
+
       <ToastManager />
     </ScrollView>
   );
@@ -302,7 +307,7 @@ export default function CreateAccountScreen() {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
   },
   scrollContent: {
     paddingHorizontal: 40,
@@ -310,17 +315,17 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
   },
   logoContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   heading: {
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 20,
   },
   subtitle: {
     color: colors.bodyText,
-    textAlign: 'center',
-    fontFamily: 'Inter-Regular',
+    textAlign: "center",
+    fontFamily: "Inter-Regular",
     marginBottom: 20,
   },
   formContainer: {

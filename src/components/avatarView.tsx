@@ -8,12 +8,20 @@ import { Platform } from "expo-modules-core";
 
 export default function AvatarView() {
   const user = useAuthStore((state) => state.user);
-  const { fullName } = user.profile;
-  const [firstName, lastName] = fullName.trim().split(" ");
+
+  const fullName = user?.profile?.fullName ?? "";
+
+  const nameParts = fullName.trim().split(" ");
+  const firstName = nameParts[0] ?? "";
+  const lastName = nameParts[1] ?? "";
+
   const [userNamePrefix, setUserNamePrefix] = useState("");
 
   useEffect(() => {
-    setUserNamePrefix(firstName[0] + lastName[0]);
+    const firstInitial = firstName ? firstName[0] : "";
+    const lastInitial = lastName ? lastName[0] : "";
+
+    setUserNamePrefix(firstInitial + lastInitial);
   }, [fullName]);
 
   return (
@@ -32,10 +40,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     ...Platform.select({
       web: {
-        maxWidth: '100%',
-        maxHeight: 'auto',
-      }
-    })
+        maxWidth: "100%",
+        maxHeight: "auto",
+      },
+    }),
   },
   avatarViewText: {
     fontFamily: "Inter-Bold",

@@ -1,26 +1,26 @@
 // app/(tabs)/settings/_layout.tsx
-import { Drawer } from 'expo-router/drawer';
+import { Drawer } from "expo-router/drawer";
 import Icon from "@expo/vector-icons/AntDesign";
 import { StyleSheet } from "react-native";
-import CustomDrawer from '@/src/components/customDrawer';
-import { colors } from '@/src/constants/theme';
-import { hscale, mscale } from '@/src/helpers/metric';
+import CustomDrawer from "@/src/components/customDrawer";
+import { colors } from "@/src/constants/theme";
+import { hscale, mscale } from "@/src/helpers/metric";
 
 export default function SettingsLayout() {
   return (
     <Drawer
       drawerContent={(props) => <CustomDrawer {...props} />}
       screenOptions={{
-        drawerPosition: 'left',
-        drawerType: 'permanent', // This makes the drawer always visible
+        drawerPosition: "left",
+        drawerType: "permanent", // This makes the drawer always visible
         drawerStyle: {
-          width: 351, // Fixed width for drawer
+          width: "100%", // Fixed width for drawer
           backgroundColor: "#F5F3FF",
           borderTopRightRadius: 0,
           overflow: "hidden",
           borderBottomRightRadius: 0,
         },
-        overlayColor: 'transparent', // No overlay to prevent closing
+        overlayColor: "transparent", // No overlay to prevent closing
         swipeEnabled: false, // Disable swipe to close
         drawerActiveTintColor: colors.primary,
         drawerItemStyle: {
@@ -31,7 +31,7 @@ export default function SettingsLayout() {
         drawerActiveBackgroundColor: "transparent",
         drawerLabelStyle: {
           fontFamily: "Inter-Regular",
-          fontSize: mscale(16)
+          fontSize: mscale(16),
         },
         headerShown: false, // Hide header since we have custom drawer
       }}
@@ -40,8 +40,8 @@ export default function SettingsLayout() {
       <Drawer.Screen
         name="index"
         options={{
-          drawerLabel: 'Settings',
-          title: 'Settings',
+          drawerLabel: "Settings",
+          title: "Settings",
         }}
       />
     </Drawer>

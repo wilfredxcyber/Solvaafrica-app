@@ -47,8 +47,7 @@ interface IMenuItems {
 export default function HomeScreen() {
   const user = useAuthStore((state) => state.user);
   const userProfile = user?.profile;
-  const firstName =
-    userProfile?.fullName?.trim()?.split(" ")?.[0] || "User";
+  const firstName = userProfile?.fullName?.trim()?.split(" ")?.[0] || "User";
   const { width } = Dimensions.get("window");
   // const slidesPlaceholder = ;
   const [isSubscribed, setIsSubscribed] = useState(true);
@@ -104,10 +103,10 @@ export default function HomeScreen() {
       router.push("/(services)/services");
       return;
     } else if (pressedItem === MenuItemScreensRoutes.ASK) {
-      router.push("/ask")
+      router.push("/kemiMasteryHub");
       return;
     } else if (pressedItem === MenuItemScreensRoutes.TASK) {
-     router.push("/task")
+      router.push("/task");
     }
     return;
   };
@@ -118,124 +117,114 @@ export default function HomeScreen() {
   });
 
   return (
-    <ScrollView style={styles.scrollView}
-    showsVerticalScrollIndicator={false}
-    >
-    <View style={globalStyles.screen}>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: hscale(20),
-        }}
-      >
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <TouchableOpacity
-         onPress={() => router.push('/settings')}
-          >
-            <AvatarView />
-          </TouchableOpacity>
-          <View style={{ marginLeft: 8 }}>
-            <Text style={styles.greetUserText }>
-              Hello, {firstName}
-            </Text>
-            <Text style={[globalStyles.bodyText, { fontSize: mscale(14) }]}>
-              Here's what is happening today.
-            </Text>
+    <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <View style={globalStyles.screen}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: hscale(20),
+          }}
+        >
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TouchableOpacity onPress={() => router.push("/settings")}>
+              <AvatarView />
+            </TouchableOpacity>
+            <View style={{ marginLeft: 8 }}>
+              <Text style={styles.greetUserText}>Hello, {firstName}</Text>
+              <Text style={[globalStyles.bodyText, { fontSize: mscale(14) }]}>
+                Here's what is happening today.
+              </Text>
+            </View>
           </View>
+
+          {/* notification icon */}
+          <TouchableOpacity onPress={() => router.push("/notifications")}>
+            <Icon name="bell" color={colors.primary} size={24} />
+          </TouchableOpacity>
         </View>
 
-        {/* notification icon */}
-        <TouchableOpacity
-         onPress={() =>
-           router.push('/notifications')
-         }
+        <Carousel
+          height={width < 760 ? hscale(150) : hscale(250)}
+          showsControls={false}
+          autoplay
+          autoplayInterval={2000}
+          loop
+          pagingEnabled
+          bounces
+          activeDotStyle={{ backgroundColor: colors.primary }}
+          dotStyle={{ backgroundColor: colors.sliderDotsInactive }}
+          dotsContainerStyle={{ bottom: hscale(-20) }}
+          mergeStyles
         >
-          <Icon name="bell" color={colors.primary} size={24} />
-        </TouchableOpacity>
-      </View>
-
-      <Carousel
-        height={width < 760 ? hscale(150) : hscale(250)}
-        showsControls={false}
-        autoplay
-        autoplayInterval={2000}
-        loop
-        pagingEnabled
-        bounces
-        activeDotStyle={{ backgroundColor: colors.primary }}
-        dotStyle={{ backgroundColor: colors.sliderDotsInactive }}
-        dotsContainerStyle={{ bottom: hscale(-20) }}
-        mergeStyles
-      >
-        {data?.length === 0
-          ? new Array(3).fill(null).map((_, index) => (
-              <View
-                key={`placeholder-${index}`}
-                style={{
-                  width: width - screenHorizontalPadding * 0.5,
-                  height: "100%",
-                }}
-              >
-                <Image
-                  source={require("../../assets/images/placeholder.png")}
-                  style={{ width: "100%", height: "100%" }}
-                  resizeMode="cover"
-                />
-              </View>
-            ))
-          : (data ?? []).map((imageUri, index) => (
-              <View
-                key={`slide-${index}`}
-                style={{
-                  width: width - screenHorizontalPadding * 0.5,
-                  height: "100%",
-                }}
-              >
-                <Image
-                  source={{ uri: imageUri }}
+          {data?.length === 0
+            ? new Array(3).fill(null).map((_, index) => (
+                <View
+                  key={`placeholder-${index}`}
                   style={{
-                    width: "100%",
+                    width: width - screenHorizontalPadding * 0.5,
                     height: "100%",
-                    borderRadius: mscale(10),
                   }}
-                  resizeMode="cover"
+                >
+                  <Image
+                    source={require("../../assets/images/placeholder.png")}
+                    style={{ width: "100%", height: "100%" }}
+                    resizeMode="cover"
+                  />
+                </View>
+              ))
+            : (data ?? []).map((imageUri, index) => (
+                <View
+                  key={`slide-${index}`}
+                  style={{
+                    width: width - screenHorizontalPadding * 0.5,
+                    height: "100%",
+                  }}
+                >
+                  <Image
+                    source={{ uri: imageUri }}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      borderRadius: mscale(10),
+                    }}
+                    resizeMode="cover"
+                  />
+                </View>
+              ))}
+        </Carousel>
+
+        {/* menu view */}
+        <View style={styles.menuView}>
+          {MENU_ITEMS.map((currentItem, index) => (
+            <Pressable
+              key={currentItem.item + index}
+              style={styles.menuItemView}
+              onPress={() => handleMenuItemPressed(currentItem.item)}
+            >
+              <View style={styles.menuItemIconView}>
+                <Image
+                  source={currentItem.icon}
+                  style={styles.menuItemIconImage}
+                  resizeMode="contain"
                 />
               </View>
-            ))}
-      </Carousel>
-
-      {/* menu view */}
-      <View style={styles.menuView}>
-        {MENU_ITEMS.map((currentItem, index) => (
-          <Pressable
-            key={currentItem.item + index}
-            style={styles.menuItemView}
-            onPress={() => handleMenuItemPressed(currentItem.item)}
-          >
-            <View style={styles.menuItemIconView}>
-              <Image
-                source={currentItem.icon}
-                style={styles.menuItemIconImage}
-                resizeMode="contain"
-              />
-            </View>
-            <Text
-              style={{
-                textAlign: "center",
-                marginTop: 8,
-                fontFamily: "Inter-Bold",
-                color: colors.bodyText,
-                fontSize: mscale(12),
-              }}
-            >
-              {currentItem.item}
-            </Text>
-          </Pressable>
-        ))}
+              <Text
+                style={{
+                  textAlign: "center",
+                  marginTop: 8,
+                  fontFamily: "Inter-Bold",
+                  color: colors.bodyText,
+                  fontSize: mscale(12),
+                }}
+              >
+                {currentItem.item}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
       </View>
-    </View>
     </ScrollView>
   );
 }
@@ -243,9 +232,9 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
   },
-  
+
   greetUserText: {
     fontFamily: "Inter-Bold",
     fontSize: mscale(16),
@@ -262,7 +251,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       web: {
         alignItems: "center",
-      }
+      },
     }),
     justifyContent: "center",
     gap: 8,

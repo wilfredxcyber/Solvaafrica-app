@@ -43,21 +43,21 @@ export default function AskChatbotScreen() {
 
         newSocket.on("chatReply", (data) => {
           if (!data?.prompt || !data?.response) return;
-          setChatHistory((prev) => [
-            { prompt: data.prompt, response: data.response },
-            ...prev,
-          ]);
+          // setChatHistory((prev) => [
+          //   { prompt: data.prompt, response: data.response },
+          //   ...prev,
+          // ]);
         });
 
-        newSocket.on("connect_error", (err) => {
-          ToastAndroid.show(err?.message, ToastAndroid.LONG);
-        });
+        // newSocket.on("connect_error", (err) => {
+        //   ToastAndroid.show(err?.message, ToastAndroid.LONG);
+        // });
 
         newSocket.on("error", (err) => {
           ToastAndroid.show(err?.message, ToastAndroid.LONG);
           console.error("⚠️ Socket error:", err?.message || err);
         });
-      } catch (err:any) {
+      } catch (err: any) {
         ToastAndroid.show(err, ToastAndroid.LONG);
         console.error("🚨 Failed to connect socket:", err);
       }
@@ -80,7 +80,7 @@ export default function AskChatbotScreen() {
       setLoading(true);
       const response = await AUTH_API_CLIENT.get(`/chat/${userID}`);
       if (response.status === 200) {
-        setChatHistory(response.data.data);
+        // setChatHistory(response.data.data);
       }
     } catch (error) {
       // console.error("Failed to load chat:", error);
@@ -105,7 +105,7 @@ export default function AskChatbotScreen() {
     } catch (error: any) {
       ToastAndroid.show(
         `Send failed: ${error?.response?.data || error.message}`,
-        ToastAndroid.LONG
+        ToastAndroid.LONG,
       );
       // console.log("Send failed:", error?.response?.data || error.message);
     } finally {

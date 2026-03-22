@@ -1,41 +1,71 @@
-import { Dimensions, StyleSheet, View, ActivityIndicator } from "react-native";
+import {
+  Dimensions,
+  StyleSheet,
+  View,
+  ActivityIndicator,
+  Text,
+} from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { useMemo, useState } from "react";
-import Pdf from "react-native-pdf";
+import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { WebView } from "react-native-webview";
 import { hscale } from "../helpers/metric";
-import { normalizeRemoteFileUrl } from "../helpers/normalizeRemoteFileUrl";
 
 export default function PdfViewerPage() {
-  const params = useLocalSearchParams<{ pdfUri?: string; url?: string }>();
-  const [loading, setLoading] = useState(true);
+  const { id } = useLocalSearchParams();
 
-  const pdfUri = useMemo(() => {
-    const raw = (params.pdfUri || params.url || "").toString();
-    return normalizeRemoteFileUrl(raw);
-  }, [params.pdfUri, params.url]);
+  const [viewerUrl, setViewerUrl] = useState(null);
+  const [webLoading, setWebLoading] = useState(true);
 
-  const pdfSource = { uri: pdfUri, cache: true };
+  useEffect(() => {
+    const loadFile = async () => {
+      try {
+        const stored = await AsyncStorage.getItem("DownloadRefs");
+        const list = stored ? JSON.parse(stored) : [];
+
+        const file = list[id ? Number(id) : 0];
+
+        if (file?.sourceUrl) {
+          const clean = file.sourceUrl.trim();
+
+          const googleViewer =
+            "https://docs.google.com/gview?embedded=true&url=" +
+            encodeURIComponent(clean);
+
+          setViewerUrl(googleViewer);
+        }
+      } catch (err) {
+        console.log("PDF load error:", err);
+      }
+    };
+
+    loadFile();
+  }, [id]);
+
+  if (!viewerUrl) {
+    return (
+      <View style={styles.loader}>
+        <Text>PDF not available</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <Pdf
-        source={pdfSource}
-        onLoadComplete={(numberOfPages: number) => {
-          console.log(`Number of pages: ${numberOfPages}`);
-          setLoading(false);
-        }}
-        onError={(error: any) => {
-          console.log("Error viewing pdf", error);
-          setLoading(false);
-        }}
-        style={styles.pdf}
-      />
-
-      {loading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0000ff" />
+      {webLoading && (
+        <View style={styles.loader}>
+          <ActivityIndicator size="large" />
+          <Text>Opening PDF...</Text>
         </View>
       )}
+
+      <WebView
+        source={{ uri: viewerUrl }}
+        style={styles.webview}
+        originWhitelist={["*"]}
+        onLoadStart={() => setWebLoading(true)}
+        onLoadEnd={() => setWebLoading(false)}
+      />
     </View>
   );
 }
@@ -43,16 +73,13 @@ export default function PdfViewerPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "flex-start",
-    alignItems: "center",
     marginTop: hscale(25),
   },
-  pdf: {
+  webview: {
     flex: 1,
     width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height,
   },
-  loadingContainer: {
+  loader: {
     position: "absolute",
     top: 0,
     left: 0,
@@ -60,6 +87,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    backgroundColor: "white",
+    zIndex: 10,
   },
 });

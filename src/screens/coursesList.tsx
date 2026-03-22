@@ -1,14 +1,7 @@
 import { useLocalSearchParams, router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import {
-  View,
-  Text,
-  Pressable,
-  Alert,
-  Animated,
-  Easing,
-} from "react-native";
+import { View, Text, Pressable, Alert, Animated, Easing } from "react-native";
 import DownloadIcon from "@expo/vector-icons/Feather";
 import { FlashList } from "@shopify/flash-list";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -61,21 +54,32 @@ const buildUniversityCandidates = (university: string) => {
   return Array.from(candidates).map(normalizeText).filter(Boolean);
 };
 
-const matchesSelectedValue = (actualValue: string | undefined, selectedValue: string) => {
+const matchesSelectedValue = (
+  actualValue: string | undefined,
+  selectedValue: string,
+) => {
   const actual = normalizeText(actualValue);
   const selected = normalizeText(selectedValue);
 
   if (!actual || !selected) return false;
-  return actual === selected || actual.includes(selected) || selected.includes(actual);
+  return (
+    actual === selected ||
+    actual.includes(selected) ||
+    selected.includes(actual)
+  );
 };
 
 type CourseDocument = { url?: string; name?: string };
 
 const normalizeCourseCode = (value?: string | null) =>
-  String(value ?? "").trim().toLowerCase();
+  String(value ?? "")
+    .trim()
+    .toLowerCase();
 
 const normalizeFileName = (value?: string | null) =>
-  String(value ?? "").trim().toLowerCase();
+  String(value ?? "")
+    .trim()
+    .toLowerCase();
 
 const getCourseDownloadKey = ({
   courseCode,
@@ -101,28 +105,40 @@ const getStoredCourseDownloadKey = (item: DownloadedFileRef) =>
     fileName: item.fileName,
     fileUrl:
       item.sourceUrl ||
-      (item.filePath.startsWith("http://") || item.filePath.startsWith("https://")
+      (item.filePath.startsWith("http://") ||
+      item.filePath.startsWith("https://")
         ? item.filePath
         : undefined),
   });
 
 const getValidCourseDocuments = (courseDocuments: CourseDocument[] = []) =>
   courseDocuments.filter(
-    (doc): doc is Required<CourseDocument> => !!doc?.url && !!doc?.name
+    (doc): doc is Required<CourseDocument> => !!doc?.url && !!doc?.name,
   );
 
 export default function CoursesList() {
   const params = useLocalSearchParams();
-  const universityParam = Array.isArray(params.university) ? params.university[0] : params.university;
-  const departmentParam = Array.isArray(params.department) ? params.department[0] : params.department;
-  const facultyParam = Array.isArray(params.faculty) ? params.faculty[0] : params.faculty;
+  const universityParam = Array.isArray(params.university)
+    ? params.university[0]
+    : params.university;
+  const departmentParam = Array.isArray(params.department)
+    ? params.department[0]
+    : params.department;
+  const facultyParam = Array.isArray(params.faculty)
+    ? params.faculty[0]
+    : params.faculty;
   const [coursesList, setCoursesList] = useState<any[] | []>([]);
   const [loadingCourses, setLoadingCourses] = useState<boolean>(false);
-  const [downloadedCourseKeys, setDownloadedCourseKeys] = useState<Set<string>>(new Set());
-  const [downloadingCourseKeys, setDownloadingCourseKeys] = useState<Set<string>>(new Set());
+  const [downloadedCourseKeys, setDownloadedCourseKeys] = useState<Set<string>>(
+    new Set(),
+  );
+  const [downloadingCourseKeys, setDownloadingCourseKeys] = useState<
+    Set<string>
+  >(new Set());
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const downloadCourseFile = useDownloadFile(true);
+  console.log(coursesList);
 
   useFocusEffect(
     useCallback(() => {
@@ -134,7 +150,7 @@ export default function CoursesList() {
           const courseKeys = new Set(
             downloads
               .filter((item) => item.parentDirectory === "Courses")
-              .map(getStoredCourseDownloadKey)
+              .map(getStoredCourseDownloadKey),
           );
 
           setDownloadedCourseKeys(courseKeys);
@@ -145,12 +161,12 @@ export default function CoursesList() {
       };
 
       fetchDownloadedCourses();
-    }, [])
+    }, []),
   );
 
   const handleDownloadIconPress = async (
     courseCode: string,
-    courseDocuments: CourseDocument[]
+    courseDocuments: CourseDocument[],
   ) => {
     const validDocuments = getValidCourseDocuments(courseDocuments);
 
@@ -164,7 +180,7 @@ export default function CoursesList() {
         courseCode,
         fileName: doc.name,
         fileUrl: doc.url,
-      })
+      }),
     );
 
     try {
@@ -174,11 +190,11 @@ export default function CoursesList() {
       const matchingCourseDownloads = downloads.filter(
         (item) =>
           item.parentDirectory === "Courses" &&
-          courseDocumentKeys.includes(getStoredCourseDownloadKey(item))
+          courseDocumentKeys.includes(getStoredCourseDownloadKey(item)),
       );
 
       const existingCourseDownloadKeys = new Set(
-        matchingCourseDownloads.map(getStoredCourseDownloadKey)
+        matchingCourseDownloads.map(getStoredCourseDownloadKey),
       );
 
       const nextDocumentToDownload = validDocuments.find(
@@ -188,8 +204,8 @@ export default function CoursesList() {
               courseCode,
               fileName: doc.name,
               fileUrl: doc.url,
-            })
-          )
+            }),
+          ),
       );
 
       if (nextDocumentToDownload) {
@@ -206,11 +222,13 @@ export default function CoursesList() {
             "Courses",
             nextDocumentToDownload.url,
             nextDocumentToDownload.name,
-            courseCode
+            courseCode,
           );
 
           if (result?.success) {
-            setDownloadedCourseKeys((prev) => new Set(prev).add(nextDocumentKey));
+            setDownloadedCourseKeys((prev) =>
+              new Set(prev).add(nextDocumentKey),
+            );
           }
         } finally {
           setDownloadingCourseKeys((prev) => {
@@ -241,7 +259,9 @@ export default function CoursesList() {
                 if (isRemotePath) continue;
 
                 try {
-                  await FileSystem.deleteAsync(item.filePath, { idempotent: true });
+                  await FileSystem.deleteAsync(item.filePath, {
+                    idempotent: true,
+                  });
                 } catch (deleteError) {
                   console.log("error deleting local file", deleteError);
                 }
@@ -251,19 +271,26 @@ export default function CoursesList() {
                 (item) =>
                   !(
                     item.parentDirectory === "Courses" &&
-                    courseDocumentKeys.includes(getStoredCourseDownloadKey(item))
-                  )
+                    courseDocumentKeys.includes(
+                      getStoredCourseDownloadKey(item),
+                    )
+                  ),
               );
 
-              await AsyncStorage.setItem("DownloadRefs", JSON.stringify(filteredDownloads));
+              await AsyncStorage.setItem(
+                "DownloadRefs",
+                JSON.stringify(filteredDownloads),
+              );
               setDownloadedCourseKeys((prev) => {
                 const next = new Set(prev);
-                courseDocumentKeys.forEach((courseDocumentKey) => next.delete(courseDocumentKey));
+                courseDocumentKeys.forEach((courseDocumentKey) =>
+                  next.delete(courseDocumentKey),
+                );
                 return next;
               });
             },
           },
-        ]
+        ],
       );
     } catch (error) {
       console.log("error deleting downloaded course files", error);
@@ -294,7 +321,8 @@ export default function CoursesList() {
         if (!courses.length) {
           const fallbackRes = await AUTH_API_CLIENT.get("/questions");
           const allCourses = extractCoursesFromResponse(fallbackRes.data);
-          const universityCandidates = buildUniversityCandidates(universityParam);
+          const universityCandidates =
+            buildUniversityCandidates(universityParam);
 
           courses = allCourses.filter((item: any) => {
             const question = item?.question ?? {};
@@ -302,11 +330,17 @@ export default function CoursesList() {
               universityCandidates.length === 0
                 ? true
                 : universityCandidates.some((candidate) =>
-                    matchesSelectedValue(question.university, candidate)
+                    matchesSelectedValue(question.university, candidate),
                   );
 
-            const facultyOk = matchesSelectedValue(question.faculty, facultyParam);
-            const departmentOk = matchesSelectedValue(question.department, departmentParam);
+            const facultyOk = matchesSelectedValue(
+              question.faculty,
+              facultyParam,
+            );
+            const departmentOk = matchesSelectedValue(
+              question.department,
+              departmentParam,
+            );
 
             return universityOk && facultyOk && departmentOk;
           });
@@ -345,22 +379,22 @@ export default function CoursesList() {
           renderItem={({ item }) => {
             const courseCode = String(item.question.courseCode ?? "");
             const courseDocuments = getValidCourseDocuments(
-              Array.isArray(item.document) ? item.document : []
+              Array.isArray(item.document) ? item.document : [],
             );
             const courseDocumentKeys = courseDocuments.map((doc) =>
               getCourseDownloadKey({
                 courseCode,
                 fileName: doc.name,
                 fileUrl: doc.url,
-              })
+              }),
             );
             const isDownloaded =
               courseDocumentKeys.length > 0 &&
               courseDocumentKeys.every((courseDocumentKey) =>
-                downloadedCourseKeys.has(courseDocumentKey)
+                downloadedCourseKeys.has(courseDocumentKey),
               );
             const isDownloading = courseDocumentKeys.some((courseDocumentKey) =>
-              downloadingCourseKeys.has(courseDocumentKey)
+              downloadingCourseKeys.has(courseDocumentKey),
             );
 
             return (
@@ -427,7 +461,7 @@ const CoursesListItem = ({
         duration: 800,
         easing: Easing.linear,
         useNativeDriver: true,
-      })
+      }),
     );
 
     loop.start();
@@ -493,7 +527,9 @@ const CoursesListItem = ({
               marginTop: hscale(4),
             }}
           >
-            {courseTitle.length > 30 ? courseTitle.substring(0, 30) + "..." : courseTitle}
+            {courseTitle.length > 30
+              ? courseTitle.substring(0, 30) + "..."
+              : courseTitle}
           </Text>
 
           <Text
@@ -523,7 +559,13 @@ const CoursesListItem = ({
             ]}
           >
             <DownloadIcon
-              name={isDownloading ? "loader" : isDownloaded ? "check-circle" : "download-cloud"}
+              name={
+                isDownloading
+                  ? "loader"
+                  : isDownloaded
+                    ? "check-circle"
+                    : "download-cloud"
+              }
               size={24}
               color={colors.primary}
             />
