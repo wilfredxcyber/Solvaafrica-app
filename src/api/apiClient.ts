@@ -13,9 +13,8 @@ import { ENV_CONFIG } from "../env.config";
       : ENV_CONFIG.dev.BASE_API_URL;
 */
 
- export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL ??
-  ENV_CONFIG.prod.BASE_API_URL;
+export const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_BASE_URL ?? ENV_CONFIG.prod.BASE_API_URL;
 
 // for NON AUTH USER
 export const PUB_API_CLIENT = axios.create({
@@ -26,53 +25,54 @@ export const PUB_API_CLIENT = axios.create({
 // axios instance for authenticated endpoints
 export const AUTH_API_CLIENT = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  // headers: {
+  //   "Content-Type": "application/json",
+  // },
 });
 
 // axios interceptor to inject access token when hitting auth endpoints
-AUTH_API_CLIENT.interceptors.request.use(
-  async (request) => {
-    try {
-      const isFormDataPayload =
-        typeof FormData !== "undefined" && request.data instanceof FormData;
+AUTH_API_CLIENT.interceptors.request.use(async (request) => {
+  try {
+    const isFormDataPayload =
+      request.data && typeof request.data === "object" && request.data._parts;
 
-      if (isFormDataPayload && request.headers) {
-        // Let runtime set multipart boundary automatically.
-        if (typeof (request.headers as any).set === "function") {
-          (request.headers as any).set("Content-Type", undefined);
-        } else {
-          delete (request.headers as any)["Content-Type"];
-          delete (request.headers as any)["content-type"];
-        }
-      }
+    if (isFormDataPayload && request.headers) {
+      delete request.headers["Content-Type"];
+      delete request.headers["content-type"];
+    }
 
-      const serializedUser = await AsyncStorage.getItem("User");
+    const serializedUser = await AsyncStorage.getItem("User");
 
-      if (!serializedUser) throw new Error("User not found");
+    if (serializedUser) {
       const user = JSON.parse(serializedUser);
-
       const { accessToken } = user.tokens;
+
       if (accessToken) {
         request.headers["Authorization"] = `Bearer ${accessToken}`;
       }
-      return request;
-    } catch (error) {
-      return Promise.reject(error);
     }
-  },
-  (err) => {
-    Promise.reject(err);
-  },
-);
+
+    return request;
+  } catch (error) {
+    return Promise.reject(error);
+  }
+});
 
 AUTH_API_CLIENT.interceptors.response.use(
   (res) => res,
   async (err) => {
     const originalRequest = err.config;
-    console.log(err.response.status);
-    if (err.response.status === 401 && !originalRequest._retry) {
+    console.log(err?.response?.status);
+
+    // ✅ SAFE LOGGING
+    if (err.response) {
+      console.log("STATUS:", err.response?.status);
+      console.log("DATA:", err.response.data);
+    } else {
+      console.log("🚫 NETWORK ERROR:", err.message);
+    }
+
+    if (err?.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
         const serializedUser = await AsyncStorage.getItem("User");
@@ -120,3 +120,31 @@ AUTH_API_CLIENT.interceptors.response.use(
     return Promise.reject(err);
   },
 );
+
+export const kemiService = {
+  // Mocking the 'Ask Emi' logic for a 60-min functional build
+  async generate(type: "quiz" | "flashcard" | "lesson", topic: string) {
+    // Artificial delay to simulate AI processing
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    const mockData = {
+      quiz: [
+        {
+          question: `What is a key concept of ${topic}?`,
+          options: ["Concept A", "Concept B", "Concept C", "Concept D"],
+          answer: "Concept A",
+        },
+      ],
+      flashcard: [
+        {
+          front: `Define ${topic}`,
+          back: "Automated AI definition based on your notes.",
+          hint: "Think about the Latin root.",
+        },
+      ],
+      lesson: { outline: ["Intro", "Theory", "Application", "Conclusion"] },
+    };
+
+    return mockData[type];
+  },
+};
