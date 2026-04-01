@@ -8,7 +8,12 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 import { useRouter, useNavigation } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { globalStyles } from "@/src/styles/global";
@@ -35,7 +40,9 @@ const normalizePhone = (value?: string | null) =>
   String(value ?? "").replace(/\D/g, "");
 
 const normalizeText = (value?: string | null) =>
-  String(value ?? "").trim().toLowerCase();
+  String(value ?? "")
+    .trim()
+    .toLowerCase();
 
 export default function ServiceProfile() {
   const navigation = useNavigation();
@@ -57,42 +64,45 @@ export default function ServiceProfile() {
   const userName = normalizeText(authUser?.profile?.fullName);
   const userRole = authUser?.profile?.role;
 
-  const persistResolvedFreelancer = useCallback(async (freelancerProfile: any) => {
-    const currentUser = useAuthStore.getState().user;
-    const resolvedFreelancerId = getFreelancerId(freelancerProfile?.id);
-    const currentFreelancerId = getFreelancerId(
-      currentUser?.profile?.freelancerId ??
-        currentUser?.profile?.freelancer ??
-        currentUser?.profile?.freelancerProfile ??
-        currentUser?.profile?.freelancerProfileId
-    );
+  const persistResolvedFreelancer = useCallback(
+    async (freelancerProfile: any) => {
+      const currentUser = useAuthStore.getState().user;
+      const resolvedFreelancerId = getFreelancerId(freelancerProfile?.id);
+      const currentFreelancerId = getFreelancerId(
+        currentUser?.profile?.freelancerId ??
+          currentUser?.profile?.freelancer ??
+          currentUser?.profile?.freelancerProfile ??
+          currentUser?.profile?.freelancerProfileId,
+      );
 
-    if (!currentUser || !resolvedFreelancerId) {
-      return freelancerProfile ?? null;
-    }
+      if (!currentUser || !resolvedFreelancerId) {
+        return freelancerProfile ?? null;
+      }
 
-    if (
-      currentFreelancerId &&
-      String(currentFreelancerId) === String(resolvedFreelancerId) &&
-      currentUser?.profile?.hasServiceProfile
-    ) {
+      if (
+        currentFreelancerId &&
+        String(currentFreelancerId) === String(resolvedFreelancerId) &&
+        currentUser?.profile?.hasServiceProfile
+      ) {
+        return freelancerProfile;
+      }
+
+      const updatedUser = mergeAuthUserProfile(currentUser, {
+        role: "freelancer",
+        freelancer: resolvedFreelancerId,
+        freelancerId: resolvedFreelancerId,
+        freelancerProfile: resolvedFreelancerId,
+        freelancerProfileId: resolvedFreelancerId,
+        hasServiceProfile: true,
+      });
+
+      useAuthStore.setState({ user: updatedUser });
+      await AsyncStorage.setItem("User", JSON.stringify(updatedUser));
+
       return freelancerProfile;
-    }
-
-    const updatedUser = mergeAuthUserProfile(currentUser, {
-      role: "freelancer",
-      freelancer: resolvedFreelancerId,
-      freelancerId: resolvedFreelancerId,
-      freelancerProfile: resolvedFreelancerId,
-      freelancerProfileId: resolvedFreelancerId,
-      hasServiceProfile: true,
-    });
-
-    useAuthStore.setState({ user: updatedUser });
-    await AsyncStorage.setItem("User", JSON.stringify(updatedUser));
-
-    return freelancerProfile;
-  }, []);
+    },
+    [],
+  );
 
   const findOwnFreelancerProfile = useCallback(async () => {
     if (!userId) {
@@ -101,7 +111,7 @@ export default function ServiceProfile() {
 
     const response = await AUTH_API_CLIENT.get(
       "/freelancers",
-      createNoCacheRequestConfig()
+      createNoCacheRequestConfig(),
     );
 
     if (response.status !== 200) {
@@ -113,28 +123,25 @@ export default function ServiceProfile() {
       : [];
 
     const ownerMatch = freelancers.find(
-      (current: any) => String(current?.owner ?? "") === userId
+      (current: any) => String(current?.owner ?? "") === userId,
     );
 
     const matchedFreelancer =
       ownerMatch ||
-      freelancers.find(
-        (current: any) =>
-          Boolean(
-            userPhone &&
-              normalizePhone(current?.phoneNumber ?? current?.phone) === userPhone
-          )
+      freelancers.find((current: any) =>
+        Boolean(
+          userPhone &&
+          normalizePhone(current?.phoneNumber ?? current?.phone) === userPhone,
+        ),
       ) ||
-      freelancers.find(
-        (current: any) =>
-          Boolean(
-            userEmail &&
-              normalizeText(current?.email ?? current?.user?.email) === userEmail
-          )
+      freelancers.find((current: any) =>
+        Boolean(
+          userEmail &&
+          normalizeText(current?.email ?? current?.user?.email) === userEmail,
+        ),
       ) ||
-      freelancers.find(
-        (current: any) =>
-          Boolean(userName && normalizeText(current?.fullName) === userName)
+      freelancers.find((current: any) =>
+        Boolean(userName && normalizeText(current?.fullName) === userName),
       );
 
     if (!matchedFreelancer) {
@@ -164,7 +171,7 @@ export default function ServiceProfile() {
   const loadByFreelancerId = useCallback(async (id: string | number) => {
     const response = await AUTH_API_CLIENT.get(
       `/freelancers/${id}`,
-      createNoCacheRequestConfig()
+      createNoCacheRequestConfig(),
     );
 
     if (response.status !== 200) {
@@ -194,7 +201,10 @@ export default function ServiceProfile() {
         freelancerProfile = await loadByFreelancerId(freelancerId);
       }
 
-      if (!freelancerProfile && (hasFreelancerProfile || userRole === "freelancer")) {
+      if (
+        !freelancerProfile &&
+        (hasFreelancerProfile || userRole === "freelancer")
+      ) {
         freelancerProfile = await findOwnFreelancerProfile();
       }
 
@@ -208,7 +218,9 @@ export default function ServiceProfile() {
           return;
         }
 
-        setErrorMessage("We could not load your service profile. Please try again.");
+        setErrorMessage(
+          "We could not load your service profile. Please try again.",
+        );
         return;
       }
 

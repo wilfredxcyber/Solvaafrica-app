@@ -18,6 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { colors } from "@/src/constants/theme";
 import { useRouter } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
+import { createLesson } from "../api/lessonService";
 
 // Enable layout animation on Android
 if (
@@ -255,34 +256,6 @@ export default function CreateLessonScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Generate Outline Button */}
-            <TouchableOpacity
-              style={styles.generateButton}
-              disabled={isGenerating}
-              onPress={() => {
-                setIsGenerating(true);
-                setTimeout(() => setIsGenerating(false), 2000);
-              }}
-            >
-              {isGenerating ? (
-                <Text style={styles.generateButtonText}>
-                  Generating Outline...
-                </Text>
-              ) : (
-                <>
-                  <Ionicons
-                    name="sparkles"
-                    size={18}
-                    color={colors.white}
-                    style={styles.sparkleIcon}
-                  />
-                  <Text style={styles.generateButtonText}>
-                    Generate Lesson Outline
-                  </Text>
-                </>
-              )}
-            </TouchableOpacity>
-
             {/* AI-Generated Outline Section */}
             <View style={styles.outlineHeaderRow}>
               <Text style={styles.sectionTitle}>AI-Generated Outline</Text>
@@ -358,7 +331,7 @@ export default function CreateLessonScreen() {
             </View>
 
             {/* Footer Actions */}
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.saveButton}
               onPress={() => {
                 if (Platform.OS === "web")
@@ -374,6 +347,63 @@ export default function CreateLessonScreen() {
                 style={styles.playIcon}
               />
               <Text style={styles.saveButtonText}>Save Final Lesson</Text>
+            </TouchableOpacity> */}
+
+            {/* Generate Outline Button */}
+            <TouchableOpacity
+              style={styles.generateButton}
+              disabled={isGenerating}
+              onPress={async () => {
+                try {
+                  if (!topic && !file) {
+                    Alert.alert(
+                      "Error",
+                      "Provide a topic or upload a document",
+                    );
+                    return;
+                  }
+
+                  setIsGenerating(true);
+
+                  const data = await createLesson({
+                    topic,
+                    file,
+                    difficulty,
+                    type: structure,
+                  });
+
+                  console.log("✅ LESSON:", data);
+
+                  // 🔥 OPTIONAL: update outline with API response
+                  if (data?.outline) {
+                    setOutlineItems(data.outline);
+                  }
+
+                  Alert.alert("Success", "Lesson generated!");
+                } catch (error: any) {
+                  Alert.alert("Error", error.message || "Something went wrong");
+                } finally {
+                  setIsGenerating(false);
+                }
+              }}
+            >
+              {isGenerating ? (
+                <Text style={styles.generateButtonText}>
+                  Generating Outline...
+                </Text>
+              ) : (
+                <>
+                  <Ionicons
+                    name="sparkles"
+                    size={18}
+                    color={colors.white}
+                    style={styles.sparkleIcon}
+                  />
+                  <Text style={styles.generateButtonText}>
+                    Generate Lesson Outline
+                  </Text>
+                </>
+              )}
             </TouchableOpacity>
 
             <View style={styles.bottomSecondaryButtons}>

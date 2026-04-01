@@ -9,11 +9,14 @@ import {
   Platform,
   StatusBar,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "@/src/constants/theme";
 import { useRouter } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
+import { Alert } from "react-native";
+import { createFlashcards } from "../api/flashcardService.ts";
 
 export default function GenerateFlashcardsScreen() {
   const router = useRouter();
@@ -26,6 +29,9 @@ export default function GenerateFlashcardsScreen() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [sliderWidth, setSliderWidth] = useState(0);
 
+  const isTopicFilled = topic.trim().length > 0;
+  const isFileSelected = !!file;
+
   const handlePickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -35,11 +41,20 @@ export default function GenerateFlashcardsScreen() {
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         ],
       });
-      if (result.assets && result.assets.length > 0) {
-        setFile(result.assets[0]);
+
+      if (!result.canceled && result.assets?.length > 0) {
+        const pickedFile = result.assets[0];
+
+        if (Platform.OS === "web") {
+          setFile(pickedFile.file);
+        } else {
+          setFile(pickedFile);
+        }
+
+        setTopic(""); // 🔥 clear topic
       }
     } catch (error) {
-      console.error("Error picking document: ", error);
+      console.error(error);
     }
   };
 
@@ -99,7 +114,11 @@ export default function GenerateFlashcardsScreen() {
                   placeholder="e.g., Photosynthesis"
                   placeholderTextColor="#A098AE"
                   value={topic}
-                  onChangeText={setTopic}
+                  onChangeText={(text) => {
+                    setTopic(text);
+                    if (text) setFile(null); // 🔥 clears file
+                  }}
+                  editable={!isFileSelected || isGenerating}
                 />
               </View>
             </View>
@@ -113,50 +132,46 @@ export default function GenerateFlashcardsScreen() {
 
             {/* File Upload Section */}
             <TouchableOpacity
-              style={styles.uploadContainer}
+              style={[
+                styles.uploadContainer,
+                isTopicFilled && { opacity: 0.5 },
+              ]}
               onPress={handlePickDocument}
+              disabled={isTopicFilled || isGenerating}
             >
               <Ionicons
                 name={file ? "document-text" : "cloud-upload"}
-                size={28}
+                size={24}
                 color={colors.primary}
               />
-              <Text style={styles.uploadText} numberOfLines={1}>
-                {file ? file.name : "Upload PDF, DOCX, or Image"}
-              </Text>
-            </TouchableOpacity>
 
-            {/* Generate Button */}
-            <TouchableOpacity
-              style={styles.generateButton}
-              disabled={isGenerating}
-              onPress={() => {
-                setIsGenerating(true);
-                setTimeout(() => {
-                  setIsGenerating(false);
-                  router.push("/studyMode");
-                }, 2000);
-              }}
-            >
-              {isGenerating ? (
-                <Text style={styles.generateButtonText}>Generating...</Text>
-              ) : (
-                <>
-                  <Ionicons
-                    name="sparkles"
-                    size={18}
-                    color={colors.white}
-                    style={styles.sparkleIcon}
-                  />
-                  <Text style={styles.generateButtonText}>
-                    Generate Flashcards
+              <Text style={styles.uploadText} numberOfLines={1}>
+                {file ? file.name : "Upload PDF, DOCX or Image"}
+              </Text>
+
+              <Text style={styles.uploadSubtext}>
+                {file && file.size
+                  ? `${(file.size / 1024 / 1024).toFixed(2)} MB`
+                  : "Max file size: 10MB"}
+              </Text>
+
+              {/* 🔥 ADD THIS */}
+              {file && (
+                <TouchableOpacity
+                  onPress={() => {
+                    setFile(null);
+                  }}
+                  style={{ marginTop: 10 }}
+                >
+                  <Text style={{ color: "#EF4444", fontWeight: "bold" }}>
+                    Remove File
                   </Text>
-                </>
+                </TouchableOpacity>
               )}
             </TouchableOpacity>
 
             {/* Preview Section */}
-            <Text style={styles.sectionLabel}>PREVIEW</Text>
+            {/* <Text style={styles.sectionLabel}>PREVIEW</Text>
             <View style={styles.previewCard}>
               <Text style={styles.previewQuestionNumber}>QUESTION 1</Text>
               <Text style={styles.previewQuestionText}>
@@ -168,7 +183,7 @@ export default function GenerateFlashcardsScreen() {
                 color="#C4B5FD"
                 style={styles.eyeIcon}
               />
-            </View>
+            </View> */}
 
             {/* Number of Cards */}
             <View style={styles.rowBetween}>
@@ -280,7 +295,7 @@ export default function GenerateFlashcardsScreen() {
             </View>
 
             {/* Bottom Action Buttons */}
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.reviewButton}
               onPress={() => router.push("/studyMode")}
             >
@@ -291,27 +306,86 @@ export default function GenerateFlashcardsScreen() {
                 style={styles.playIcon}
               />
               <Text style={styles.reviewButtonText}>Review Now</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
-            <View style={styles.bottomSecondaryButtons}>
-              <TouchableOpacity style={styles.secondaryBtn}>
-                <Ionicons
-                  name="save"
-                  size={16}
-                  color={colors.primary}
-                  style={styles.secIcon}
-                />
-                <Text style={styles.secondaryBtnText}>Save</Text>
+            {/* Generate Button */}
+            <View style={styles.footer}>
+              <TouchableOpacity
+                style={styles.generateButton}
+                disabled={isGenerating}
+                onPress={async () => {
+                  try {
+                    if (!topic && !file) {
+                      Alert.alert(
+                        "Error",
+                        "Provide a topic or upload a document",
+                      );
+                      return;
+                    }
+
+                    setIsGenerating(true);
+
+                    const data = await createFlashcards({
+                      topic,
+                      file,
+                      difficulty,
+                      isTrueFalse,
+                      isOpenEnded,
+                    });
+
+                    const cards = data?.data?.cards;
+
+                    Alert.alert("Success", "Flashcards generated!");
+
+                    router.push({
+                      pathname: "/studyMode",
+                      params: {
+                        cards: JSON.stringify(cards),
+                        topic: topic || "Flashcards",
+                      },
+                    });
+                  } catch (error: any) {
+                    Alert.alert(
+                      "Error",
+                      error.message || "Something went wrong",
+                    );
+                  } finally {
+                    setIsGenerating(false);
+                  }
+                }}
+              >
+                {isGenerating ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <>
+                    <Ionicons
+                      name="sparkles"
+                      size={18}
+                      color={colors.white}
+                      style={styles.sparkleIcon}
+                    />
+                    <Text style={styles.generateButtonText}>
+                      Generate Flashcards
+                    </Text>
+                  </>
+                )}
               </TouchableOpacity>
-              <TouchableOpacity style={styles.secondaryBtn}>
-                <Ionicons
-                  name="share-social"
-                  size={16}
-                  color={colors.primary}
-                  style={styles.secIcon}
-                />
-                <Text style={styles.secondaryBtnText}>Share</Text>
-              </TouchableOpacity>
+
+              <View style={styles.bottomSecondaryButtons}>
+                <TouchableOpacity style={styles.secondaryBtn}>
+                  <Ionicons name="save" size={16} color={colors.primary} />
+                  <Text style={styles.secondaryBtnText}>Save</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.secondaryBtn}>
+                  <Ionicons
+                    name="share-social"
+                    size={16}
+                    color={colors.primary}
+                  />
+                  <Text style={styles.secondaryBtnText}>Share</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </ScrollView>
         </View>
@@ -632,5 +706,23 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 14,
     color: colors.primary,
+  },
+
+  uploadSubtext: {
+    fontSize: 10,
+    color: "#A098AE",
+  },
+
+  footer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.white,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: Platform.OS === "ios" ? 25 : 15,
+    borderTopWidth: 1,
+    borderTopColor: "#F4EDF8",
   },
 });
