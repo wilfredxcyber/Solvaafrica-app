@@ -1,93 +1,92 @@
-import {
-  Dimensions,
-  StyleSheet,
-  View,
-  ActivityIndicator,
-  Text,
-} from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { View, ActivityIndicator, Text, Platform } from "react-native";
+import { useLocalSearchParams, router } from "expo-router";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { WebView } from "react-native-webview";
-import { hscale } from "../helpers/metric";
+import * as FileSystem from "expo-file-system";
+import * as IntentLauncher from "expo-intent-launcher";
 
 export default function PdfViewerPage() {
   const { id } = useLocalSearchParams();
 
-  const [viewerUrl, setViewerUrl] = useState(null);
-  const [webLoading, setWebLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [hasOpened, setHasOpened] = useState(false);
 
   useEffect(() => {
-    const loadFile = async () => {
+    if (hasOpened) return; // 🚫 prevent reopening when coming back
+
+    const openFile = async () => {
       try {
         const stored = await AsyncStorage.getItem("DownloadRefs");
         const list = stored ? JSON.parse(stored) : [];
 
         const file = list[id ? Number(id) : 0];
 
-        if (file?.sourceUrl) {
-          const clean = file.sourceUrl.trim();
-
-          const googleViewer =
-            "https://docs.google.com/gview?embedded=true&url=" +
-            encodeURIComponent(clean);
-
-          setViewerUrl(googleViewer);
+        if (!file) {
+          setLoading(false);
+          return;
         }
+
+        console.log("Opening file:", file);
+
+        if (Platform.OS === "android") {
+          const fileInfo = await FileSystem.getInfoAsync(file.filePath);
+
+          console.log("File exists:", fileInfo.exists);
+          console.log("File path:", file.filePath);
+
+          if (fileInfo.exists) {
+            // ✅ Convert file:// → content://
+            const contentUri = await FileSystem.getContentUriAsync(
+              file.filePath,
+            );
+
+            await IntentLauncher.startActivityAsync(
+              "android.intent.action.VIEW",
+              {
+                data: contentUri,
+                flags: 1 << 0, // FLAG_GRANT_READ_URI_PERMISSION
+                type: "application/pdf",
+              },
+            );
+          } else if (file.sourceUrl) {
+            // 🌐 fallback (if file missing locally)
+            await IntentLauncher.startActivityAsync(
+              "android.intent.action.VIEW",
+              {
+                data: file.sourceUrl,
+                type: "application/pdf",
+              },
+            );
+          } else {
+            console.log("File not found anywhere");
+          }
+        }
+
+        // ✅ mark opened so it doesn't loop
+        setHasOpened(true);
+
+        // ✅ go back automatically (best UX)
+        router.back();
       } catch (err) {
-        console.log("PDF load error:", err);
+        console.log("PDF open error:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    loadFile();
-  }, [id]);
-
-  if (!viewerUrl) {
-    return (
-      <View style={styles.loader}>
-        <Text>PDF not available</Text>
-      </View>
-    );
-  }
+    openFile();
+  }, [id, hasOpened]);
 
   return (
-    <View style={styles.container}>
-      {webLoading && (
-        <View style={styles.loader}>
-          <ActivityIndicator size="large" />
-          <Text>Opening PDF...</Text>
-        </View>
-      )}
-
-      <WebView
-        source={{ uri: viewerUrl }}
-        style={styles.webview}
-        originWhitelist={["*"]}
-        onLoadStart={() => setWebLoading(true)}
-        onLoadEnd={() => setWebLoading(false)}
-      />
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <ActivityIndicator size="large" />
+      <Text>Opening PDF...</Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginTop: hscale(25),
-  },
-  webview: {
-    flex: 1,
-    width: Dimensions.get("window").width,
-  },
-  loader: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "white",
-    zIndex: 10,
-  },
-});

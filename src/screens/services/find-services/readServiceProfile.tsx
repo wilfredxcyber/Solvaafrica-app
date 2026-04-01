@@ -7,6 +7,7 @@ import {
   Linking,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import React, { useCallback, useLayoutEffect, useState } from "react";
 import { useFocusEffect, useRouter, useLocalSearchParams } from "expo-router";
@@ -19,13 +20,18 @@ import Carousel from "pinar";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AUTH_API_CLIENT } from "@/src/api/apiClient";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuthStore } from "@/src/stores/authStore";
 
 export default function ReadServiceProfile() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  
+
+  const loginUser = useAuthStore((state) => state.user);
+
+  const loginFreelancerId = loginUser?.profile?.freelancerId ?? "";
+
   // Parse userData from params
-  const userData = params.userData 
+  const userData = params.userData
     ? JSON.parse(params.userData as string)
     : null;
 
@@ -37,6 +43,7 @@ export default function ReadServiceProfile() {
 
   const freelancerId = userData?.id;
 
+  console.log(loginFreelancerId, freelancerId);
   const getFreelancerInfo = async () => {
     if (!freelancerId) return;
 
@@ -50,7 +57,7 @@ export default function ReadServiceProfile() {
             "Cache-Control": "no-store, no-cache, max-age=0",
             Pragma: "no-cache",
           },
-        }
+        },
       );
       if (response.status === 200) {
         setUser(response.data.data.freelancer);
@@ -83,7 +90,7 @@ export default function ReadServiceProfile() {
   useFocusEffect(
     useCallback(() => {
       getFreelancerInfo();
-    }, [freelancerId])
+    }, [freelancerId]),
   );
 
   // In Expo Router, header customization is typically done in layout files
@@ -96,12 +103,12 @@ export default function ReadServiceProfile() {
     if (user) {
       router.push({
         pathname: "/(services)/services-profile/add-review",
-        params: { userData: JSON.stringify(user) }
+        params: { userData: JSON.stringify(user) },
       });
     }
   };
 
- /**  const handleEditProfilePress = () => {
+  /**  const handleEditProfilePress = () => {
     if (user) {
       router.push({
         pathname: "/(services)/services-profile/edit-profile",
@@ -114,7 +121,12 @@ export default function ReadServiceProfile() {
   // Show loading if userData is not available yet
   if (!userData) {
     return (
-      <View style={[globalStyles.screen, { justifyContent: "center", alignItems: "center" }]}>
+      <View
+        style={[
+          globalStyles.screen,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
         <ActivityIndicator size="large" color={colors.primary} />
         <Text style={{ marginTop: mscale(10), fontFamily: "Inter-Regular" }}>
           Loading profile data...
@@ -155,25 +167,31 @@ export default function ReadServiceProfile() {
     );
   }
 
+  console.log(user);
+
   return (
     <ScrollView style={globalStyles.screen}>
       {/* Custom Header with User Name */}
-      <View style={{
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        paddingHorizontal: mscale(16),
-        paddingVertical: mscale(12),
-        backgroundColor: colors.primary,
-      }}>
-        <Text style={{
-          fontSize: mscale(20),
-          fontFamily: "Inter-Bold",
-          color: "#fff",
-        }}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingHorizontal: mscale(16),
+          paddingVertical: mscale(12),
+          backgroundColor: colors.primary,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: mscale(20),
+            fontFamily: "Inter-Bold",
+            color: "#fff",
+          }}
+        >
           {user.fullName || "Profile"}
         </Text>
-        
+
         {/* Edit Profile Button - Only show if user is viewing their own profile 
         <TouchableOpacity onPress={handleEditProfilePress}>
           <Ionicons name="create-outline" size={24} color="#fff" />
@@ -304,7 +322,13 @@ export default function ReadServiceProfile() {
         >
           {user?.whatsappLink && (
             <TouchableOpacity
-              onPress={() => Linking.openURL(user.whatsappLink)}
+              onPress={() => {
+                const phone = user.whatsappLink;
+                const cleanPhone = phone.replace(/[^0-9]/g, "");
+                const url = `https://wa.me/${cleanPhone}`;
+
+                Linking.openURL(url);
+              }}
               style={{ alignItems: "center", gap: mscale(10) }}
             >
               <FontAwesome6 name="whatsapp" size={20} color="green" />
@@ -315,7 +339,22 @@ export default function ReadServiceProfile() {
           )}
           {user?.phoneNumber && (
             <TouchableOpacity
-              onPress={() => Linking.openURL(`tel:${user.phoneNumber}`)}
+              onPress={async () => {
+                const cleanPhone = user.phoneNumber.replace(/[^0-9+]/g, "");
+
+                const url = `tel:${cleanPhone}`;
+
+                const supported = await Linking.canOpenURL(url);
+
+                if (supported) {
+                  Linking.openURL(url);
+                } else {
+                  Alert.alert(
+                    "Error",
+                    "Phone call is not supported on this device",
+                  );
+                }
+              }}
               style={{ alignItems: "center", gap: mscale(10) }}
             >
               <Entypo name="phone" size={20} color="black" />
@@ -328,7 +367,13 @@ export default function ReadServiceProfile() {
       </View>
 
       {/* Reviews */}
-      <View style={{ paddingHorizontal: mscale(16), marginTop: mscale(20), marginBottom: mscale(40) }}>
+      <View
+        style={{
+          paddingHorizontal: mscale(16),
+          marginTop: mscale(20),
+          marginBottom: mscale(40),
+        }}
+      >
         <Text
           style={{
             fontSize: mscale(16),
@@ -409,31 +454,34 @@ export default function ReadServiceProfile() {
         )}
 
         {/* Add Review Button */}
-        <TouchableOpacity
-          onPress={handleAddReviewPress}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: mscale(10),
-            marginBottom: mscale(20),
-            backgroundColor: colors.primary,
-            padding: mscale(12),
-            borderRadius: mscale(8),
-            justifyContent: "center",
-            marginTop: mscale(20),
-          }}
-        >
-          <Entypo name="plus" size={20} color="#fff" />
-          <Text
+
+        {loginFreelancerId !== freelancerId && (
+          <TouchableOpacity
+            onPress={handleAddReviewPress}
             style={{
-              fontFamily: "Inter-Regular",
-              fontSize: mscale(16),
-              color: "#fff",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: mscale(10),
+              marginBottom: mscale(20),
+              backgroundColor: colors.primary,
+              padding: mscale(12),
+              borderRadius: mscale(8),
+              justifyContent: "center",
+              marginTop: mscale(20),
             }}
           >
-            Add Review
-          </Text>
-        </TouchableOpacity>
+            <Entypo name="plus" size={20} color="#fff" />
+            <Text
+              style={{
+                fontFamily: "Inter-Regular",
+                fontSize: mscale(16),
+                color: "#fff",
+              }}
+            >
+              Add Review
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     </ScrollView>
   );

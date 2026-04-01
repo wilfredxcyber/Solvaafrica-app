@@ -53,7 +53,7 @@ const buildStableSuffix = (value?: string) => {
 const buildStoredFileName = (
   originalFileName: string,
   fileCode?: string,
-  sourceUrl?: string
+  sourceUrl?: string,
 ) => {
   const { baseName, extension } = splitFileName(originalFileName);
   const safeCode = (fileCode ?? "").trim().replace(/[^\w-]+/g, "_");
@@ -73,7 +73,6 @@ const isAbsoluteHttpUrl = (uri: string) => {
     return false;
   }
 };
-
 
 const isValidDownloadUrl = (uri: string) => {
   if (!isAbsoluteHttpUrl(uri)) return false;
@@ -96,14 +95,18 @@ const isValidDownloadUrl = (uri: string) => {
   }
 };
 
-const buildNormalizedDownloadUrl = (rawUrl: string) => normalizeRemoteFileUrl(rawUrl);
+const buildNormalizedDownloadUrl = (rawUrl: string) =>
+  normalizeRemoteFileUrl(rawUrl);
 
-export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: string) => {
+export const useDownloadFile = (
+  initiateDownload: boolean = false,
+  fileCode?: string,
+) => {
   const downloadFile = async (
     fileDirectory: FileDirectory,
     downloadFileUri: string,
     originalFileName: string,
-    overrideFileCode?: string
+    overrideFileCode?: string,
   ) => {
     try {
       const effectiveFileCode = overrideFileCode ?? fileCode;
@@ -116,7 +119,7 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
         });
         Alert.alert(
           "Invalid file URL",
-          "This file link is invalid. Please contact support or refresh data."
+          "This file link is invalid. Please contact support or refresh data.",
         );
         return { isExistingFile: null, fileUri: null, success: false };
       }
@@ -135,7 +138,10 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
       // Handle platform-specific downloads
       let result;
       if (Platform.OS === "web") {
-        result = await handleWebDownload(normalizedDownloadUri, downloadedFileRef);
+        result = await handleWebDownload(
+          normalizedDownloadUri,
+          downloadedFileRef,
+        );
       } else {
         result = await handleMobileDownload(
           fileDirectory,
@@ -143,7 +149,7 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
           originalFileName,
           effectiveFileCode,
           normalizedDownloadUri,
-          downloadedFileRef
+          downloadedFileRef,
         );
       }
 
@@ -160,28 +166,34 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
     }
   };
 
-  const saveDownloadReference = async (downloadedFileRef: DownloadedFileRef) => {
+  const saveDownloadReference = async (
+    downloadedFileRef: DownloadedFileRef,
+  ) => {
     try {
       const downloadRefsInStore = await AsyncStorage.getItem("DownloadRefs");
       if (downloadRefsInStore) {
-        const downloadRefsList: DownloadedFileRef[] = JSON.parse(downloadRefsInStore);
+        const downloadRefsList: DownloadedFileRef[] =
+          JSON.parse(downloadRefsInStore);
 
         // Check if file already exists in references
-        const existingIndex = downloadRefsList.findIndex((ref: DownloadedFileRef) => {
-          const sameParent = ref.parentDirectory === downloadedFileRef.parentDirectory;
-          const sameSource =
-            !!ref.sourceUrl &&
-            !!downloadedFileRef.sourceUrl &&
-            ref.sourceUrl === downloadedFileRef.sourceUrl;
-          const samePath = ref.filePath === downloadedFileRef.filePath;
-          const sameFile =
-            !ref.sourceUrl &&
-            !downloadedFileRef.sourceUrl &&
-            ref.fileName === downloadedFileRef.fileName &&
-            (ref.fileCode ?? "") === (downloadedFileRef.fileCode ?? "");
+        const existingIndex = downloadRefsList.findIndex(
+          (ref: DownloadedFileRef) => {
+            const sameParent =
+              ref.parentDirectory === downloadedFileRef.parentDirectory;
+            const sameSource =
+              !!ref.sourceUrl &&
+              !!downloadedFileRef.sourceUrl &&
+              ref.sourceUrl === downloadedFileRef.sourceUrl;
+            const samePath = ref.filePath === downloadedFileRef.filePath;
+            const sameFile =
+              !ref.sourceUrl &&
+              !downloadedFileRef.sourceUrl &&
+              ref.fileName === downloadedFileRef.fileName &&
+              (ref.fileCode ?? "") === (downloadedFileRef.fileCode ?? "");
 
-          return sameParent && (sameSource || samePath || sameFile);
-        });
+            return sameParent && (sameSource || samePath || sameFile);
+          },
+        );
 
         if (existingIndex >= 0) {
           // Update existing reference
@@ -191,9 +203,15 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
           downloadRefsList.push(downloadedFileRef);
         }
 
-        await AsyncStorage.setItem("DownloadRefs", JSON.stringify(downloadRefsList));
+        await AsyncStorage.setItem(
+          "DownloadRefs",
+          JSON.stringify(downloadRefsList),
+        );
       } else {
-        await AsyncStorage.setItem("DownloadRefs", JSON.stringify([downloadedFileRef]));
+        await AsyncStorage.setItem(
+          "DownloadRefs",
+          JSON.stringify([downloadedFileRef]),
+        );
       }
 
       console.log("Download reference saved:", downloadedFileRef);
@@ -208,15 +226,24 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
     originalFileName: string,
     fileCode?: string,
     sourceUrl?: string,
-    downloadedFileRef?: DownloadedFileRef
+    downloadedFileRef?: DownloadedFileRef,
   ) => {
-    const filesDownloadsDirectoryPath = FileSystem.documentDirectory + `${fileDirectory}`;
-    const storedFileName = buildStoredFileName(originalFileName, fileCode, sourceUrl);
+    const filesDownloadsDirectoryPath =
+      FileSystem.documentDirectory + `${fileDirectory}`;
+    const storedFileName = buildStoredFileName(
+      originalFileName,
+      fileCode,
+      sourceUrl,
+    );
     const storedFilePath = `${filesDownloadsDirectoryPath}/${storedFileName}`;
-    const filesDirectoryExist = (await FileSystem.getInfoAsync(filesDownloadsDirectoryPath)).exists;
+    const filesDirectoryExist = (
+      await FileSystem.getInfoAsync(filesDownloadsDirectoryPath)
+    ).exists;
 
     if (!filesDirectoryExist) {
-      await FileSystem.makeDirectoryAsync(filesDownloadsDirectoryPath, { intermediates: true });
+      await FileSystem.makeDirectoryAsync(filesDownloadsDirectoryPath, {
+        intermediates: true,
+      });
     }
 
     // Check if file already exists
@@ -236,7 +263,10 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
 
     // Proceed to download file
     if (initiateDownload) {
-      const downloadedFile = await FileSystem.downloadAsync(downloadFileUri, storedFilePath);
+      const downloadedFile = await FileSystem.downloadAsync(
+        downloadFileUri,
+        storedFilePath,
+      );
 
       // Update file path in reference for mobile
       if (downloadedFileRef) {
@@ -255,7 +285,7 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
 
   const handleWebDownload = async (
     downloadFileUri: string,
-    downloadedFileRef?: DownloadedFileRef
+    downloadedFileRef?: DownloadedFileRef,
   ) => {
     /**
      * On web:
@@ -277,7 +307,9 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
       });
 
       if (res.status === 404) {
-        console.error("Web download validation failed with 404", { downloadFileUri });
+        console.error("Web download validation failed with 404", {
+          downloadFileUri,
+        });
         return { isExistingFile: null, fileUri: null, success: false };
       }
 
@@ -287,7 +319,10 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
 
       return { isExistingFile: true, fileUri: downloadFileUri, success: true };
     } catch (error) {
-      console.error("Web download validation warning (storing URL anyway):", error);
+      console.error(
+        "Web download validation warning (storing URL anyway):",
+        error,
+      );
 
       if (downloadedFileRef) {
         downloadedFileRef.filePath = downloadFileUri;
@@ -301,6 +336,3 @@ export const useDownloadFile = (initiateDownload: boolean = false, fileCode?: st
 
   return downloadFile;
 };
-
-
-

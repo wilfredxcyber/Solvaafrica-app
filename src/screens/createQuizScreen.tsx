@@ -192,7 +192,6 @@ export default function CreateQuizScreen() {
               <View style={styles.dividerLine} />
             </View>
 
-            {/* File Upload Section */}
             <TouchableOpacity
               style={[
                 styles.uploadContainer,

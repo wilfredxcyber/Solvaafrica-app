@@ -11,10 +11,12 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "@/src/constants/theme";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { kemiService } from "../api/apiClient";
 
 export default function StudyModeScreen() {
+  const { cards, topic } = useLocalSearchParams();
+
   const router = useRouter();
 
   // Animation mechanics
@@ -27,14 +29,12 @@ export default function StudyModeScreen() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadCards = async () => {
-      // using the mock generation service from apiClient
-      const data = await kemiService.generate("flashcard", "Chemistry 101");
-      setFlashcards(data as any[]);
+    if (cards) {
+      const parsedCards = JSON.parse(cards as string);
+      setFlashcards(parsedCards);
       setIsLoading(false);
-    };
-    loadCards();
-  }, []);
+    }
+  }, [cards]);
 
   const flipCard = () => {
     Animated.spring(flipAnim, {
@@ -48,35 +48,25 @@ export default function StudyModeScreen() {
 
   const nextCard = () => {
     if (isFlipped) {
-      Animated.timing(flipAnim, {
-        toValue: 0,
-        duration: 0,
-        useNativeDriver: true,
-      }).start();
+      flipAnim.setValue(0);
       setIsFlipped(false);
     }
-    if (currentIndex < 19) {
-      // Mocking 20 total cards length
+
+    if (currentIndex < flashcards.length - 1) {
       setCurrentIndex((prev) => prev + 1);
     } else {
-      router.back(); // End of stack
+      router.back();
     }
   };
 
   const prevCard = () => {
     if (isFlipped) {
-      Animated.timing(flipAnim, {
-        toValue: 0,
-        duration: 0,
-        useNativeDriver: true,
-      }).start();
+      flipAnim.setValue(0);
       setIsFlipped(false);
     }
-    if (currentIndex < 19) {
-      // Mocking 20 total cards length
-      setCurrentIndex((prev) => prev + 1);
-    } else {
-      router.back(); // End of stack
+
+    if (currentIndex > 0) {
+      setCurrentIndex((prev) => prev - 1);
     }
   };
 
@@ -114,11 +104,11 @@ export default function StudyModeScreen() {
   };
 
   // Safe fallbacks for display while loading
-  const totalCards = 20;
+  const totalCards = flashcards.length || 0;
   const displayIndex = currentIndex + 1;
-  const currentCard = flashcards.length > 0 ? flashcards[0] : null;
+  const currentCard = flashcards.length > 0 ? flashcards[currentIndex] : null;
   // Normally it would be flashcards[currentIndex], but mock only returns 1. We'll use the 1 card repeatedly for demo.
-
+  console.log(flashcards);
   return (
     <View
       style={[
@@ -161,7 +151,7 @@ export default function StudyModeScreen() {
           {/* Progress Bar Area */}
           <View style={styles.progressContainer}>
             <View style={styles.progressMeta}>
-              <Text style={styles.topicText}>CHEMISTRY 101</Text>
+              <Text style={styles.topicText}>{topic}</Text>
               <Text style={styles.progressText}>
                 {displayIndex} / {totalCards}
               </Text>
@@ -201,13 +191,11 @@ export default function StudyModeScreen() {
                     <Ionicons name="beaker" size={36} color={colors.primary} />
                   </View>
                   <Text style={styles.cardQuestion}>
-                    {isLoading
-                      ? "Loading..."
-                      : "What is the chemical symbol for Gold?"}
+                    {isLoading ? "Loading..." : currentCard?.front}
                   </Text>
-                  <Text style={styles.cardHint}>
+                  {/* <Text style={styles.cardHint}>
                     {isLoading ? "" : "Think about the Latin name 'Aurum'"}
-                  </Text>
+                  </Text> */}
                 </View>
 
                 <View style={styles.cardBottomRow}>
@@ -285,8 +273,10 @@ export default function StudyModeScreen() {
 
           {/* Feedback Buttons Area */}
           <View style={styles.evaluationSection}>
-            <Text style={styles.evaluationTitle}>HOW WAS THIS CARD?</Text>
-            <View style={styles.feedbackRow}>
+            {/* <Text style={styles.evaluationTitle}>HOW WAS THIS CARD?</Text> */}
+
+            {/* Feedback Buttons */}
+            {/* <View style={styles.feedbackRow}>
               <TouchableOpacity
                 style={styles.feedbackButton}
                 onPress={nextCard}
@@ -319,6 +309,35 @@ export default function StudyModeScreen() {
                   />
                 </View>
                 <Text style={styles.feedbackLabel}>EASY</Text>
+              </TouchableOpacity>
+            </View> */}
+
+            {/* 🔥 NEW NAVIGATION BUTTONS */}
+            <View style={styles.navRow}>
+              <TouchableOpacity
+                style={styles.navButton}
+                onPress={prevCard}
+                disabled={currentIndex === 0}
+              >
+                <Ionicons
+                  name="chevron-back"
+                  size={20}
+                  color={colors.primary}
+                />
+                <Text style={styles.navText}>Prev</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.navButton}
+                onPress={nextCard}
+                disabled={currentIndex === flashcards.length - 1}
+              >
+                <Text style={styles.navText}>Next</Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={20}
+                  color={colors.primary}
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -371,6 +390,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#A098AE",
     letterSpacing: 1,
+    textTransform: "uppercase",
   },
   progressText: {
     fontWeight: "bold",
@@ -540,5 +560,31 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 12,
     color: colors.primary,
+  },
+
+  navRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+    width: "100%",
+    maxWidth: 400,
+  },
+
+  navButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#EAD6EE",
+    backgroundColor: "#FFF",
+  },
+
+  navText: {
+    fontWeight: "bold",
+    fontSize: 14,
+    color: colors.primary,
+    marginHorizontal: 6,
   },
 });

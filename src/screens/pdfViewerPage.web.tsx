@@ -1,5 +1,4 @@
 import {
-  Dimensions,
   StyleSheet,
   View,
   ActivityIndicator,
@@ -11,7 +10,6 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { WebView } from "react-native-webview";
-import { hscale } from "../helpers/metric";
 
 export default function PdfViewerPage() {
   const { id } = useLocalSearchParams();
@@ -46,6 +44,7 @@ export default function PdfViewerPage() {
     loadFile();
   }, [id]);
 
+  // 🔄 Loading state
   if (loading) {
     return (
       <View style={styles.loader}>
@@ -55,6 +54,7 @@ export default function PdfViewerPage() {
     );
   }
 
+  // ❌ No file
   if (!viewerUrl) {
     return (
       <View style={styles.loader}>
@@ -66,14 +66,7 @@ export default function PdfViewerPage() {
   return (
     <View style={styles.container}>
       {Platform.OS === "web" ? (
-        <iframe
-          src={viewerUrl}
-          style={{
-            width: "100vw",
-            height: "100vh",
-            border: "none",
-          }}
-        />
+        <iframe src={viewerUrl} style={styles.iframe} />
       ) : (
         <WebView source={{ uri: viewerUrl }} style={styles.webview} />
       )}
@@ -84,14 +77,19 @@ export default function PdfViewerPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: hscale(25),
+    backgroundColor: "#000", // optional (nice for PDFs)
   },
 
   webview: {
     flex: 1,
-    width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height,
   },
+
+  iframe: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    borderWidth: 0,
+  } as any, // 👈 required for RN web
 
   loader: {
     flex: 1,
