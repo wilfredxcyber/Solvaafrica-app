@@ -37,7 +37,6 @@ export default function GenerateFlashcardsScreen() {
       const result = await DocumentPicker.getDocumentAsync({
         type: [
           "application/pdf",
-          "image/*",
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         ],
       });

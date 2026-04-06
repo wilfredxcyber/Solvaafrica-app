@@ -21,6 +21,13 @@ import { API_BASE_URL } from "../api/apiClient";
 import { createQuiz } from "../api/quizService";
 import { formatQuizQuestions } from "@/utils/formatQuiz";
 
+type QuizQuestion = {
+  id: number;
+  question: string;
+  options: string[];
+  correctIndex: number;
+};
+
 export default function CreateQuizScreen() {
   const router = useRouter();
   const [difficulty, setDifficulty] = useState("Medium");
@@ -28,21 +35,21 @@ export default function CreateQuizScreen() {
   const [file, setFile] = useState<any>(null);
   const [quizType, setQuizType] = useState("Multiple Choice");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [quizQuestions, setQuizQuestions] = useState([
-    {
-      id: 1,
-      question:
-        "What is the primary byproduct of photosynthesis released into the atmosphere?",
-      options: ["A) Carbon Dioxide", "B) Oxygen", "C) Nitrogen", "D) Hydrogen"],
-      correctIndex: 1,
-    },
-    {
-      id: 2,
-      question:
-        "Which pigment is responsible for absorbing light energy during photosynthesis?",
-      options: ["A) Chlorophyll", "B) Carotene", "C) Hemoglobin", "D) Melanin"],
-      correctIndex: 0,
-    },
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([
+    // {
+    //   id: 1,
+    //   question:
+    //     "What is the primary byproduct of photosynthesis released into the atmosphere?",
+    //   options: ["A) Carbon Dioxide", "B) Oxygen", "C) Nitrogen", "D) Hydrogen"],
+    //   correctIndex: 1,
+    // },
+    // {
+    //   id: 2,
+    //   question:
+    //     "Which pigment is responsible for absorbing light energy during photosynthesis?",
+    //   options: ["A) Chlorophyll", "B) Carotene", "C) Hemoglobin", "D) Melanin"],
+    //   correctIndex: 0,
+    // },
   ]);
   const [editingId, setEditingId] = useState<number | null>(null);
   const isTopicFilled = topic.trim().length > 0;
@@ -71,7 +78,6 @@ export default function CreateQuizScreen() {
       const result = await DocumentPicker.getDocumentAsync({
         type: [
           "application/pdf",
-          "image/*",
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         ],
       });
