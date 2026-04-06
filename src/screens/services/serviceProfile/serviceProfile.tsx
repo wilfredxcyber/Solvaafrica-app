@@ -14,7 +14,7 @@ import React, {
   useLayoutEffect,
   useState,
 } from "react";
-import { useRouter, useNavigation } from "expo-router";
+import { useRouter, useNavigation, useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { globalStyles } from "@/src/styles/global";
 import { hscale, mscale, wscale } from "@/src/helpers/metric";
@@ -246,14 +246,27 @@ export default function ServiceProfile() {
     userRole,
   ]);
 
-  useEffect(() => {
-    if (!authUser) {
-      setLoading(false);
-      return;
+  const handleEditProfilePress = () => {
+    if (user) {
+      router.push({
+        pathname: "/(services)/services-profile/edit-profile",
+        params: { id: user.id },
+      });
     }
+  };
 
-    void getFreelancerInfo();
-  }, [authUser?.profile?.userID]);
+  console.log(user);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!authUser) {
+        setLoading(false);
+        return;
+      }
+
+      getFreelancerInfo();
+    }, [authUser]),
+  );
 
   useLayoutEffect(() => {
     if (!user) return;
@@ -309,6 +322,30 @@ export default function ServiceProfile() {
 
   return (
     <ScrollView style={globalStyles.screen}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingHorizontal: mscale(16),
+          paddingVertical: mscale(12),
+          backgroundColor: colors.primary,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: mscale(20),
+            fontFamily: "Inter-Bold",
+            color: "#fff",
+          }}
+        >
+          {user.fullName || "Profile"}
+        </Text>
+        {/* Edit Profile Button - Only show if user is viewing their own profile */}
+        <TouchableOpacity onPress={handleEditProfilePress}>
+          <Ionicons name="create-outline" size={24} color="#fff" />
+        </TouchableOpacity>
+      </View>
       <View
         style={{
           height: hscale(123),

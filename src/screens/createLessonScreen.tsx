@@ -35,6 +35,16 @@ export default function CreateLessonScreen() {
   const [structure, setStructure] = useState("Standard");
   const [difficulty, setDifficulty] = useState("Intermediate");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const showError = (message: string) => {
+    setErrorMessage(message);
+    setErrorVisible(true);
+  };
+
+  const isTopicFilled = topic.trim().length > 0;
+  const isFileSelected = !!file;
 
   // Accordion states
   const [expandedSections, setExpandedSections] = useState<{
@@ -59,59 +69,84 @@ export default function CreateLessonScreen() {
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         ],
       });
-      if (result.assets && result.assets.length > 0) {
-        const pickedFile = result.assets[0];
-        setFile(pickedFile);
 
-        // Simulate AI extraction and outline update
-        setIsGenerating(true);
-        setTimeout(() => {
-          setOutlineItems([
-            {
-              title: "Project Overview",
-              content: `Detailed analysis of objectives found in ${pickedFile.name}.`,
-            },
-            {
-              title: "Core Methodology",
-              content: "Step-by-step breakdown of the technical approach.",
-            },
-            {
-              title: "Resource Allocation",
-              content: "Timeline and budget estimates extracted from the file.",
-            },
-            {
-              title: "Risk Assessment",
-              content:
-                "Identified potential bottlenecks and mitigation strategies.",
-            },
-          ]);
-          setExpandedSections({ "Project Overview": true });
-          setIsGenerating(false);
-        }, 1500);
-      }
+      if (result.canceled) return;
+
+      const pickedFile = result.assets?.[0];
+      if (!pickedFile) return;
+
+      setFile(pickedFile);
     } catch (error) {
-      console.error("Error picking document: ", error);
+      console.error("Error picking document:", error);
+      Alert.alert("Error", "Failed to pick document");
     }
   };
 
-  const [outlineItems, setOutlineItems] = useState([
-    {
-      title: "Introduction",
-      content: "Overview of the topic and key learning objectives.",
-    },
-    {
-      title: "Theory & Concepts",
-      content: "In-depth explanation of the fundamental principles.",
-    },
-    {
-      title: "Practical Examples",
-      content: "Real-world applications and demonstrations.",
-    },
-    {
-      title: "Interactive Activities",
-      content: "Exercises and questions to reinforce learning.",
-    },
+  type OutlineItem = {
+    title: string;
+    content: string;
+  };
+
+  const [outlineItems, setOutlineItems] = useState<OutlineItem[]>([
+    // {
+    //   title: "Introduction",
+    //   content: "Overview of the topic and key learning objectives.",
+    // },
+    // {
+    //   title: "Theory & Concepts",
+    //   content: "In-depth explanation of the fundamental principles.",
+    // },
+    // {
+    //   title: "Practical Examples",
+    //   content: "Real-world applications and demonstrations.",
+    // },
+    // {
+    //   title: "Interactive Activities",
+    //   content: "Exercises and questions to reinforce learning.",
+    // },
   ]);
+
+  const handleGenerateLesson = async () => {
+    try {
+      if (!topic && !file) {
+        Alert.alert("Error", "Provide a topic or upload a document");
+        return;
+      }
+
+      setIsGenerating(true);
+
+      const data = await createLesson({
+        topic,
+        file,
+        difficulty,
+        type: structure,
+      });
+
+      console.log("✅ LESSON:", data);
+
+      const sections = data?.data?.sections;
+
+      if (Array.isArray(sections) && sections.length > 0) {
+        const formatted: OutlineItem[] = sections.map((section: any) => ({
+          title: section.heading,
+          content: section.content,
+        }));
+
+        setOutlineItems(formatted);
+
+        setExpandedSections({
+          [formatted[0].title]: true,
+        });
+      }
+
+      Alert.alert("Success", "Lesson generated!");
+    } catch (error: any) {
+      console.log("❌ ERROR:", error);
+      Alert.alert("Error", error.message || "Something went wrong");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <View
@@ -166,11 +201,12 @@ export default function CreateLessonScreen() {
               <Text style={styles.fieldLabel}>Enter your lesson topic</Text>
               <View style={styles.textInputContainer}>
                 <TextInput
-                  style={styles.textInput}
                   placeholder="e.g. Photosynthesis in plants"
                   placeholderTextColor="#A098AE"
                   value={topic}
                   onChangeText={setTopic}
+                  style={[styles.textInput, isFileSelected && { opacity: 0.5 }]}
+                  editable={!isFileSelected || isGenerating} // 🔥 disables typing
                 />
               </View>
             </View>
@@ -184,20 +220,43 @@ export default function CreateLessonScreen() {
 
             {/* File Upload Section */}
             <TouchableOpacity
-              style={styles.uploadContainer}
+              style={[
+                styles.uploadContainer,
+                isTopicFilled && { opacity: 0.5 },
+              ]}
               onPress={handlePickDocument}
+              disabled={isTopicFilled || isGenerating}
             >
               <Ionicons
                 name={file ? "document-text" : "cloud-upload"}
-                size={28}
+                size={24}
                 color={colors.primary}
               />
+
               <Text style={styles.uploadText} numberOfLines={1}>
-                {file ? file.name : "Upload PDF or DOCX"}
+                {file ? file.name : "Upload PDF, DOCX or Image"}
               </Text>
+
               <Text style={styles.uploadSubtext}>
-                AI will extract content from your files
+                {file && file.size
+                  ? `${(file.size / 1024 / 1024).toFixed(2)} MB`
+                  : "Max file size: 10MB"}
               </Text>
+
+              {/* 🔥 ADD THIS */}
+              {file && (
+                <TouchableOpacity
+                  onPress={() => {
+                    setFile(null);
+                    // setQuizQuestions([]); // optional reset
+                  }}
+                  style={{ marginTop: 10 }}
+                >
+                  <Text style={{ color: "#EF4444", fontWeight: "bold" }}>
+                    Remove File
+                  </Text>
+                </TouchableOpacity>
+              )}
             </TouchableOpacity>
 
             {/* Lesson Structure Cards */}
@@ -353,39 +412,7 @@ export default function CreateLessonScreen() {
             <TouchableOpacity
               style={styles.generateButton}
               disabled={isGenerating}
-              onPress={async () => {
-                try {
-                  if (!topic && !file) {
-                    Alert.alert(
-                      "Error",
-                      "Provide a topic or upload a document",
-                    );
-                    return;
-                  }
-
-                  setIsGenerating(true);
-
-                  const data = await createLesson({
-                    topic,
-                    file,
-                    difficulty,
-                    type: structure,
-                  });
-
-                  console.log("✅ LESSON:", data);
-
-                  // 🔥 OPTIONAL: update outline with API response
-                  if (data?.outline) {
-                    setOutlineItems(data.outline);
-                  }
-
-                  Alert.alert("Success", "Lesson generated!");
-                } catch (error: any) {
-                  Alert.alert("Error", error.message || "Something went wrong");
-                } finally {
-                  setIsGenerating(false);
-                }
-              }}
+              onPress={handleGenerateLesson}
             >
               {isGenerating ? (
                 <Text style={styles.generateButtonText}>

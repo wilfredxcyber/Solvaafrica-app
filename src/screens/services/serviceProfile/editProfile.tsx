@@ -20,22 +20,21 @@ import { FreelancerProfile, ServiceType } from "@/src/types";
 import ErrorModal from "@/src/components/errorModal";
 import { Picker } from "@react-native-picker/picker";
 import ToastManager, { Toast } from "toastify-react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function EditProfile() {
+  const { id } = useLocalSearchParams();
   const router = useRouter();
   const params = useLocalSearchParams();
-  
-  // Parse userData from params
-  const userData: FreelancerProfile = params.userData 
-    ? JSON.parse(params.userData as string)
-    : null;
+  const [userData, setUserData] = useState<FreelancerProfile | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [categories, setCategories] = useState<ServiceType[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
-    null
+    null,
   );
+  const [initialized, setInitialized] = useState(false);
 
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -48,6 +47,56 @@ export default function EditProfile() {
   const [phone, setPhone] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [uni, setUni] = useState("");
+
+  const cleanImageUrl = (url?: string | null) => {
+    if (!url) return null;
+
+    return url
+      .trim()
+      .replace(/\s/g, "") // remove ALL spaces
+      .replace("%20", "") // remove encoded space
+      .replace("%2F", "/"); // fix Firebase path encoding if needed
+  };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (!id) return;
+
+      try {
+        const response = await AUTH_API_CLIENT.get(`/freelancers/${id}`);
+        console.log(response);
+
+        if (response.status === 200) {
+          const data = response.data?.data?.freelancer ?? response.data?.data;
+
+          setUserData(data);
+        }
+      } catch (error) {
+        console.log("Failed to fetch user:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [id]);
+
+  useEffect(() => {
+    if (userData && !initialized) {
+      // console.log(userData);
+      setName(userData.fullName || "");
+      setDescription(userData.bio || "");
+      setAmount(String(userData.startingAmount || ""));
+      setPortfolio(userData.portfolioLink || "");
+      setPhone(userData.phoneNumber || "");
+      setWhatsapp(userData.whatsappLink || "");
+      setProfileImageUri(userData.profilePic || null);
+      setSelectedCategoryId(userData.categoryId?.toString() || null);
+      setUni(userData.location || "");
+
+      setInitialized(true); // 👈 prevents reset
+    }
+  }, [userData, initialized]);
 
   useEffect(() => {
     const getServices = async () => {
@@ -67,24 +116,24 @@ export default function EditProfile() {
     getServices();
   }, []);
 
-  useEffect(() => {
-    if (userData) {
-      setName(userData.fullName || "");
-      setDescription(userData.bio || "");
-      setAmount(String(userData.startingAmount || ""));
-      setPortfolio(userData.portfolioLink || "");
-      setPhone(userData.phoneNumber || "");
-      setWhatsapp(userData.whatsappLink || "");
-      setProfileImageUri(userData.profilePic || null);
-      setSelectedCategoryId(userData.categoryId?.toString() || null);
-      setUni(userData.location || "");
-    }
-  }, [userData]);
+  // useEffect(() => {
+  //   if (userData) {
+  //     setName(userData.fullName || "");
+  //     setDescription(userData.bio || "");
+  //     setAmount(String(userData.startingAmount || ""));
+  //     setPortfolio(userData.portfolioLink || "");
+  //     setPhone(userData.phoneNumber || "");
+  //     setWhatsapp(userData.whatsappLink || "");
+  //     setProfileImageUri(userData.profilePic || null);
+  //     setSelectedCategoryId(userData.categoryId?.toString() || null);
+  //     setUni(userData.location || "");
+  //   }
+  // }, [userData]);
 
   const handlePickProfileImage = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"], // ✅ THIS is the correct workaround
         quality: 1,
         allowsEditing: true,
       });
@@ -95,85 +144,101 @@ export default function EditProfile() {
     } catch {
       ToastAndroid.show(
         "Failed to pick image. Please try again.",
-        ToastAndroid.LONG
+        ToastAndroid.LONG,
       );
     }
   };
 
   const handleUpdate = async () => {
-    if (
-      !name ||
-      !selectedCategoryId ||
-      !description ||
-      !amount ||
-      !portfolio ||
-      !phone ||
-      !whatsapp ||
-      !uni
-    ) {
-      ToastAndroid.show("All fields are required.", ToastAndroid.LONG);
-      return;
-    }
+    const isValidUrl = (url: string) => {
+      try {
+        new URL(url);
+        return true;
+      } catch {
+        return false;
+      }
+    };
 
-    const formData = new FormData();
-    formData.append("fullName", name.trim());
-    formData.append("categoryId", String(selectedCategoryId));
-    formData.append("bio", description);
-    formData.append("startingAmount", amount);
-    formData.append("portfolioLink", portfolio.trim());
-    formData.append("phoneNumber", phone);
-    formData.append("whatsappLink", whatsapp);
-    formData.append("location", uni);
+    if (!name.trim()) return Toast.error("Name is required");
+    if (!selectedCategoryId) return Toast.error("Select a category");
+    if (description.trim().length < 10)
+      return Toast.error("Description too short");
+    if (!amount || isNaN(Number(amount))) return Toast.error("Invalid amount");
+    if (!isValidUrl(portfolio)) return Toast.error("Invalid portfolio link");
+    if (phone.length < 10) return Toast.error("Invalid phone number");
+    if (!whatsapp.startsWith("http"))
+      return Toast.error("Invalid WhatsApp link");
+    if (!uni.trim()) return Toast.error("Location required");
 
-    if (profileImageUri && profileImageUri !== userData?.profilePic) {
-      const fileName = profileImageUri.split("/").pop() || "profile.jpg";
-      const fileType = fileName.split(".").pop();
-      const mimeType = fileType === "png" ? "image/png" : "image/jpeg";
-      formData.append("profilePic", {
-        uri: profileImageUri,
-        name: fileName,
-        type: mimeType,
-      } as any);
-    }
-    console.log(formData, "fd");
     try {
       setUpdating(true);
-      const response = await AUTH_API_CLIENT.patch(
-        `/freelancers/edit`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
+
+      const formData = new FormData();
+      formData.append("fullName", name.trim());
+      formData.append("categoryId", String(selectedCategoryId));
+      formData.append("bio", description);
+      formData.append("startingAmount", amount);
+      formData.append("portfolioLink", portfolio.trim());
+      formData.append("phoneNumber", phone);
+      formData.append("whatsappLink", whatsapp);
+      formData.append("location", uni);
+
+      if (profileImageUri && profileImageUri !== userData?.profilePic) {
+        const fileName = profileImageUri.split("/").pop() || "profile.jpg";
+
+        if (Platform.OS === "web") {
+          // ✅ WEB FIX
+          const response = await fetch(profileImageUri);
+          const blob = await response.blob();
+
+          formData.append("profilePic", blob, fileName);
+        } else {
+          // ✅ MOBILE (Android/iOS)
+          const fileType = fileName.split(".").pop();
+
+          const mimeType =
+            fileType === "png"
+              ? "image/png"
+              : fileType === "jpg" || fileType === "jpeg"
+                ? "image/jpeg"
+                : "image/jpeg";
+
+          formData.append("profilePic", {
+            uri: profileImageUri,
+            name: fileName,
+            type: mimeType,
+          } as any);
         }
+      }
+
+      const tokenData = await AsyncStorage.getItem("User");
+      const token = tokenData
+        ? JSON.parse(tokenData)?.tokens?.accessToken
+        : null;
+
+      const response = await fetch(
+        "https://api.solvaafrica.com/api/v1/freelancers/edit",
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        },
       );
 
-      console.log(response, "edit res");
-      if (response.status === 200) {
-        Toast.success("Profile updated successfully!");
+      const data = await response.json();
 
-        // Use router.back() to go back, or push to serviceProfile
-        if (router.canGoBack()) {
-          router.back();
-        } else {
-          // If can't go back, navigate to ServiceProfile
-          router.push("/(services)/services-profile/service-profile");
-        }
-      } else {
-        ToastAndroid.show(
-          "Unexpected response from server.",
-          ToastAndroid.LONG
-        );
+      if (!response.ok) {
+        throw new Error(data?.message || "Update failed");
       }
-    } catch (error: any) {
-      if (error.response) {
-        ToastAndroid.show(
-          error.response.data?.message || "Server error.",
-          ToastAndroid.LONG
-        );
-      } else if (error.request) {
-        ToastAndroid.show("No response from server.", ToastAndroid.LONG);
-      } else {
-        ToastAndroid.show("An unexpected error occurred.", ToastAndroid.LONG);
-      }
+
+      Toast.success("Profile updated!");
+
+      router.back(); // ✅ best navigation
+    } catch (err: any) {
+      console.log("UPDATE ERROR:", err);
+      Toast.error(err.message || "Something went wrong");
     } finally {
       setUpdating(false);
     }
@@ -182,7 +247,12 @@ export default function EditProfile() {
   // Show loading if userData is not available yet
   if (!userData) {
     return (
-      <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+      <View
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
         <ActivityIndicator size="large" color={colors.primary} />
         <Text style={{ marginTop: mscale(10), fontFamily: "Inter-Regular" }}>
           Loading profile data...
@@ -200,7 +270,9 @@ export default function EditProfile() {
         style={styles.imagePicker}
       >
         <Image
-          source={{ uri: profileImageUri || undefined }}
+          source={{
+            uri: profileImageUri || undefined,
+          }}
           style={styles.profileImage}
         />
       </TouchableOpacity>
@@ -214,23 +286,19 @@ export default function EditProfile() {
       />
 
       <Text style={styles.label}>Category</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                enabled={!updating}
-                style={styles.picker}
-                selectedValue={selectedCategoryId}
-                onValueChange={(itemValue) => setSelectedCategoryId(itemValue)}
-              >
-                <Picker.Item label="Select a category" value={null} />
-                {categories.map((cat) => (
-                  <Picker.Item
-                    key={cat.id}
-                    label={cat.title}
-                    value={cat.id}
-                  />
-                ))}
-              </Picker>
-            </View>
+      <View style={styles.pickerContainer}>
+        <Picker
+          enabled={!updating}
+          style={styles.picker}
+          selectedValue={selectedCategoryId}
+          onValueChange={(itemValue) => setSelectedCategoryId(itemValue)}
+        >
+          <Picker.Item label="Select a category" value={null} />
+          {categories.map((cat) => (
+            <Picker.Item key={cat.id} label={cat.title} value={cat.id} />
+          ))}
+        </Picker>
+      </View>
 
       <Text style={styles.label}>Location</Text>
       <TextInput
@@ -255,9 +323,17 @@ export default function EditProfile() {
 
       <Text style={styles.label}>Amount (NGN)</Text>
       <TextInput
-        value={amount}
-        onChangeText={setAmount}
-        keyboardType="numeric"
+        value={amount ? `₦${" "}${Number(amount).toLocaleString()}` : ""}
+        onChangeText={(text) => {
+          // remove commas & non-numbers
+          const cleaned = text.replace(/,/g, "").replace(/\D/g, "");
+
+          if (cleaned.length <= 10) {
+            setAmount(cleaned); // 👈 store 500000
+          }
+        }}
+        keyboardType="number-pad"
+        placeholder="Enter amount (NGN)"
         style={styles.input}
         editable={!updating}
       />
@@ -273,8 +349,17 @@ export default function EditProfile() {
       <Text style={styles.label}>Phone Number</Text>
       <TextInput
         value={phone}
-        onChangeText={setPhone}
-        keyboardType="phone-pad"
+        onChangeText={(text) => {
+          // remove anything that is not a number
+          const cleaned = text.replace(/\D/g, "");
+
+          // limit to max 11 digits (Nigeria standard)
+          if (cleaned.length <= 11) {
+            setPhone(cleaned);
+          }
+        }}
+        keyboardType="number-pad"
+        maxLength={11} // extra safety
         style={styles.input}
         editable={!updating}
       />
@@ -290,7 +375,7 @@ export default function EditProfile() {
       <TouchableOpacity
         onPress={handleUpdate}
         disabled={updating}
-        style={styles.updateButton}
+        style={[styles.updateButton, updating && { opacity: 0.6 }]}
       >
         {updating ? (
           <ActivityIndicator size="small" color="#fff" />
@@ -332,16 +417,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#EBEDEB80",
   },
   input: {
-  borderWidth: 1,
-  borderColor: "#000", // black border
-  borderRadius: mscale(8),
-  padding: mscale(12),
-  marginBottom: hscale(16),
-  fontFamily: "Inter-Regular",
-  fontSize: mscale(14),
-  backgroundColor: colors.inputFieldNew, // background added
-  color: "#5C5F62",
-},
+    borderWidth: 1,
+    borderColor: "#000", // black border
+    borderRadius: mscale(8),
+    padding: mscale(12),
+    marginBottom: hscale(16),
+    fontFamily: "Inter-Regular",
+    fontSize: mscale(14),
+    backgroundColor: colors.inputFieldNew, // background added
+    color: "#5C5F62",
+  },
   updateButton: {
     backgroundColor: colors.primary,
     padding: mscale(12),
@@ -354,7 +439,7 @@ const styles = StyleSheet.create({
     fontFamily: "Inter-Bold",
     fontSize: mscale(16),
   },
- pickerContainer: {
+  pickerContainer: {
     borderWidth: 1,
     borderColor: "#000",
     borderRadius: mscale(8),
@@ -367,25 +452,25 @@ const styles = StyleSheet.create({
   },
 
   picker: {
-      color: "#5C5F62",
-      fontFamily: "Inter-Regular",
-      fontSize: mscale(14),
-      backgroundColor: colors.inputFieldNew,
-      ...Platform.select({
-        android: {
-          height: hscale(48),
-        },
-        ios: {
-          height: hscale(48),
-        },
-        web: {
-          height: hscale(48),
-          paddingHorizontal: mscale(12),
-          borderWidth: 0,
-          outlineWidth: 0 as any,
-        } as any,
-      }),
-    },
+    color: "#5C5F62",
+    fontFamily: "Inter-Regular",
+    fontSize: mscale(14),
+    backgroundColor: colors.inputFieldNew,
+    ...Platform.select({
+      android: {
+        height: hscale(48),
+      },
+      ios: {
+        height: hscale(48),
+      },
+      web: {
+        height: hscale(48),
+        paddingHorizontal: mscale(12),
+        borderWidth: 0,
+        outlineWidth: 0 as any,
+      } as any,
+    }),
+  },
   label: {
     fontSize: mscale(13),
     fontFamily: "Inter-Medium",

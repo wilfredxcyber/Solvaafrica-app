@@ -1,4 +1,4 @@
-import { Pressable, Text, View,} from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import WarnIcon from "@expo/vector-icons/FontAwesome5";
 import * as DocumentPicker from "expo-document-picker";
@@ -196,7 +196,9 @@ export default function UploadFilesScreen() {
                   lineHeight: mscale(18),
                 }}
               >
-               <Text style={{ fontFamily: "Inter-Bold", color: colors.black }}>Disclaimer:</Text>
+                <Text style={{ fontFamily: "Inter-Bold", color: colors.black }}>
+                  Disclaimer:
+                </Text>
                 Content on Solva isn’t ours and wasn’t uploaded by us. For
                 educational use only
               </Text>
@@ -208,5 +210,3 @@ export default function UploadFilesScreen() {
     </>
   );
 }
-
-

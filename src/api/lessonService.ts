@@ -1,4 +1,6 @@
-import { AUTH_API_CLIENT } from "./apiClient";
+import { Platform } from "react-native";
+import { API_BASE_URL, AUTH_API_CLIENT } from "./apiClient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const createLesson = async ({
   topic,
@@ -11,43 +13,69 @@ export const createLesson = async ({
   difficulty: string;
   type: string;
 }) => {
-  const formData = new FormData();
-
-  // ✅ topic
-  if (topic) {
-    formData.append("topic", topic);
-  }
-
-  // ✅ file
-  if (file) {
-    formData.append("document", {
-      uri: file.uri,
-      name: file.name || "document.pdf",
-      type: file.mimeType || "application/pdf",
-    } as any);
-  }
-
-  // ✅ normalize values
-  formData.append("difficulty", difficulty.toLowerCase());
-  formData.append("type", type === "Deep Dive" ? "deep-dive" : "standard");
-
   try {
-    const response = await AUTH_API_CLIENT.post("/lesson/", formData, {
+    // ✅ NO FILE → use axios
+    if (!file) {
+      const response = await AUTH_API_CLIENT.post("/lesson/", {
+        topic,
+        difficulty: difficulty.toLowerCase(),
+        type: type === "Deep Dive" ? "deep-dive" : "standard",
+      });
+
+      return response.data;
+    }
+
+    // ✅ FILE → use fetch (ANDROID SAFE)
+    const formData = new FormData();
+
+    if (topic) {
+      formData.append("topic", topic);
+    }
+
+    if (Platform.OS === "web") {
+      formData.append("document", file);
+    } else {
+      const fileData = {
+        uri: file.uri, // ✅ KEEP file://
+        name: file.name || "document.pdf",
+        type: file.mimeType || "application/pdf",
+      };
+
+      console.log("📂 LESSON FILE:", fileData);
+
+      formData.append("document", fileData as any);
+    }
+
+    formData.append("difficulty", difficulty.toLowerCase());
+    formData.append("type", type === "Deep Dive" ? "deep-dive" : "standard");
+
+    // ✅ get token manually
+    const tokenData = await AsyncStorage.getItem("User");
+    const token = tokenData ? JSON.parse(tokenData)?.tokens?.accessToken : null;
+
+    const response = await fetch(`${API_BASE_URL}/lesson/`, {
+      method: "POST",
       headers: {
-        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+        // ❌ DO NOT set Content-Type
       },
-      transformRequest: () => formData,
+      body: formData,
     });
 
-    // ✅ Axios already parses JSON
-    return response.data;
-  } catch (error: any) {
-    console.log("❌ API ERROR:", error?.response?.data || error.message);
+    const data = await response.json();
 
-    throw new Error(
-      error?.response?.data?.message ||
-        error?.response?.data?.detail ||
-        "Failed to create lesson",
-    );
+    console.log("📡 LESSON RESPONSE:", data);
+
+    if (!response.ok) {
+      throw new Error(
+        data?.message || data?.detail || "Failed to create lesson",
+      );
+    }
+
+    return data;
+  } catch (error: any) {
+    console.log("❌ LESSON ERROR:", error);
+
+    throw new Error(error.message || "Failed to create lesson");
   }
 };

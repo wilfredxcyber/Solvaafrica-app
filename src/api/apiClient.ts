@@ -30,11 +30,12 @@ export const AUTH_API_CLIENT = axios.create({
   // },
 });
 
+console.log("BASE URL:", API_BASE_URL);
+
 // axios interceptor to inject access token when hitting auth endpoints
 AUTH_API_CLIENT.interceptors.request.use(async (request) => {
   try {
-    const isFormDataPayload =
-      request.data && typeof request.data === "object" && request.data._parts;
+    const isFormDataPayload = request.data instanceof FormData;
 
     if (isFormDataPayload && request.headers) {
       delete request.headers["Content-Type"];

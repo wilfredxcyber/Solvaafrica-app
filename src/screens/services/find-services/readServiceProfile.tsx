@@ -43,7 +43,6 @@ export default function ReadServiceProfile() {
 
   const freelancerId = userData?.id;
 
-  console.log(loginFreelancerId, freelancerId);
   const getFreelancerInfo = async () => {
     if (!freelancerId) return;
 
@@ -166,8 +165,6 @@ export default function ReadServiceProfile() {
       </View>
     );
   }
-
-  console.log(user);
 
   return (
     <ScrollView style={globalStyles.screen}>
