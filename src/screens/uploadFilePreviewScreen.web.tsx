@@ -1,12 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  Alert,
-} from "react-native";
+import { Modal, Pressable, StyleSheet, Text, View, Alert } from "react-native";
 import { useMemo, useState } from "react";
 import axios from "axios";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -89,7 +82,7 @@ export default function UploadFilePreviewScreenWeb() {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       if (formUploadResponse.status === 200) {
@@ -108,7 +101,7 @@ export default function UploadFilePreviewScreenWeb() {
         console.log(
           "Upload error response",
           error.response?.status,
-          error.response?.data
+          error.response?.data,
         );
       }
       setErrorMessage(message);
@@ -134,7 +127,9 @@ export default function UploadFilePreviewScreenWeb() {
         ) : (
           <View style={styles.emptyPreview}>
             <Text style={styles.emptyTitle}>No file selected</Text>
-            <Text style={styles.emptySubtitle}>Please go back and choose a PDF file.</Text>
+            <Text style={styles.emptySubtitle}>
+              Please go back and choose a PDF file.
+            </Text>
           </View>
         )}
       </View>
@@ -148,12 +143,19 @@ export default function UploadFilePreviewScreenWeb() {
           <Text
             style={[
               styles.selectorText,
-              !selectedType && { color: "#6b6b6b", fontFamily: "Inter-Regular" },
+              !selectedType && {
+                color: "#6b6b6b",
+                fontFamily: "Inter-Regular",
+              },
             ]}
           >
             {selectedLabel}
           </Text>
-          <Ionicons name="chevron-down-outline" size={22} color={colors.black} />
+          <Ionicons
+            name="chevron-down-outline"
+            size={22}
+            color={colors.black}
+          />
         </Pressable>
 
         <Pressable
@@ -177,7 +179,10 @@ export default function UploadFilePreviewScreenWeb() {
         animationType="fade"
         onRequestClose={() => setPickerVisible(false)}
       >
-        <Pressable style={styles.modalBackdrop} onPress={() => setPickerVisible(false)}>
+        <Pressable
+          style={styles.modalBackdrop}
+          onPress={() => setPickerVisible(false)}
+        >
           <Pressable style={styles.modalCard} onPress={() => {}}>
             <Text style={styles.modalTitle}>Select type</Text>
             {uploadTypeOptions.map((option) => (
@@ -223,7 +228,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: "hidden",
     backgroundColor: "#ffffff",
-    minHeight: 460,
+    // minHeight: 460,
   },
   iframe: {
     width: "100%",
@@ -317,4 +322,3 @@ const styles = StyleSheet.create({
     fontSize: mscale(15),
   },
 });
-

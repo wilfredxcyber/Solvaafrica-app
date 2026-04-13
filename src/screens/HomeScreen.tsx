@@ -224,6 +224,20 @@ export default function HomeScreen() {
             </Pressable>
           ))}
         </View>
+
+        <Text
+          style={{
+            marginTop: hscale(20), // 👈 small margin
+            fontSize: mscale(14),
+            color: "#000",
+            textAlign: "center",
+          }}
+        >
+          20,000+ users{" "}
+          <Text style={{ color: "green", fontFamily: "Inter-Bold" }}>
+            online
+          </Text>
+        </Text>
       </View>
     </ScrollView>
   );
