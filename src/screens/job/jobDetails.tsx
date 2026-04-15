@@ -21,11 +21,15 @@ import ToastManager, { Toast } from "toastify-react-native";
 import PrimaryButton from "@/src/components/primaryButton";
 import { useState } from "react";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { useLocalSearchParams } from "expo-router";
 
 type Props = StaticScreenProps<{ job: Job }>;
 
 const JobDetailsScreen = ({ route }: Props) => {
-  const { job } = route.params;
+  const { job } = useLocalSearchParams();
+  console.log(job);
+  const parsedJob: Job | null = job ? JSON.parse(job as string) : null;
+
   const [pickedFile, setPickedFile] = useState<PickedFile | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [pressed, setPressed] = useState(false);
@@ -51,19 +55,16 @@ const JobDetailsScreen = ({ route }: Props) => {
         };
 
         // Convert PDF to image preview if needed
-        if (mimeType === "application/pdf") {
-          const scale = 1.0;
-          const pdfPageImage = await PdfPageImage.generate(uri, 1, scale);
-          file.imageUri = pdfPageImage.uri;
-        }
+        // if (mimeType === "application/pdf") {
+        //   const scale = 1.0;
+        //   const pdfPageImage = await PdfPageImage.generate(uri, 1, scale);
+        //   file.imageUri = pdfPageImage.uri;
+        // }
 
         setPickedFile(file);
       }
     } catch (error) {
-      ToastAndroid.show(
-        "Error picking file from document directory",
-        ToastAndroid.LONG
-      );
+      Toast.error("Error picking file from document directory");
       // Toast.error("Error picking file from document directory");
     }
   };
@@ -75,7 +76,7 @@ const JobDetailsScreen = ({ route }: Props) => {
       setIsUploading(false);
       setPickedFile(null);
       Toast.success(
-        "Uploaded file was successful, this file will take 3-5 business working days"
+        "Uploaded file was successful, this file will take 3-5 business working days",
       );
     }, 2000); // Simulate async upload
   };
@@ -102,14 +103,16 @@ const JobDetailsScreen = ({ route }: Props) => {
       />
 
       <View>
-        <Text style={styles.headerText}>{job.title}</Text>
-        <Text style={styles.jobTypeText}>{job.status.join(", ") || "N/A"}</Text>
+        <Text style={styles.headerText}>{parsedJob?.title}</Text>
+        <Text style={styles.jobTypeText}>
+          {parsedJob?.status?.join(", ") || "N/A"}
+        </Text>
       </View>
 
       <View style={{ marginTop: hscale(10) }}>
         <Text style={styles.label}>Job posting date</Text>
         <Text style={styles.value}>
-          {new Date(job.createdAt).toLocaleDateString("en-US", {
+          {new Date(parsedJob?.createdAt).toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",
             day: "numeric",
@@ -119,10 +122,10 @@ const JobDetailsScreen = ({ route }: Props) => {
 
       <View style={{ marginVertical: mscale(20) }}>
         <Text style={styles.headerText}>Description</Text>
-        <Text style={styles.description}>{job.description}</Text>
+        <Text style={styles.description}>{parsedJob.description}</Text>
       </View>
 
-      {/* <View>
+      <View>
         <Text style={styles.headerText}>Upload file</Text>
 
         {pickedFile ? (
@@ -165,7 +168,7 @@ const JobDetailsScreen = ({ route }: Props) => {
             </View>
           </TouchableOpacity>
         )}
-      </View> */}
+      </View>
       <Text>
         Send Resume to{" "}
         <Text
@@ -175,7 +178,7 @@ const JobDetailsScreen = ({ route }: Props) => {
           {email}
         </Text>
       </Text>
-      {/* <Pressable
+      <Pressable
         onPressIn={() => setPressed(true)}
         onPressOut={() => setPressed(false)}
         onPress={handleUpload}
@@ -188,7 +191,7 @@ const JobDetailsScreen = ({ route }: Props) => {
         ) : (
           <ActivityIndicator size={"small"} color={"#ffffff"} />
         )}
-      </Pressable> */}
+      </Pressable>
       <ToastManager />
     </ScrollView>
   );

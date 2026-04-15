@@ -166,8 +166,8 @@ export default function EditProfile() {
     if (!amount || isNaN(Number(amount))) return Toast.error("Invalid amount");
     if (!isValidUrl(portfolio)) return Toast.error("Invalid portfolio link");
     if (phone.length < 10) return Toast.error("Invalid phone number");
-    if (!whatsapp.startsWith("http"))
-      return Toast.error("Invalid WhatsApp link");
+    // if (!whatsapp.startsWith("http"))
+    //   return Toast.error("Invalid WhatsApp link");
     if (!uni.trim()) return Toast.error("Location required");
 
     try {
@@ -364,7 +364,7 @@ export default function EditProfile() {
         editable={!updating}
       />
 
-      <Text style={styles.label}>WhatsApp Link</Text>
+      <Text style={styles.label}>WhatsApp Number</Text>
       <TextInput
         value={whatsapp}
         onChangeText={setWhatsapp}

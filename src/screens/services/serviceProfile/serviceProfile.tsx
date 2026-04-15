@@ -320,6 +320,11 @@ export default function ServiceProfile() {
     );
   }
 
+  const formatPhone = (phone: string) => {
+    // remove non-numeric characters
+    return phone.replace(/[^0-9]/g, "");
+  };
+
   return (
     <ScrollView style={globalStyles.screen}>
       <View
@@ -485,9 +490,13 @@ export default function ServiceProfile() {
             marginVertical: mscale(10),
           }}
         >
-          {user?.whatsappLink && (
+          {user?.phoneNumber && (
             <TouchableOpacity
-              onPress={() => Linking.openURL(user.whatsappLink)}
+              onPress={() =>
+                Linking.openURL(
+                  `https://wa.me/${formatPhone(user.phoneNumber)}`,
+                )
+              }
               style={{ alignItems: "center", gap: mscale(10) }}
             >
               <FontAwesome6 name="whatsapp" size={20} color="green" />
@@ -496,15 +505,16 @@ export default function ServiceProfile() {
               </Text>
             </TouchableOpacity>
           )}
+
           {user?.phoneNumber && (
             <TouchableOpacity
-              onPress={() => Linking.openURL(`tel:${user.phoneNumber}`)}
+              onPress={() =>
+                Linking.openURL(`tel:${formatPhone(user.phoneNumber)}`)
+              }
               style={{ alignItems: "center", gap: mscale(10) }}
             >
               <Entypo name="phone" size={20} color="black" />
-              <Text style={{ color: "black", fontSize: mscale(16) }}>
-                Phone
-              </Text>
+              <Text style={{ color: "black", fontSize: mscale(16) }}>Call</Text>
             </TouchableOpacity>
           )}
         </View>

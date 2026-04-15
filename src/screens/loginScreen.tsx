@@ -28,8 +28,8 @@ import { normalizeUserProfile } from "../helpers/freelancerProfile";
 
 export default function LoginScreen() {
   const [form, setForm] = useState<ILoginForm>({
-    email: "Marvis.david124@gmail.com",
-    password: "Marvis124",
+    email: "ellaomoni@gmail.com",
+    password: "Om0ni$3E",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -190,14 +190,10 @@ const styles = StyleSheet.create({
   },
 
   container: {
+    flex: 1,
     justifyContent: "space-between",
-    ...Platform.select({
-      web: {
-        height: "100vh" as any,
-        maxHeight: "100vh" as any,
-      },
-    }),
   },
+
   logoContainer: {
     marginHorizontal: "auto",
     marginTop: hscale(10),
