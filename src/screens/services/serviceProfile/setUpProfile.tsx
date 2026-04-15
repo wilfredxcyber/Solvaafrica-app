@@ -33,7 +33,7 @@ export default function SetUpProfile() {
   const [updating, setUpdating] = useState(false);
   const [categories, setCategories] = useState<ServiceType[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
-    null
+    null,
   );
 
   const [errorVisible, setErrorVisible] = useState(false);
@@ -158,7 +158,7 @@ export default function SetUpProfile() {
 
       if (!file && profileImageUri?.fileUri) {
         const blob = await fetch(profileImageUri.fileUri).then((res) =>
-          res.blob()
+          res.blob(),
         );
         file = new File([blob], profileImageUri.name || "profile.jpg", {
           type: profileImageUri.mimeType || blob.type || "image/jpeg",
@@ -168,7 +168,7 @@ export default function SetUpProfile() {
       if (!file) {
         notify(
           "error",
-          "Web upload needs a real file object. Please re-pick the image."
+          "Web upload needs a real file object. Please re-pick the image.",
         );
         setUpdating(false);
         return;
@@ -184,12 +184,16 @@ export default function SetUpProfile() {
     }
 
     try {
-      const response = await AUTH_API_CLIENT.post("/freelancers/create", formData, {
-        headers:
-          Platform.OS === "web"
-            ? undefined
-            : { "Content-Type": "multipart/form-data" },
-      });
+      const response = await AUTH_API_CLIENT.post(
+        "/freelancers/create",
+        formData,
+        {
+          headers:
+            Platform.OS === "web"
+              ? undefined
+              : { "Content-Type": "multipart/form-data" },
+        },
+      );
 
       if (response.status === 200 || response.status === 201) {
         notify("success", "Profile created successfully");
@@ -284,9 +288,15 @@ export default function SetUpProfile() {
         Setup your profile as a freelancer!
       </Text>
 
-      <TouchableOpacity onPress={handlePickProfileImage} style={styles.imagePicker}>
+      <TouchableOpacity
+        onPress={handlePickProfileImage}
+        style={styles.imagePicker}
+      >
         {profileImageUri ? (
-          <Image source={{ uri: profileImageUri.fileUri }} style={styles.profileImage} />
+          <Image
+            source={{ uri: profileImageUri.fileUri }}
+            style={styles.profileImage}
+          />
         ) : (
           <View
             style={{
@@ -342,7 +352,10 @@ export default function SetUpProfile() {
         placeholder="Description"
         value={description}
         onChangeText={setDescription}
-        style={[styles.input, { height: hscale(100), textAlignVertical: "top" }]}
+        style={[
+          styles.input,
+          { height: hscale(100), textAlignVertical: "top" },
+        ]}
         multiline
         editable={!updating}
       />
@@ -351,7 +364,10 @@ export default function SetUpProfile() {
       <TextInput
         placeholder="Amount (Starting price)"
         value={amount}
-        onChangeText={setAmount}
+        onChangeText={(text) => {
+          const numeric = text.replace(/[^0-9]/g, "");
+          setAmount(numeric);
+        }}
         keyboardType="numeric"
         style={styles.input}
         editable={!updating}
@@ -370,22 +386,33 @@ export default function SetUpProfile() {
       <TextInput
         placeholder="Phone Number"
         value={phone}
-        onChangeText={setPhone}
+        onChangeText={(text) => {
+          const numeric = text.replace(/[^0-9]/g, "");
+          setPhone(numeric);
+        }}
         keyboardType="phone-pad"
         style={styles.input}
         editable={!updating}
       />
 
-      <Text style={styles.label}>WhatsApp Link</Text>
+      <Text style={styles.label}>WhatsApp Number</Text>
       <TextInput
         placeholder="WhatsApp Number"
         value={whatsapp}
-        onChangeText={setWhatsapp}
+        onChangeText={(text) => {
+          const numeric = text.replace(/[^0-9]/g, "");
+          setWhatsapp(numeric);
+        }}
+        keyboardType="number-pad"
         style={styles.input}
         editable={!updating}
       />
 
-      <TouchableOpacity onPress={handleUpdate} disabled={updating} style={styles.updateButton}>
+      <TouchableOpacity
+        onPress={handleUpdate}
+        disabled={updating}
+        style={styles.updateButton}
+      >
         {updating ? (
           <ActivityIndicator size="small" color="#fff" />
         ) : (

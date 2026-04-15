@@ -1,4 +1,14 @@
-import { Alert, Pressable, StyleSheet, Text, View, ScrollView, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
+import {
+  Alert,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
 import { useCallback, useEffect, useState } from "react";
 import StarIcon from "@expo/vector-icons/AntDesign";
 import * as Clipboard from "expo-clipboard";
@@ -29,15 +39,19 @@ export default function EarningScreen() {
   const [activeTab, setActiveTab] = useState<Tab>(resolveTab(tab));
   const [userBalance, setUserBalance] = useState<null | number>(null);
 
+  const user = useAuthStore((state) => state.user);
+
+  const userID = user?.profile?.userID;
+  const userReferralCode = user?.profile?.referralCode;
+
   useEffect(() => {
     setActiveTab(resolveTab(tab));
   }, [tab]);
 
-  const AuthUser = useAuthStore((state) => state.user);
-  const { userID } = AuthUser.profile;
-
   useFocusEffect(
     useCallback(() => {
+      if (!userID) return;
+
       const getUserEarnedBalance = async () => {
         try {
           const response = await AUTH_API_CLIENT.get(
@@ -45,22 +59,21 @@ export default function EarningScreen() {
           );
           const { balance } = response.data.data;
           setUserBalance(balance);
-          console.log("User balance fetched:", response.data);
         } catch (error) {
           Toast.error("Error fetching user balance");
         }
       };
 
       getUserEarnedBalance();
-    }, []),
+    }, [userID]),
   );
 
   return (
     <View style={globalStyles.screen}>
       <ToastManager />
       <Tabs setActiveTab={setActiveTab} activeTab={activeTab} />
-      
-      <ScrollView 
+
+      <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: hscale(20) }}
@@ -98,144 +111,145 @@ const EarnTabView = ({ userBalance }: { userBalance: number | null }) => {
 
     getJobs();
   }, []);
+  console.log("bug");
+
+  console.log(jobs);
 
   return (
-   <ProtectPage>
-    <View>
-      <EarningsBalanceView userBalance={userBalance} />
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginTop: hscale(20),
-        }}
-      >
-        <Text
+    <ProtectPage>
+      <View>
+        <EarningsBalanceView userBalance={userBalance} />
+        <View
           style={{
-            fontSize: mscale(24),
-            fontFamily: "Inter-Bold",
-            color: colors.black,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginTop: hscale(20),
           }}
-        >
-          Job Offers
-        </Text>
-        <TouchableOpacity
-          onPress={() => router.push("/job-offers")}
         >
           <Text
             style={{
-              fontSize: mscale(15),
-              fontFamily: "Inter-Medium",
-              color: colors.primary,
+              fontSize: mscale(24),
+              fontFamily: "Inter-Bold",
+              color: colors.black,
             }}
           >
-            View all
+            Job Offers
           </Text>
-        </TouchableOpacity>
-      </View>
-      {loading ? (
-        <ActivityIndicator size="large" color={colors.primary} />
-      ) : (
-        <FlatList
-          data={Array.isArray(jobs) ? jobs.slice(0, 3) : []}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() =>
-                router.push({
-                  pathname: "/job-details",
-                  params: { job: JSON.stringify(item) },
-                })
-              }
-            >
-              <View
-                style={{
-                  padding: mscale(16),
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  gap: mscale(10),
-                  borderBottomWidth: 0.5,
-                  borderBottomColor: "#5C5F62",
-                }}
-              >
-                <View>
-                  <Text
-                    style={{
-                      fontFamily: "Inter-Bold",
-                      color: colors.black,
-                      fontSize: mscale(20),
-                    }}
-                  >
-                    {item.title}
-                  </Text>
-                  <Text
-                    style={{
-                      fontFamily: "Inter-Medium",
-                      color: colors.primary,
-                      fontSize: mscale(15),
-                      textTransform: "capitalize",
-                    }}
-                  >
-                    {item.status[0] || "N/A"}
-                  </Text>
-                </View>
-                <View>
-                  <Text
-                    style={{
-                      fontFamily: "Inter-Medium",
-                      color: "#5C5F62",
-                      marginBottom: hscale(4),
-                      fontSize: mscale(13),
-                      textAlign: "right",
-                    }}
-                  >
-                    Job posting date:
-                  </Text>
-                  <Text
-                    style={{
-                      fontFamily: "Inter-Medium",
-                      color: colors.black,
-                      textAlign: "right",
-                      fontSize: mscale(15),
-                    }}
-                  >
-                    {new Date(item.createdAt).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ paddingBottom: hscale(20) }}
-          ListEmptyComponent={
+          <TouchableOpacity onPress={() => router.push("/job-offers")}>
             <Text
               style={{
-                textAlign: "center",
-                marginTop: hscale(20),
-                fontFamily: "Inter-Regular",
-                color: colors.black,
+                fontSize: mscale(15),
+                fontFamily: "Inter-Medium",
+                color: colors.primary,
               }}
             >
-              No job offers available at the moment.
+              View all
             </Text>
-          }
-          scrollEnabled={false}
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-          style={{ marginTop: hscale(10) }}
-        />
-      )}
+          </TouchableOpacity>
+        </View>
+        {loading ? (
+          <ActivityIndicator size="large" color={colors.primary} />
+        ) : (
+          <FlatList
+            data={Array.isArray(jobs) ? jobs.slice(0, 3) : []}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/job-details",
+                    params: { job: JSON.stringify(item) },
+                  })
+                }
+              >
+                <View
+                  style={{
+                    padding: mscale(16),
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    gap: mscale(10),
+                    borderBottomWidth: 0.5,
+                    borderBottomColor: "#5C5F62",
+                  }}
+                >
+                  <View>
+                    <Text
+                      style={{
+                        fontFamily: "Inter-Bold",
+                        color: colors.black,
+                        fontSize: mscale(20),
+                      }}
+                    >
+                      {item.title}
+                    </Text>
+                    <Text
+                      style={{
+                        fontFamily: "Inter-Medium",
+                        color: colors.primary,
+                        fontSize: mscale(15),
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {item.status[0] || "N/A"}
+                    </Text>
+                  </View>
+                  <View>
+                    <Text
+                      style={{
+                        fontFamily: "Inter-Medium",
+                        color: "#5C5F62",
+                        marginBottom: hscale(4),
+                        fontSize: mscale(13),
+                        textAlign: "right",
+                      }}
+                    >
+                      Job posting date:
+                    </Text>
+                    <Text
+                      style={{
+                        fontFamily: "Inter-Medium",
+                        color: colors.black,
+                        textAlign: "right",
+                        fontSize: mscale(15),
+                      }}
+                    >
+                      {new Date(item.createdAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={{ paddingBottom: hscale(20) }}
+            ListEmptyComponent={
+              <Text
+                style={{
+                  textAlign: "center",
+                  marginTop: hscale(20),
+                  fontFamily: "Inter-Regular",
+                  color: colors.black,
+                }}
+              >
+                No job offers available at the moment.
+              </Text>
+            }
+            scrollEnabled={false}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            style={{ marginTop: hscale(10) }}
+          />
+        )}
 
-      <ErrorModal
-        visible={errorVisible}
-        message={errorMessage}
-        onClose={() => setErrorVisible(false)}
-      />
-    </View>
+        <ErrorModal
+          visible={errorVisible}
+          message={errorMessage}
+          onClose={() => setErrorVisible(false)}
+        />
+      </View>
     </ProtectPage>
   );
 };
@@ -245,13 +259,14 @@ const ReferTabView = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [referrals, setReferrals] = useState<any[]>([]);
   const AuthUser = useAuthStore((state) => state.user);
-  const { userID } = AuthUser.profile;
-  const { profile } = useAuthStore((state) => state.user);
-  const userReferralCode = profile.referralCode;
+  const user = useAuthStore((state) => state.user);
+
+  const userID = user?.profile?.userID;
+  const userReferralCode = user?.profile?.referralCode;
 
   const APP_NAME = "Solva";
   const DEEP_LINK_BASE = "https://www.solvaafrica.com";
-  
+
   const getReferralLink = () => {
     return `${DEEP_LINK_BASE}/signup?ref=${AuthUser.referralCode}`;
   };
@@ -269,13 +284,13 @@ const ReferTabView = () => {
 
       case "fb":
         url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-          referralLink
+          referralLink,
         )}&quote=${encodeURIComponent(message)}`;
         break;
 
       case "tw":
         url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-          message
+          message,
         )}`;
         break;
     }
@@ -294,10 +309,12 @@ const ReferTabView = () => {
   };
 
   useEffect(() => {
+    if (!userID) return;
+
     const getReferrals = async () => {
       try {
         const response = await AUTH_API_CLIENT.get(
-          `/users/referrals/${userID}`
+          `/users/referrals/${userID}`,
         );
         if (response.status === 200) {
           setReferrals(response.data.data.referralUsers);
@@ -354,11 +371,16 @@ const ReferTabView = () => {
       >
         Get Free NGN 100.00
       </Text>
-      <Text style={[styles.text, { textAlign: "center", fontSize: mscale(16) }]}>
+      <Text
+        style={[styles.text, { textAlign: "center", fontSize: mscale(16) }]}
+      >
         Share this hack with your friends
       </Text>
       <Text
-        style={[styles.text, { textAlign: "center", marginTop: hscale(20), fontSize: mscale(16) }]}
+        style={[
+          styles.text,
+          { textAlign: "center", marginTop: hscale(20), fontSize: mscale(16) },
+        ]}
       >
         You stand to earn NGN 100.00 when your friend input your referral code
         during sign up and registers to the premium package
@@ -414,8 +436,8 @@ const ReferTabView = () => {
               alignSelf: "center",
             }}
           >
-            You currently do not have any referral. Your referrals will appear here
-            when you refer friends using your code.
+            You currently do not have any referral. Your referrals will appear
+            here when you refer friends using your code.
           </Text>
 
           {/* Empty state image */}
@@ -450,10 +472,29 @@ const ReferTabView = () => {
       </Text>
 
       {/* Social buttons */}
-      <View style={{ flexDirection: "row", gap: 16, marginBottom: hscale(40), justifyContent: "center" }}>
-        <SocialButton label="WhatsApp" referralCode={userReferralCode} onPress={() => handleSocialShare("wa")} />
-        <SocialButton label="X" referralCode={userReferralCode} onPress={() => handleSocialShare("tw")} />
-        <SocialButton label="Facebook" referralCode={userReferralCode} onPress={() => handleSocialShare("fb")} />
+      <View
+        style={{
+          flexDirection: "row",
+          gap: 16,
+          marginBottom: hscale(40),
+          justifyContent: "center",
+        }}
+      >
+        <SocialButton
+          label="WhatsApp"
+          referralCode={userReferralCode}
+          onPress={() => handleSocialShare("wa")}
+        />
+        <SocialButton
+          label="X"
+          referralCode={userReferralCode}
+          onPress={() => handleSocialShare("tw")}
+        />
+        <SocialButton
+          label="Facebook"
+          referralCode={userReferralCode}
+          onPress={() => handleSocialShare("fb")}
+        />
       </View>
     </View>
   );
@@ -524,9 +565,9 @@ const Tabs = ({
 };
 
 const CopyReferalCodeView = () => {
-  const { profile } = useAuthStore((state) => state.user);
   const [copiedCode, setCopiedCode] = useState(false);
-  const userReferralCode = profile.referralCode;
+  const profile = useAuthStore((state) => state.user?.profile);
+  const userReferralCode = profile?.referralCode;
 
   const handleCopyCode = async () => {
     await Clipboard.setStringAsync(userReferralCode);
@@ -538,19 +579,25 @@ const CopyReferalCodeView = () => {
       setCopiedCode(false);
     }, 3000);
   }, [copiedCode]);
-  
+
   return (
     <View style={styles.copyReferralCodeView}>
       <View style={{ flex: 1 }}>
         <Text
           style={[
             styles.text,
-            { fontFamily: "Inter-Bold", color: colors.black, fontSize: mscale(24) },
+            {
+              fontFamily: "Inter-Bold",
+              color: colors.black,
+              fontSize: mscale(24),
+            },
           ]}
         >
           Referral code
         </Text>
-        <Text style={{ fontSize: mscale(18), fontFamily: "Inter-Medium" }}>{userReferralCode}</Text>
+        <Text style={{ fontSize: mscale(18), fontFamily: "Inter-Medium" }}>
+          {userReferralCode}
+        </Text>
       </View>
       <Text style={styles.textButton} onPress={handleCopyCode}>
         {copiedCode ? "Copied" : "Copy"}
@@ -570,7 +617,7 @@ const EarningsBalanceView = ({
     const balanceString = userBalance ? userBalance.toString() : "0";
     router.push(`/cashout?balance=${balanceString}`);
   };
-  
+
   return (
     <View>
       <View style={styles.copyReferralCodeView}>
@@ -578,20 +625,31 @@ const EarningsBalanceView = ({
           <Text
             style={[
               styles.text,
-              { fontFamily: "Inter-Bold", color: colors.black, fontSize: mscale(24) },
+              {
+                fontFamily: "Inter-Bold",
+                color: colors.black,
+                fontSize: mscale(24),
+              },
             ]}
           >
             Earnings
           </Text>
           {userBalance !== undefined && (
             <Text
-              style={[styles.text, { fontSize: mscale(18), fontFamily: "Inter-Medium" }]}
+              style={[
+                styles.text,
+                { fontSize: mscale(18), fontFamily: "Inter-Medium" },
+              ]}
             >{`${userBalance ? userBalance?.toFixed(2) : "---"} NGN`}</Text>
           )}
           <Text
             style={[
               styles.text,
-              { fontFamily: "Inter-Regular", color: colors.black, fontSize: mscale(12) },
+              {
+                fontFamily: "Inter-Regular",
+                color: colors.black,
+                fontSize: mscale(12),
+              },
             ]}
           >
             Minimum cashout NGN 10,000
@@ -605,16 +663,17 @@ const EarningsBalanceView = ({
   );
 };
 
-const SocialButton = ({ 
-  label, 
-  referralCode, 
-  onPress 
-}: { 
-  label: string; 
+const SocialButton = ({
+  label,
+  referralCode,
+  onPress,
+}: {
+  label: string;
   referralCode: string;
   onPress: () => void;
 }) => {
-  const iconName = label === "WhatsApp" ? "whatsapp" : label === "X" ? "twitter" : "facebook";
+  const iconName =
+    label === "WhatsApp" ? "whatsapp" : label === "X" ? "twitter" : "facebook";
 
   return (
     <Pressable onPress={onPress} style={styles.socialButton}>
@@ -686,4 +745,3 @@ const styles = StyleSheet.create({
     fontSize: mscale(14),
   },
 });
-
