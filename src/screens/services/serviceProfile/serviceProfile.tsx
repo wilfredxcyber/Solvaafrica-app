@@ -321,9 +321,19 @@ export default function ServiceProfile() {
   }
 
   const formatPhone = (phone: string) => {
-    // remove non-numeric characters
-    return phone.replace(/[^0-9]/g, "");
+    let cleaned = phone.replace(/[^0-9]/g, "");
+
+    // Nigerian numbers
+    if (cleaned.startsWith("0")) {
+      cleaned = "234" + cleaned.slice(1);
+    } else if (!cleaned.startsWith("234")) {
+      cleaned = "234" + cleaned;
+    }
+
+    return cleaned;
   };
+
+  console.log(user);
 
   return (
     <ScrollView style={globalStyles.screen}>
@@ -490,11 +500,11 @@ export default function ServiceProfile() {
             marginVertical: mscale(10),
           }}
         >
-          {user?.phoneNumber && (
+          {user?.whatsappLink && (
             <TouchableOpacity
               onPress={() =>
                 Linking.openURL(
-                  `https://wa.me/${formatPhone(user.phoneNumber)}`,
+                  `https://wa.me/${formatPhone(user.whatsappLink)}`,
                 )
               }
               style={{ alignItems: "center", gap: mscale(10) }}
