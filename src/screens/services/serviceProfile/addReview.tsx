@@ -21,15 +21,20 @@ import { AUTH_API_CLIENT } from "@/src/api/apiClient";
 import ToastManager, { Toast } from "toastify-react-native";
 import { useAuthStore } from "@/src/stores/authStore";
 import { FreelancerProfile } from "@/src/types";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
-type Props = StaticScreenProps<{ userData: FreelancerProfile }>;
-export default function AddReview({ route }: Props) {
+// type Props = StaticScreenProps<{ userData: FreelancerProfile }>;
+export default function AddReview() {
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const { userData } = route.params;
-  const navigation = useNavigation();
+  const { userData } = useLocalSearchParams();
+  const navigation = useRouter();
+
+  const parsedUserData = userData ? JSON.parse(userData as string) : null;
+
+  console.log(parsedUserData.id);
 
   const handleSubmit = async () => {
     if (!name || !title || !message) {
@@ -43,8 +48,8 @@ export default function AddReview({ route }: Props) {
       const payload = { name, title, message };
 
       const response = await AUTH_API_CLIENT.post(
-        `/freelancers/create/comment/${userData?.id}`,
-        payload
+        `/freelancers/create/comment/${parsedUserData?.id}`,
+        payload,
       );
 
       if (response.status === 200 || response.status === 201) {
@@ -52,12 +57,9 @@ export default function AddReview({ route }: Props) {
         setName("");
         setTitle("");
         setMessage("");
-        navigation.goBack();
+        // navigation.goBack();
       } else {
-        ToastAndroid.show(
-          "Failed to submit review.",
-          ToastAndroid.LONG
-        );
+        ToastAndroid.show("Failed to submit review.", ToastAndroid.LONG);
         // Toast.error("Failed to submit review.");
       }
     } catch (error) {
@@ -65,7 +67,7 @@ export default function AddReview({ route }: Props) {
       // Toast.error("Something went wrong while submitting review.");
       ToastAndroid.show(
         "Something went wrong while submitting review.",
-        ToastAndroid.LONG
+        ToastAndroid.LONG,
       );
     } finally {
       setLoading(false);

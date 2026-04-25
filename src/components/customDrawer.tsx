@@ -29,6 +29,7 @@ import Complaints from "../screens/Drawer/Complaints";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import { globalStyles } from "../styles/global";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 type DrawerSection = "profile" | "complaints" | null;
 
@@ -69,7 +70,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
 
       if (icon === "tt") {
         await Linking.openURL(
-          "https://www.tiktok.com/@solva_africa?_t=ZS-8zTTXNGGpmy&_r=1",
+          "https://www.tiktok.com/@solva_africa?_r=1&_t=ZS-95hGDaQFWND",
         );
       }
     } catch (error) {
@@ -204,6 +205,15 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
             name="instagram"
             size={24}
             onPress={() => handleSocialIconPressed("ig")}
+          />
+
+          {/* <SocialIcon name="tiktok" size={24} /> */}
+
+          <FontAwesome5
+            name="tiktok"
+            size={24}
+            // color="black"
+            onPress={() => handleSocialIconPressed("tt")}
           />
         </View>
         <Pressable style={styles.logoutView} onPress={handleLogout}>

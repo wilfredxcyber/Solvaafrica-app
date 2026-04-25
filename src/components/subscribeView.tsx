@@ -1,4 +1,11 @@
-import { Pressable, StyleSheet, Text, View, Linking, Platform } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  Linking,
+  Platform,
+} from "react-native";
 import { useNavigation, Link } from "@react-navigation/native";
 import ArrowLeftIcon from "@expo/vector-icons/Octicons";
 import CheckIcon from "@expo/vector-icons/FontAwesome";
@@ -57,6 +64,8 @@ export default function SubscribeView() {
       if (res.status === 200) {
         const subLink = res.data.data.authorization_url;
         console.log("Subscription response", res.data);
+        console.log(subLink);
+
         Linking.openURL(subLink);
       }
     } catch (error: any) {
