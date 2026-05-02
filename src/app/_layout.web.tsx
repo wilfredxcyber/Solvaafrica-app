@@ -6,19 +6,18 @@ const queryClient = new QueryClient();
 
 export default function RootLayout() {
   return (
-  
-      <QueryClientProvider client={queryClient}>
-        <WebAppContainer>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen
-            name="(tabs)"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen name="(auth)"
-          options={{ headerShown: false}}
-          />
+    <QueryClientProvider client={queryClient}>
+      <WebAppContainer>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            title: "Solva Africa",
+          }}
+        >
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="(auth)" />
         </Stack>
-        </WebAppContainer>
-      </QueryClientProvider>
+      </WebAppContainer>
+    </QueryClientProvider>
   );
 }

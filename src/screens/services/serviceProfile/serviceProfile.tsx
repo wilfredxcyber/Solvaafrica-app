@@ -246,6 +246,8 @@ export default function ServiceProfile() {
     userRole,
   ]);
 
+  console.log(userRole);
+
   const handleEditProfilePress = () => {
     if (user) {
       router.push({

@@ -28,8 +28,8 @@ import { normalizeUserProfile } from "../helpers/freelancerProfile";
 
 export default function LoginScreen() {
   const [form, setForm] = useState<ILoginForm>({
-    email: "ellaomoni@gmail.com",
-    password: "Om0ni$3E",
+    email: "",
+    password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
