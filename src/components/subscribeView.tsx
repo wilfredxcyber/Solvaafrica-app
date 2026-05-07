@@ -55,22 +55,56 @@ export default function SubscribeView() {
   };
 
   const handleSubscribe = async () => {
+    let win: Window | null = null;
+
     try {
+      // ✅ ONLY open window on web
+      if (Platform.OS === "web") {
+        win = window.open("", "_blank");
+
+        if (win) {
+          win.document.write("<p>Redirecting to payment...</p>");
+        }
+      }
+
       setIsLoading(true);
+
       const res = await AUTH_API_CLIENT.get(
         `/sub/${activePlan}/link?callback=https://www.solvaafrica.com`,
       );
-      console.log(activePlan, "active plan");
+
       if (res.status === 200) {
         const subLink = res.data.data.authorization_url;
-        console.log("Subscription response", res.data);
-        console.log(subLink);
 
-        Linking.openURL(subLink);
+        console.log("Subscription response", res.data);
+        console.log("SUB LINK:", subLink);
+
+        // ✅ WEB
+        if (Platform.OS === "web") {
+          if (win) {
+            win.location.href = subLink; // 🔥 Safari-safe redirect
+          } else {
+            alert("Please allow popups for this site");
+          }
+          return;
+        }
+
+        // ✅ MOBILE (iOS / Android)
+        await Linking.openURL(subLink);
       }
     } catch (error: any) {
-      console.log("Error in subscribe", error?.response);
-      const message = "Subscription error: Something went wrong!";
+      console.log("FULL ERROR:", error);
+
+      // close blank tab if error
+      if (Platform.OS === "web" && win) {
+        win.close();
+      }
+
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Subscription failed";
+
       setErrorMessage(message);
       setErrorVisible(true);
     } finally {
