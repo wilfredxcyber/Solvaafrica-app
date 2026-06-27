@@ -6,12 +6,14 @@ import {
   TouchableOpacity,
   Platform,
   Image,
+  TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FeatherIcon from "@expo/vector-icons/Feather";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
+import { useState } from "react";
 
 import { hscale, mscale, wscale } from "../helpers/metric";
 import { colors } from "../constants/theme";
@@ -29,6 +31,14 @@ const TRENDING_TOPICS = [
 export default function FilterScreen() {
   const router = useRouter();
   const posts = useCommunityStore((state) => state.posts);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredPosts = posts.filter(
+    (post) =>
+      post.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.campus.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -38,6 +48,23 @@ export default function FilterScreen() {
         <Text style={styles.headerSubtitle}>
           All Campuses Together <Text style={{ fontSize: mscale(16) }}>🇳🇬</Text>
         </Text>
+      </View>
+
+      {/* ── SEARCH BAR ── */}
+      <View style={styles.searchContainer}>
+        <FeatherIcon name="search" size={mscale(18)} color="#999" style={{ marginRight: wscale(8) }} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search what's going on..."
+          placeholderTextColor="#999"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => setSearchQuery("")} hitSlop={8}>
+            <FeatherIcon name="x" size={mscale(18)} color="#999" />
+          </TouchableOpacity>
+        )}
       </View>
 
       <ScrollView
@@ -74,93 +101,100 @@ export default function FilterScreen() {
 
         {/* ── POSTS ── */}
         <View style={styles.postsContainer}>
-          {posts.map((post) => (
-            <TouchableOpacity 
-              key={post.id} 
-              style={styles.postCard}
-              activeOpacity={0.8}
-              onPress={() => router.push("/post-details")}
-            >
-              {/* Post Header */}
-              <View style={styles.postHeader}>
-                <Image source={{ uri: post.avatar }} style={styles.avatar} />
-                <View style={styles.postMetaInfo}>
-                  <View style={styles.authorRow}>
-                    <Text style={styles.authorName}>
-                      {post.author} • {post.campus}
-                    </Text>
-                    {post.badge === "blue-check" ? (
-                      <MaterialCommunityIcons
-                        name="check-decagram"
-                        size={mscale(14)}
-                        color="#1DA1F2"
-                        style={{ marginLeft: 4 }}
-                      />
-                    ) : post.badge === "pink-star" ? (
-                      <MaterialCommunityIcons
-                        name="star-circle"
-                        size={mscale(14)}
-                        color="#D81B60"
-                        style={{ marginLeft: 4 }}
-                      />
-                    ) : null}
-                  </View>
-                  <Text style={styles.postDate}>{post.date}</Text>
-                </View>
-                <TouchableOpacity style={styles.moreBtn} hitSlop={8}>
-                  <FeatherIcon name="more-horizontal" size={mscale(18)} color="#999" />
-                </TouchableOpacity>
-              </View>
-
-              {/* Post Content */}
-              <Text style={styles.postContent}>
-                {post.highlight ? post.content.split(post.highlight).map((part, index, arr) => (
-                  <Text key={index}>
-                    {part}
-                    {index < arr.length - 1 && (
-                      <Text
-                        style={[
-                          styles.postHighlight,
-                          { color: post.badge === "blue-check" ? "#D81B60" : colors.primary },
-                        ]}
-                      >
-                        {post.highlight}
+          {filteredPosts.length > 0 ? (
+            filteredPosts.map((post) => (
+              <TouchableOpacity 
+                key={post.id} 
+                style={styles.postCard}
+                activeOpacity={0.8}
+                onPress={() => router.push("/post-details")}
+              >
+                {/* Post Header */}
+                <View style={styles.postHeader}>
+                  <Image source={{ uri: post.avatar }} style={styles.avatar} />
+                  <View style={styles.postMetaInfo}>
+                    <View style={styles.authorRow}>
+                      <Text style={styles.authorName}>
+                        {post.author} • {post.campus}
                       </Text>
-                    )}
-                  </Text>
-                )) : post.content}
-              </Text>
-
-              {/* Attached Image (If any) */}
-              {post.image && (
-                 <Image source={{ uri: post.image }} style={styles.postAttachedImage} />
-              )}
-
-              {/* Views */}
-              {post.views && (
-                <View style={styles.viewsContainer}>
-                  <Text style={styles.viewsCount}>{post.views}</Text>
-                  <Text style={styles.viewsLabel}> Views</Text>
+                      {post.badge === "blue-check" ? (
+                        <MaterialCommunityIcons
+                          name="check-decagram"
+                          size={mscale(14)}
+                          color="#1DA1F2"
+                          style={{ marginLeft: 4 }}
+                        />
+                      ) : post.badge === "pink-star" ? (
+                        <MaterialCommunityIcons
+                          name="star-circle"
+                          size={mscale(14)}
+                          color="#D81B60"
+                          style={{ marginLeft: 4 }}
+                        />
+                      ) : null}
+                    </View>
+                    <Text style={styles.postDate}>{post.date}</Text>
+                  </View>
+                  <TouchableOpacity style={styles.moreBtn} hitSlop={8}>
+                    <FeatherIcon name="more-horizontal" size={mscale(18)} color="#999" />
+                  </TouchableOpacity>
                 </View>
-              )}
 
-              {/* Action Buttons */}
-              <View style={styles.actionsRow}>
-                <TouchableOpacity style={styles.actionBtn} hitSlop={8}>
-                  <FeatherIcon name="message-square" size={mscale(18)} color="#888" />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.actionBtn} hitSlop={8}>
-                  <FeatherIcon name="repeat" size={mscale(18)} color="#888" />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.actionBtn} hitSlop={8}>
-                  <FeatherIcon name="heart" size={mscale(18)} color="#888" />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.actionBtn} hitSlop={8}>
-                  <FeatherIcon name="share" size={mscale(18)} color="#888" />
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          ))}
+                {/* Post Content */}
+                <Text style={styles.postContent}>
+                  {post.highlight ? post.content.split(post.highlight).map((part, index, arr) => (
+                    <Text key={index}>
+                      {part}
+                      {index < arr.length - 1 && (
+                        <Text
+                          style={[
+                            styles.postHighlight,
+                            { color: post.badge === "blue-check" ? "#D81B60" : colors.primary },
+                          ]}
+                        >
+                          {post.highlight}
+                        </Text>
+                      )}
+                    </Text>
+                  )) : post.content}
+                </Text>
+
+                {/* Attached Image (If any) */}
+                {post.image && (
+                   <Image source={{ uri: post.image }} style={styles.postAttachedImage} />
+                )}
+
+                {/* Views */}
+                {post.views && (
+                  <View style={styles.viewsContainer}>
+                    <Text style={styles.viewsCount}>{post.views}</Text>
+                    <Text style={styles.viewsLabel}> Views</Text>
+                  </View>
+                )}
+
+                {/* Action Buttons */}
+                <View style={styles.actionsRow}>
+                  <TouchableOpacity style={styles.actionBtn} hitSlop={8}>
+                    <FeatherIcon name="message-square" size={mscale(18)} color="#888" />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.actionBtn} hitSlop={8}>
+                    <FeatherIcon name="repeat" size={mscale(18)} color="#888" />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.actionBtn} hitSlop={8}>
+                    <FeatherIcon name="heart" size={mscale(18)} color="#888" />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.actionBtn} hitSlop={8}>
+                    <FeatherIcon name="share" size={mscale(18)} color="#888" />
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <View style={styles.emptyContainer}>
+              <FeatherIcon name="search" size={mscale(40)} color="#ccc" style={{ marginBottom: hscale(12) }} />
+              <Text style={styles.emptyText}>No results found for "{searchQuery}"</Text>
+            </View>
+          )}
         </View>
       </ScrollView>
 
@@ -186,7 +220,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: "center",
     paddingTop: hscale(20),
-    paddingBottom: hscale(16),
+    paddingBottom: hscale(12),
   },
   headerTitle: {
     fontFamily: "Inter-Bold",
@@ -199,6 +233,30 @@ const styles = StyleSheet.create({
     fontSize: mscale(14),
     color: "#666",
     marginTop: hscale(4),
+  },
+
+  // ── Search Bar ──
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F3F0F7", // Pale grey-purple
+    marginHorizontal: wscale(20),
+    marginBottom: hscale(12),
+    borderRadius: mscale(22),
+    paddingHorizontal: wscale(16),
+    height: hscale(44),
+    borderWidth: 1,
+    borderColor: "#EBE6F2",
+  },
+  searchInput: {
+    flex: 1,
+    fontFamily: "Inter-Regular",
+    fontSize: mscale(14),
+    color: "#333",
+    paddingVertical: 0,
+    ...Platform.select({
+      web: { outlineStyle: "none" } as any,
+    }),
   },
 
   scrollView: {
@@ -365,6 +423,19 @@ const styles = StyleSheet.create({
   },
   actionBtn: {
     padding: mscale(6),
+  },
+
+  // Empty Results
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: hscale(40),
+  },
+  emptyText: {
+    fontFamily: "Inter-Regular",
+    fontSize: mscale(14),
+    color: "#999",
+    textAlign: "center",
   },
 
   // ── FAB ──
